@@ -1,4 +1,4 @@
-AC_INIT([jwst], [0.1], [jasonfrowe@gmail.com])
+AC_INIT([Kepler], [1.0], [jasonfrowe@gmail.com])
 AC_PROG_F77([ifort gfortran])
 AC_PROG_FC([ifort gfortran])
 LIBDIRS="$LIBDIRS           \
