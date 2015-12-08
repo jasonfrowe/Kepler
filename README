@@ -1,4 +1,4 @@
-Source Code for NASA's Kepler Mission
+Source Code for NASA's Kepler Mission (jasonfrowe@gmail.com)
 
 Requires:  X11,PGPlot,CFITSIO libraries (-lX11 -lpgplot -lcfitsio)
 
@@ -12,6 +12,8 @@ This should make binaries in the 'bin' directory.
 If you find these codes useful please reference:
 Rowe et al. 2014 ApJ, 784, 45  
 Rowe et al. 2015 ApJs, 217, 16
+
+Full documentation is a work in progress, but feel free to ask.
 
 TRANSITFIT5 - used to model planetary transits based on Kepler photometry
  -handles multi-planets, RVs and TTVs and deMCMC framework for posteriors. 
