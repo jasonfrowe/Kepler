@@ -1,0 +1,145 @@
+# Makefile Template
+F90 = @FC@
+LFLAGS = @LFLAGS@
+XFLAGS = @XFLAGS@
+PFLAGS = @PGPLOTLIB@
+CFLAGS = @CFITSIOLIB@
+FFLAGS = -O3
+BIN = ./bin/
+UTILS = utils/
+
+all: transitfit5 transitmcmc5 transitsn5 transittiming5 prdump5 mcmcsetup transitdepth5 transitcut5 datadump5 transitdur5 transitremove5 transitchisq5 transitsigclip5 plottimeseries transitplot5 mcmchistnew mcmchist5 mcmchist5bf
+
+#TransitFit5 Sourcebase
+tfit5src = transitfit5/
+
+TRANSINCL5 = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)fittransitmodel.o $(tfit5src)mrqmin.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)fittransitmodel2.o $(tfit5src)minpack.o $(tfit5src)getrhosig.o $(tfit5src)ttcor.o
+transitfit5: $(tfit5src)transitfit5.f $(TRANSINCL5)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitfit5.f $(TRANSINCL5)
+
+MCMC5INCL = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)fittransitmodel.o $(tfit5src)mrqmin.o $(tfit5src)keplerian.o $(tfit5src)dmcmc.o $(tfit5src)ran2.o $(tfit5src)getrhosig.o $(tfit5src)occultquad.o $(tfit5src)ttcor.o
+transitmcmc5: $(tfit5src)transitmcmc5.f $(MCMC5INCL)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitmcmc5.f $(MCMC5INCL)
+	
+sn5incl = $(tfit5src)dataio.o $(tfit5src)getfitpars.o $(tfit5src)ttcor.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)stdev.o
+transitsn5: $(tfit5src)transitsn5.f $(sn5incl)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitsn5.f $(sn5incl)
+
+timingincl = $(tfit5src)dataio.o $(tfit5src)getfitpars.o $(tfit5src)ttcor.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)transitdur.o $(tfit5src)fittransitmodel.o $(tfit5src)mrqmin.o
+transittiming5: $(tfit5src)transittiming5.f $(timingincl)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transittiming5.f $(timingincl)
+	
+prdumpincl = $(tfit5src)dataio.o $(tfit5src)getfitpars.o $(tfit5src)ttcor.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o
+prdump5: $(tfit5src)prdump5.f $(prdumpincl)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)prdump5.f $(prdumpincl)
+	
+mcmcsetincl = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)fittransitmodel.o $(tfit5src)mrqmin.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)fittransitmodel2.o $(tfit5src)minpack.o $(tfit5src)ran2.o $(tfit5src)getrhosig.o $(tfit5src)ttcor.o
+mcmcsetup: $(tfit5src)mcmcsetup.f $(mcmcsetincl)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)mcmcsetup.f $(mcmcsetincl)
+	
+tdepth5 = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)fittransitmodel.o $(tfit5src)mrqmin.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)fittransitmodel2.o $(tfit5src)minpack.o $(tfit5src)ran2.o $(tfit5src)getrhosig.o $(tfit5src)ttcor.o
+transitdepth5: $(tfit5src)transitdepth5.f $(tdepth5)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitdepth5.f $(tdepth5)
+	
+cut5incl = $(tfit5src)getfitpars.o $(tfit5src)ttcor.o
+transitcut5: $(tfit5src)transitcut5.f $(cut5incl)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitcut5.f $(cut5incl)
+	
+datadumpincl = $(tfit5src)dataio.o $(tfit5src)getfitpars.o $(tfit5src)ttcor.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o
+datadump5: $(tfit5src)datadump5.f $(datadumpincl)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)datadump5.f $(datadumpincl)
+	
+durincl = $(tfit5src)getfitpars.o
+transitdur5: $(tfit5src)transitdur5.f $(durincl)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitdur5.f $(durincl)
+	
+remove5incl = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)ttcor.o
+transitremove5: $(tfit5src)transitremove5.f $(remove5incl)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitremove5.f $(remove5incl)
+	
+CHISQINCL = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)ttcor.o
+transitchisq5: $(tfit5src)transitchisq5.f $(CHISQINCL)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitchisq5.f $(CHISQINCL)
+	
+CLIPINCL = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)ttcor.o
+transitsigclip5: $(tfit5src)transitsigclip5.f $(CLIPINCL)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitsigclip5.f $(CLIPINCL)
+	
+PTSINCL = $(tfit5src)dataio.o $(tfit5src)getfitpars.o
+plottimeseries: $(tfit5src)plottimeseries.f $(PTSINCL)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)plottimeseries.f $(PTSINCL) $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+TP5INCL = $(tfit5src)dataio.o $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)ttcor.o
+transitplot5: $(tfit5src)transitplot5.f $(TP5INCL)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitplot5.f $(TP5INCL) $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+HISTNEWINCL = $(tfit5src)getrhostar.o $(tfit5src)histogram.o $(tfit5src)avevar.o $(tfit5src)rqsort.o $(tfit5src)getfitpars.o $(tfit5src)ran2.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)ttcor.o
+mcmchistnew: $(tfit5src)mcmchistnew.f $(HISTNEWINCL)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)mcmchistnew.f $(HISTNEWINCL) $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+HIST5 = $(tfit5src)getrhostar.o $(tfit5src)histogram.o $(tfit5src)avevar.o $(tfit5src)rqsort.o $(tfit5src)getfitpars.o $(tfit5src)ran2.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)ttcor.o
+mcmchist5: $(tfit5src)mcmchist5.f  $(HIST5)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)mcmchist5.f $(HIST5) $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+HIST5bf = $(tfit5src)getrhostar.o $(tfit5src)histogram2.o $(tfit5src)avevar.o $(tfit5src)rqsort.o $(tfit5src)getfitpars.o $(tfit5src)ran2.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)ttcor.o
+mcmchist5bf: $(tfit5src)mcmchist5bf.f  $(HIST5bf)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)mcmchist5bf.f $(HIST5bf) $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+#building object libraries for Transitfit5
+$(tfit5src)stdev.o: $(tfit5src)$(UTILS)stdev.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)stdev.f
+$(tfit5src)transitdur.o: $(tfit5src)$(UTILS)transitdur.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)transitdur.f
+$(tfit5src)histogram2.o: $(tfit5src)$(UTILS)histogram2.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)histogram2.f
+$(tfit5src)starplot.o: $(tfit5src)$(UTILS)starplot.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)starplot.f
+$(tfit5src)marktransit5.o: $(tfit5src)$(UTILS)marktransit5.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)marktransit5.f
+$(tfit5src)ttcor.o: $(tfit5src)$(UTILS)ttcor.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)ttcor.f
+$(tfit5src)minpack.o: $(tfit5src)$(UTILS)minpack.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)minpack.f
+$(tfit5src)occultquad.o: $(tfit5src)$(UTILS)occultquad.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)occultquad.f
+$(tfit5src)getrhosig.o: $(tfit5src)$(UTILS)getrhosig.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)getrhosig.f
+$(tfit5src)getrhostar.o: $(tfit5src)$(UTILS)getrhostar.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)getrhostar.f
+$(tfit5src)getfitpars.o: $(tfit5src)$(UTILS)getfitpars.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)getfitpars.f
+$(tfit5src)transitmodel.o: $(tfit5src)$(UTILS)transitmodel.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)transitmodel.f
+$(tfit5src)mandelagol.o: $(tfit5src)$(UTILS)mandelagol.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)mandelagol.f
+$(tfit5src)dataio.o: $(tfit5src)$(UTILS)dataio.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)dataio.f
+$(tfit5src)fittransitmodel.o: $(tfit5src)$(UTILS)fittransitmodel.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)fittransitmodel.f
+$(tfit5src)fittransitmodel2.o: $(tfit5src)$(UTILS)fittransitmodel2.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)fittransitmodel2.f
+$(tfit5src)mrqmin.o: $(tfit5src)$(UTILS)mrqmin.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)mrqmin.f
+$(tfit5src)keplerian.o: $(tfit5src)$(UTILS)keplerian.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)keplerian.f
+$(tfit5src)mcmc.o: $(tfit5src)$(UTILS)mcmc.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)mcmc.f
+$(tfit5src)ran2.o: $(tfit5src)$(UTILS)ran2.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)ran2.f
+$(tfit5src)dmcmc.o: $(tfit5src)$(UTILS)dmcmc.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)dmcmc.f
+$(tfit5src)histogram.o: $(tfit5src)$(UTILS)histogram.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)histogram.f
+$(tfit5src)avevar.o: $(tfit5src)$(UTILS)avevar.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)avevar.f	
+$(tfit5src)rqsort.o: $(tfit5src)$(UTILS)rqsort.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)rqsort.f
+
+	
+# Removing object files
+.PHONY : clean
+clean :
+	rm $(tfit5src)*.o
+#	rm $(tfit5src)*.mod
+
+	
