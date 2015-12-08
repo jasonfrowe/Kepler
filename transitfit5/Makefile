@@ -118,7 +118,7 @@ transitfit5: transitfit5.f $(TRANSINCL3)
 	$(F77) $(LFLAGS) -o $(BIN)$@ \
 	transitfit5.f $(TRANSINCL3) $(LIBS)
 transittiming: transittiming.f $(TRANSINCL3)
-	$(F77) $(LFLAGS) -o $(BIN)$@ transittiming.f $(TRANSINCL3) $(LIBS)
+	$(F77) $(LFLAGS) -o $(BIN)$@ transittiming.f $(TRANSINCL3) 
 
 
 #building object libraries

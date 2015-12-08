@@ -1,0 +1,59 @@
+Source Code for NASA's Kepler Mission
+
+Requires:  X11,PGPlot,CFITSIO 
+
+If you find these codes useful please reference:
+Rowe et al. 2014 ApJ, 784, 45  
+Rowe et al. 2015 ApJs, 217, 16
+
+TRANSITFIT5 - used to model planetary transits based on Kepler photometry
+ -handles multi-planets, RVs and TTVs and deMCMC framework for posteriors. 
+ 
+   transitfit5: Uses Levenberg-Marquardt to fit a transit-model to 
+   photometry
+   
+   transitmcmc5: Uses deMCMC style MCMC to produce Markov-Chains for a 
+   transit-model
+   
+   transitsn5: estimates S/N of transit based on transit model
+   
+   transittiming5: calculates center of transit-times based on folded 
+   transit-model
+   
+   prdump5: data-dump routine for XML style output
+   
+   mcmcsetup: estimates Gibbs sampler factors to initialize MCMC routines
+   
+   transitdepth5: estimate transit-depth from a transit-model
+   
+   transitcut5: cuts out all observes beyond +/- 1 transit duration
+   
+   datadump5: removes all but one planet from a lightcurve (for 
+   multi-planet systems)
+   
+   transitdur5: estimates transit-duration from a transit-model 
+    
+   transitremove5: removes transit-model from a light-curve
+   
+   transitchisq5: estimates chi-square from lightcurve and transit-model
+   
+   transitsigclip5: uses 3-sigma clipping to remove outliers based on 
+   transit-model fit
+   
+   plottimeseries: makes a plot of the time-series and marks location of 
+   transits
+   
+   transitplot5: plots the folded lightcurve and transit model
+   
+   mcmchistnew: produces histogram of a Markov-Chain and estimates 
+   median and posteriors
+   
+   mcmchist5: produces histogram of a Markov-Chain and estimates 
+   median and posteriors and uses stellar-parameter MCs to get absolute planet 
+   posteriors (e.g. Mp, Rp)
+   
+   mcmchist5bf: same as mcmchist5 but use best-fit for center of 
+   posterior
+   
+   
+   
