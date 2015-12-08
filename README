@@ -1,11 +1,17 @@
 Source Code for NASA's Kepler Mission (jasonfrowe@gmail.com)
 
 Requires:  X11,PGPlot,CFITSIO libraries (-lX11 -lpgplot -lcfitsio)
+**If you use OS/X I recommend 'homebrew' to install pgplot and cfitsio
+  and XQuartz for X11.
+**If you are a Linux fan, either use your favourite package installer
+  (e.g., yum) or install pgplot/cfitsio from source.  
 
 Quick INSTALL:
 
  ./configure
  make
+
+**I'm new to using autoconf, so if you run into trouble - let me know.
 
 This should make binaries in the 'bin' directory.
 
@@ -64,8 +70,13 @@ TRANSITFIT5 - used to model planetary transits based on Kepler photometry
    mcmchist5bf: same as mcmchist5 but use best-fit for center of 
    posterior
    
+ TRANSITFIND - used to find transits or inverted transits in photometry.
+  
    transitfind2: Uses an optimized BLS to search for transits/lensing in 
    lightcurves
+   
+ DATATEST - routines to read FITS files retrieved from MAST and 
+ detrending
    
    detrend5: detrends lightcurves but preserves transit using a transit-model
    
@@ -76,5 +87,20 @@ TRANSITFIT5 - used to model planetary transits based on Kepler photometry
    freqremove: Given a Fourier-decomposition solution, removes from 
    lightcurve
    
+ PERIOD - routines to calculate discrete Fourier transforms and Fourier
+ decomposition
+ 
+   keplerper: calculates a discrete Fourier transforms of photometric 
+   data.  Can be unevenly sampled.  Automatically calculates a Fourier
+   decomposition that can be used by 'freqremove' 
+   
+   ttper: same as keplerper but works with 'tt' files that come from a 
+   transting timing analysis outputted by 'transittiming5'
+   
+   freqmod: uses Fourier decomposition to fit for phase-changes of the 
+   frequency solution.  This behaviour will be seen in a binary system 
+   with one or more components pulsating.  The motion of the pulsator 
+   around the center of mass produces a timing delay in the observed 
+   pulsations.
    
    

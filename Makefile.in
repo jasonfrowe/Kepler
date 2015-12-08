@@ -8,7 +8,7 @@ FFLAGS = -O3
 BIN = ./bin/
 UTILS = utils/
 
-all: transitfit5 transitmcmc5 transitsn5 transittiming5 prdump5 mcmcsetup transitdepth5 transitcut5 datadump5 transitdur5 transitremove5 transitchisq5 transitsigclip5 plottimeseries transitplot5 mcmchistnew mcmchist5 mcmchist5bf transitfind2 kfitsread detrend5 sigclip freqremove
+all: transitfit5 transitmcmc5 transitsn5 transittiming5 prdump5 mcmcsetup transitdepth5 transitcut5 datadump5 transitdur5 transitremove5 transitchisq5 transitsigclip5 plottimeseries transitplot5 mcmchistnew mcmchist5 mcmchist5bf transitfind2 kfitsread detrend5 sigclip freqremove keplerper ttper freqmod
 
 #TransitFit5 Sourcebase
 tfit5src = transitfit5/
@@ -109,6 +109,83 @@ sigclip: $(dtestsrc)sigclip.f $(sigclipincl)
 freqremove: $(dtestsrc)freqremove.f
 	$(F90) $(FFLAGS) -o$(BIN)$@ $(dtestsrc)freqremove.f
 	
+#Period Routine
+persrc = Period/
+
+freqmodincl = $(persrc)readdata.o $(persrc)precision.o $(persrc)nyquest.o $(persrc)rqsort.o $(persrc)sigclip.o $(persrc)stdev.o $(persrc)bindt.o $(persrc)avgrm.o $(persrc)moment.o $(persrc)graphics.o $(persrc)jmfourw.o $(persrc)phasept.o $(persrc)cosinefit.o $(persrc)shaperm.o $(persrc)windowfn.o $(persrc)mrqmin.o $(persrc)integrate.o $(persrc)readfreqs.o $(persrc)freqout.o $(persrc)fixa.o
+freqmod: $(persrc)freqmod.f90 $(freqmodincl)
+	$(F90) $(FFLAGS) -o$(BIN)$@ $(persrc)freqmod.f90 $(freqmodincl) $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+perincls = $(persrc)readdata.o $(persrc)nyquest.o $(persrc)modecal.o $(persrc)stdev.o $(persrc)sigclip.o $(persrc)avgrm.o $(persrc)moment.o $(persrc)bindt.o $(persrc)graphics.o $(persrc)jmfourw.o $(persrc)ovrwrt.o $(persrc)cosinefit.o $(persrc)integrate.o $(persrc)phasept.o $(persrc)rqsort.o $(persrc)mrqmin.o $(persrc)windowfn.o $(persrc)shaperm.o $(persrc)detrend.o $(persrc)boxcar_old.o $(persrc)plotfit.o $(persrc)freqout.o
+keplerper: $(persrc)keplerper.f $(perincls)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(persrc)keplerper.f $(perincls) $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+ttincls = $(persrc)readdata_tt.o $(persrc)nyquest.o $(persrc)modecal.o $(persrc)stdev.o $(persrc)sigclip.o $(persrc)avgrm.o $(persrc)moment.o $(persrc)bindt.o $(persrc)graphics_tt.o $(persrc)jmfourw_tt.o $(persrc)ovrwrt.o $(persrc)cosinefit.o $(persrc)integrate.o $(persrc)phasept.o $(persrc)rqsort.o $(persrc)mrqmin.o $(persrc)windowfn.o $(persrc)shaperm.o $(persrc)detrend.o $(persrc)boxcar_old.o $(persrc)plotfit.o $(persrc)freqout.o
+ttper: $(persrc)ttper.f $(ttincls)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(persrc)ttper.f $(ttincls) $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+#building object libraries for Period
+$(persrc)precision.o: $(persrc)$(UTILS)precision.f90
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)precision.f90
+$(persrc)freqout.o: $(persrc)$(UTILS)freqout.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)freqout.f
+$(persrc)plotfit.o: $(persrc)$(UTILS)plotfit.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)plotfit.f
+$(persrc)readdata.o: $(persrc)$(UTILS)readdata.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)readdata.f
+$(persrc)readdata_tt.o: $(persrc)$(UTILS)readdata_tt.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)readdata_tt.f
+$(persrc)nyquest.o: $(persrc)$(UTILS)nyquest.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)nyquest.f
+$(persrc)modecal.o: $(persrc)$(UTILS)modecal.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)modecal.f
+$(persrc)stdev.o: $(persrc)$(UTILS)stdev.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)stdev.f
+$(persrc)sigclip.o: $(persrc)$(UTILS)sigclip.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)sigclip.f
+$(persrc)avgrm.o: $(persrc)$(UTILS)avgrm.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)avgrm.f
+$(persrc)moment.o: $(persrc)$(UTILS)moment.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)moment.f
+$(persrc)bindt.o: $(persrc)$(UTILS)bindt.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)bindt.f
+$(persrc)graphics.o: $(persrc)$(UTILS)graphics.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)graphics.f
+$(persrc)graphics_tt.o: $(persrc)$(UTILS)graphics_tt.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)graphics_tt.f
+$(persrc)jmfourw.o: $(persrc)$(UTILS)jmfourw.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)jmfourw.f
+$(persrc)jmfourw_tt.o: $(persrc)$(UTILS)jmfourw_tt.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)jmfourw_tt.f
+$(persrc)ovrwrt.o: $(persrc)$(UTILS)ovrwrt.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)ovrwrt.f
+$(persrc)cosinefit.o: $(persrc)$(UTILS)cosinefit.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)cosinefit.f
+$(persrc)integrate.o: $(persrc)$(UTILS)integrate.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)integrate.f
+$(persrc)phasept.o: $(persrc)$(UTILS)phasept.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)phasept.f
+$(persrc)rqsort.o: $(persrc)$(UTILS)rqsort.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)rqsort.f
+$(persrc)mrqmin.o: $(persrc)$(UTILS)mrqmin.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)mrqmin.f
+$(persrc)windowfn.o: $(persrc)$(UTILS)windowfn.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)windowfn.f
+$(persrc)shaperm.o: $(persrc)$(UTILS)shaperm.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)shaperm.f
+$(persrc)detrend.o: $(persrc)$(UTILS)detrend.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)detrend.f
+$(persrc)boxcar.o: $(persrc)$(UTILS)boxcar.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)boxcar.f
+$(persrc)boxcar_old.o: $(persrc)$(UTILS)boxcar_old.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)boxcar_old.f
+$(persrc)sigup.o: $(persrc)$(UTILS)sigup.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)sigup.f
+$(persrc)readfreqs.o: $(persrc)$(UTILS)readfreqs.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)readfreqs.f
+$(persrc)fixa.o: $(persrc)$(UTILS)fixa.f
+	cd $(persrc) ; $(F90) -c $(FFLAGS) $(UTILS)fixa.f
+	
 #building object libraries for DataI/O
 $(dtestsrc)marktransit5.o: $(dtestsrc)$(UTILS)marktransit5.f
 	cd $(dtestsrc) ; $(F90) -c $(FFLAGS) $(UTILS)marktransit5.f
@@ -201,4 +278,6 @@ clean :
 	rm $(tfindsrc)*.o
 	rm $(tfindsrc)*.mod
 	rm $(dtestsrc)*.o
+	rm $(persrc)*.o
+	rm $(persrc)*.mod
 	
