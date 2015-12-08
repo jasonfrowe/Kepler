@@ -8,7 +8,7 @@ FFLAGS = -O3
 BIN = ./bin/
 UTILS = utils/
 
-all: transitfit5 transitmcmc5 transitsn5 transittiming5 prdump5 mcmcsetup transitdepth5 transitcut5 datadump5 transitdur5 transitremove5 transitchisq5 transitsigclip5 plottimeseries transitplot5 mcmchistnew mcmchist5 mcmchist5bf transitfind2
+all: transitfit5 transitmcmc5 transitsn5 transittiming5 prdump5 mcmcsetup transitdepth5 transitcut5 datadump5 transitdur5 transitremove5 transitchisq5 transitsigclip5 plottimeseries transitplot5 mcmchistnew mcmchist5 mcmchist5bf transitfind2 kfitsread detrend5 sigclip freqremove
 
 #TransitFit5 Sourcebase
 tfit5src = transitfit5/
@@ -87,9 +87,51 @@ mcmchist5bf: $(tfit5src)mcmchist5bf.f  $(HIST5bf)
 	
 #TransitFind Sourcebase
 tfindsrc = transitfind/
+
 find2incl = $(tfindsrc)precision.o $(tfindsrc)rqsort.o $(tfindsrc)stdev.o $(tfindsrc)graphics.o
 transitfind2: $(tfindsrc)transitfind2.f90 $(find2incl)
 	$(F90) $(FFLAGS) -o $(BIN)transitfind2 $(tfindsrc)transitfind2.f90 $(find2incl) $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+#Data I/O routines
+dtestsrc = datatest/
+
+kfitsread: $(dtestsrc)kfitsread.f
+	$(F90) $(FFLAGS) -o$(BIN)$@ $(dtestsrc)kfitsread.f $(LFLAGS) $(CFLAGS)
+
+detrend5incl = $(dtestsrc)stdev.o $(dtestsrc)rqsort.o $(dtestsrc)polyfilter.o $(dtestsrc)boxcar.o $(dtestsrc)ttcor.o $(dtestsrc)marktransit5.o $(dtestsrc)mrqmin.o
+detrend5: $(dtestsrc)detrend5.f $(detrend5incl)
+	$(F90) $(FFLAGS) -o$(BIN)$@ $(dtestsrc)detrend5.f $(detrend5incl)
+
+sigclipincl = $(dtestsrc)stdev.o $(dtestsrc)marktransit.o $(dtestsrc)transitdur.o
+sigclip: $(dtestsrc)sigclip.f $(sigclipincl)
+	$(F90) $(FFLAGS) -o$(BIN)$@ $(dtestsrc)sigclip.f $(sigclipincl)
+
+freqremove: $(dtestsrc)freqremove.f
+	$(F90) $(FFLAGS) -o$(BIN)$@ $(dtestsrc)freqremove.f
+	
+#building object libraries for DataI/O
+$(dtestsrc)marktransit5.o: $(dtestsrc)$(UTILS)marktransit5.f
+	cd $(dtestsrc) ; $(F90) -c $(FFLAGS) $(UTILS)marktransit5.f
+$(dtestsrc)ttcor.o: $(dtestsrc)$(UTILS)ttcor.f
+	cd $(dtestsrc) ; $(F90) -c $(FFLAGS) $(UTILS)ttcor.f
+$(dtestsrc)transitdur.o: $(dtestsrc)$(UTILS)transitdur.f
+	cd $(dtestsrc); $(F90) -c $(FFLAGS) $(UTILS)transitdur.f
+$(dtestsrc)marktransit.o: $(dtestsrc)$(UTILS)marktransit.f
+	cd $(dtestsrc) ; $(F90) -c $(FFLAGS) $(UTILS)marktransit.f
+$(dtestsrc)polyfilter.o: $(dtestsrc)$(UTILS)polyfilter.f
+	cd $(dtestsrc) ; $(F90) -c $(FFLAGS) $(UTILS)polyfilter.f
+$(dtestsrc)rqsort.o: $(dtestsrc)$(UTILS)rqsort.f
+	cd $(dtestsrc) ; $(F90) -c $(FFLAGS) $(UTILS)rqsort.f
+$(dtestsrc)mrqmin.o: $(dtestsrc)$(UTILS)mrqmin.f
+	cd $(dtestsrc) ; $(F90) -c $(FFLAGS) $(UTILS)mrqmin.f
+$(dtestsrc)polydetrend.o: $(dtestsrc)$(UTILS)polydetrend.f
+	cd $(dtestsrc) ; $(F90) -c $(FFLAGS) $(UTILS)polydetrend.f
+$(dtestsrc)boxcar.o: $(dtestsrc)$(UTILS)boxcar.f
+	cd $(dtestsrc) ; $(F90) -c $(FFLAGS) $(UTILS)boxcar.f
+$(dtestsrc)dataio.o: $(dtestsrc)$(UTILS)dataio.f
+	cd $(dtestsrc) ; $(F90) -c $(FFLAGS) $(UTILS)dataio.f
+$(dtestsrc)stdev.o: $(dtestsrc)$(UTILS)stdev.f
+	cd $(dtestsrc) ; $(F90) -c $(FFLAGS) $(UTILS)stdev.f
 	
 #building object libraries for Transitfind2
 $(tfindsrc)graphics.o: $(tfindsrc)$(UTILS)graphics.f
@@ -156,7 +198,7 @@ $(tfit5src)rqsort.o: $(tfit5src)$(UTILS)rqsort.f
 .PHONY : clean
 clean :
 	rm $(tfit5src)*.o
-#	rm $(tfit5src)*.mod
 	rm $(tfindsrc)*.o
 	rm $(tfindsrc)*.mod
+	rm $(dtestsrc)*.o
 	

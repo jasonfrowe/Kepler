@@ -58,11 +58,23 @@ TRANSITFIT5 - used to model planetary transits based on Kepler photometry
    median and posteriors
    
    mcmchist5: produces histogram of a Markov-Chain and estimates 
-   median and posteriors and uses stellar-parameter MCs to get absolute planet 
-   posteriors (e.g. Mp, Rp)
+   median and posteriors and uses stellar-parameter MCs to get absolute 
+   planet posteriors (e.g. Mp, Rp)
    
    mcmchist5bf: same as mcmchist5 but use best-fit for center of 
    posterior
+   
+   transitfind2: Uses an optimized BLS to search for transits/lensing in 
+   lightcurves
+   
+   detrend5: detrends lightcurves but preserves transit using a transit-model
+   
+   kfitsread: reads Kepler data FITS files from MAST 
+   
+   sigclip: simple sigma-clip routine 
+   
+   freqremove: Given a Fourier-decomposition solution, removes from 
+   lightcurve
    
    
    
