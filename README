@@ -1,6 +1,13 @@
 Source Code for NASA's Kepler Mission
 
-Requires:  X11,PGPlot,CFITSIO 
+Requires:  X11,PGPlot,CFITSIO libraries (-lX11 -lpgplot -lcfitsio)
+
+Quick INSTALL:
+
+ ./configure
+ make
+
+This should make binaries in the 'bin' directory.
 
 If you find these codes useful please reference:
 Rowe et al. 2014 ApJ, 784, 45  
