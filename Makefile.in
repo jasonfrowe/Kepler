@@ -8,7 +8,7 @@ FFLAGS = -O3
 BIN = ./bin/
 UTILS = utils/
 
-all: transitfit5 transitmcmc5 transitsn5 transittiming5 prdump5 mcmcsetup transitdepth5 transitcut5 datadump5 transitdur5 transitremove5 transitchisq5 transitsigclip5 plottimeseries transitplot5 mcmchistnew mcmchist5 mcmchist5bf
+all: transitfit5 transitmcmc5 transitsn5 transittiming5 prdump5 mcmcsetup transitdepth5 transitcut5 datadump5 transitdur5 transitremove5 transitchisq5 transitsigclip5 plottimeseries transitplot5 mcmchistnew mcmchist5 mcmchist5bf transitfind2
 
 #TransitFit5 Sourcebase
 tfit5src = transitfit5/
@@ -85,6 +85,22 @@ HIST5bf = $(tfit5src)getrhostar.o $(tfit5src)histogram2.o $(tfit5src)avevar.o $(
 mcmchist5bf: $(tfit5src)mcmchist5bf.f  $(HIST5bf)
 	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)mcmchist5bf.f $(HIST5bf) $(LFLAGS) $(XFLAGS) $(PFLAGS)
 	
+#TransitFind Sourcebase
+tfindsrc = transitfind/
+find2incl = $(tfindsrc)precision.o $(tfindsrc)rqsort.o $(tfindsrc)stdev.o $(tfindsrc)graphics.o
+transitfind2: $(tfindsrc)transitfind2.f90 $(find2incl)
+	$(F90) $(FFLAGS) -o $(BIN)transitfind2 $(tfindsrc)transitfind2.f90 $(find2incl) $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+#building object libraries for Transitfind2
+$(tfindsrc)graphics.o: $(tfindsrc)$(UTILS)graphics.f
+	cd $(tfindsrc) ; $(F90) -c $(FFLAGS) $(UTILS)graphics.f
+$(tfindsrc)stdev.o: $(tfindsrc)$(UTILS)stdev.f
+	cd $(tfindsrc) ; $(F90) -c $(FFLAGS) $(UTILS)stdev.f
+$(tfindsrc)precision.o: $(tfindsrc)$(UTILS)precision.f90
+	cd $(tfindsrc) ; $(F90) -c $(FFLAGS) $(UTILS)precision.f90
+$(tfindsrc)rqsort.o: $(tfindsrc)$(UTILS)rqsort.f
+	cd $(tfindsrc) ; $(F90) -c $(FFLAGS) $(UTILS)rqsort.f
+	
 #building object libraries for Transitfit5
 $(tfit5src)stdev.o: $(tfit5src)$(UTILS)stdev.f
 	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)stdev.f
@@ -141,5 +157,6 @@ $(tfit5src)rqsort.o: $(tfit5src)$(UTILS)rqsort.f
 clean :
 	rm $(tfit5src)*.o
 #	rm $(tfit5src)*.mod
-
+	rm $(tfindsrc)*.o
+	rm $(tfindsrc)*.mod
 	
