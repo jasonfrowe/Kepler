@@ -11,15 +11,21 @@ Quick INSTALL:
  ./configure
  make
 
-**I'm new to using autoconf, so if you run into trouble - let me know.
-
 This should make binaries in the 'bin' directory.
+
+**I'm new to using autoconf, so if you run into trouble - let me know.
 
 If you find these codes useful please reference:
 Rowe et al. 2014 ApJ, 784, 45  
 Rowe et al. 2015 ApJs, 217, 16
 
-Full documentation is a work in progress, but feel free to ask.
+Full documentation is a work in progress, but for now, have a look at
+the 'example' directory to get a start.  I can also recommend:
+
+Uniform Modeling of KOIs: MCMC Data Release Notes 
+http://adsabs.harvard.edu/abs/2015arXiv150400707R
+
+As a good resource to understand the file formats.
 
 TRANSITFIT5 - used to model planetary transits based on Kepler photometry
  -handles multi-planets, RVs and TTVs and deMCMC framework for posteriors. 
