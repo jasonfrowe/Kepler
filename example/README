@@ -6,9 +6,67 @@ Here's an example
  : ../bin/transitfit5 lc.dat null n0.dat > /dev/null 
 You would type everything after " : " 
 
-Okay, let's get started.  First we need to create some data to use.  The 
-direction "FITS" contains Kepler FITS files downloaded from MAST for the
-Kepler-11 system.  The codes typically work with simple ASCII files.
+Okay, let's get started.  Let's begin with the Kepler-11 system.  The 
+file n0_g.dat contains a transit-model for this system.  The first 18
+lines of this file look like,
+
+RHO  1.2236880239E+00  0.0000000000E+00 -1.0000000000E+00  0.0000000000E+00
+NL1  4.2010000000E-01  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+NL2  2.5400000000E-01  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+NL3  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+NL4  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+DIL  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+VOF  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+ZPT  3.5852870878E-06  0.0000000000E+00 -1.0000000000E+00  0.0000000000E+00
+EP1  7.1176453358E+01  0.0000000000E+00 -1.0000000000E+00  0.0000000000E+00
+PE1  1.3024927141E+01  0.0000000000E+00 -1.0000000000E+00  0.0000000000E+00
+BB1  1.3931409177E-01  0.0000000000E+00 -1.0000000000E+00  0.0000000000E+00
+RD1  2.5819765742E-02  0.0000000000E+00 -1.0000000000E+00  0.0000000000E+00
+EC1  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+ES1  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+KR1  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+TE1  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+EL1  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+AL1  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00
+
+The first column gives the name of the model parameter, the second gives
+the value.  For this exercise we will ignore columns 3 and 5.  The forth
+column indicates whether a parameter is fitted.  If column 4 is set to
+zero, then the parameter is held fixed, otherwise it is fitted.  The
+model parameters are,
+
+RHO - mean-stellar density (g/cm^3)
+NL1-4 - limb-darkening parameters.  If NL3,NL4=0 then a quadratric law is
+ assumed, otherwise a non-linear law is used.
+DIL - dilution.  Amount of additional flux in the aperture not from the
+ primary star.  DIL=0 means all light is from the primary star, DIL=0.9 
+ means that the primary star only contributes 10% of the measured fluxed.
+VOF - velocity offset (m/s) - the zero point for radial velocity 
+ measuremments
+ZPT - photometric zero point - should be close to zero as we use a 
+ median subtracted lightcurve
+EP1 - epoch (BJD-2454900) - time of center of transit time.  Note that
+ the epoch of the model parameter is different than the raw lightcurve.
+ The number '1' from EP1 indicates which planet is being modeled.  The
+ model handles multiple planets, so a second planet would have the 
+ parameter name EP2 and the third would be EP3.  The code can handle up
+ to 9 planets.
+PE1 - orbital period (days) - orbital period of the planet.
+BB1 - impact parameter - impact parameter of the planet at mid-transit
+RD1 - Rp/R* - ratio of the planet-radius to the stellar radius
+EC1 - e cos(w) - eccentricity vector
+ES1 - e sin(w) - eccentricity vector 
+KR1 - K (m/s) - amplitude of radial velocity
+TE1 - eclipse depth (ppm)
+EL1 - ellipsoidal variations (ppm) - amplitude of tidal-induced 
+ ellipsodial varations
+AL1 - phase curve amplitude (ppm) - amplitude of phase-curve from phase
+ changes of planet (Lambertian) 
+
+Now we can begin to explore the models and data. First we need to create 
+some data to use.  The directory "FITS" contains Kepler FITS files 
+downloaded from MAST for the Kepler-11 system.  The codes typically work 
+with simple ASCII files.
 
 *A1. Convert FITS tables retrieve from MAST to a simple ASCII file
 
@@ -23,12 +81,12 @@ Kepler-11 system.  The codes typically work with simple ASCII files.
  2. median subtracted PDC flux
  3. photometric error as retrieved from the FITS binary table. 
 
-You can now use any plotting software (e.g., gnuplot) to view the 
+You can now use any plotting software (e.g., gnuplot) to plot the 
 time-series.
 
 *A2. Detrend the lightcurve.
 
- : ../bin/detrend5 0 klc06541920.dat 2 n0.dat > klc06541920.d.dat
+ : ../bin/detrend5 0 klc06541920.dat 2 n0_g.dat > klc06541920.d.dat
  
 The command detrend5 is used to detrend the dataset.  The first argument 
 selects the type of detrender to use. "0" selects a polynomial filter 
@@ -40,7 +98,7 @@ expected transit-duration is a good choice.  Common values are 2, 5 and
 transit mode.  When a model is provided the code uses the model to 
 mask off the transits so they are not distorted by the filter.  For 
 this example, a fitted solution has been provided and contained in the 
-file 'n0.dat'.  We will revisit this file later.
+file 'n0_g.dat'.  We will revisit this file later.
 
 When the command is run, a detrended time-series is output to STDOUT, we
 redirect the output into a new file which has the same format as the
@@ -65,17 +123,32 @@ or you can even edit the light-curve yourself.
  
  : ../bin/transitcut5 klc06541920.dc.dat n0_g.dat > klc06541920.dct.dat
 
-This can help speed-up the codes, but only looking at the data that 
+This can help speed-up the codes, by only looking at the data that 
 occurs close to or in-transit.  You don't need to do this, but can be
 useful.
 
 *A6. Fitting a transit-model
 
- : ../bin/transitfit5 klc06541920.dct.dat null n0_g.dat > /dev/null
+ : ../bin/transitfit5 klc06541920.dct.dat null n0_g.dat > tmodel.dat
  : mv newfit.dat n0.dat
  
-Takes n0_g.dat as an initial guess.  When finished a file called 
-'newfit.dat' will be created.  This file should be renamed.
+Transitfit5 uses a Levenberg-Marquardt minimizer to find a best-fit 
+solution.  There are three main parameters needed, a lightcurve,
+a radial velocity file and an initial guess for the model parameters.
+We will use the .dct.dat file produced in step A5 for the lightcurve,
+since we do not have radial velocities, we enter 'null' and we will use
+n0_g.dat as an initial guess.  Kepler-11 has 6 known transiting planets,
+so running transitfit5 can take a few minutes - be patient. When 
+finished a file called 'newfit.dat' will be created.  This file should 
+be renamed, in this  example we will call the new fit 'n0.dat'.  The 
+output of transitfit5 contains 3 columns: Time, Flux, Model-Flux.  We 
+redirected this into a file called tmodel.dat which can be used to 
+examine the quality of the fit or whatever use you might have.  You can 
+also replot the fit with transitplot5.
+
+*A7. Setting up for MCMC
+
+ : 
 
 
 

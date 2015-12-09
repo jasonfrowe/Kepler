@@ -8,7 +8,7 @@ FFLAGS = -O3
 BIN = ./bin/
 UTILS = utils/
 
-all: transitfit5 transitmcmc5 transitsn5 transittiming5 prdump5 mcmcsetup transitdepth5 transitcut5 datadump5 transitdur5 transitremove5 transitchisq5 transitsigclip5 plottimeseries transitplot5 mcmchistnew mcmchist5 mcmchist5bf transitfind2 kfitsread detrend5 sigclip freqremove keplerper ttper freqmod
+all: transitfit5 transitfit5sc transitmcmc5 transitsn5 transittiming5 prdump5 mcmcsetup transitdepth5 transitcut5 datadump5 transitdur5 transitremove5 transitchisq5 transitsigclip5 plottimeseries transitplot5 mcmchistnew mcmchist5 mcmchist5bf transitfind2 kfitsread detrend5 sigclip freqremove keplerper ttper freqmod
 
 #TransitFit5 Sourcebase
 tfit5src = transitfit5/
@@ -16,6 +16,10 @@ tfit5src = transitfit5/
 TRANSINCL5 = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)fittransitmodel.o $(tfit5src)mrqmin.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)fittransitmodel2.o $(tfit5src)minpack.o $(tfit5src)getrhosig.o $(tfit5src)ttcor.o
 transitfit5: $(tfit5src)transitfit5.f $(TRANSINCL5)
 	$(F90) -cpp -D$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitfit5.f $(TRANSINCL5)
+	
+TRANSINCL5SC = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataioSC.o $(tfit5src)fittransitmodel.o $(tfit5src)mrqmin.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)fittransitmodel2.o $(tfit5src)minpack.o $(tfit5src)getrhosig.o $(tfit5src)ttcor.o
+transitfit5sc: $(tfit5src)transitfit5.f $(TRANSINCL5SC)
+	$(F90) -cpp -D$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitfit5.f $(TRANSINCL5SC)
 
 MCMC5INCL = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)fittransitmodel.o $(tfit5src)mrqmin.o $(tfit5src)keplerian.o $(tfit5src)dmcmc.o $(tfit5src)ran2.o $(tfit5src)getrhosig.o $(tfit5src)occultquad.o $(tfit5src)ttcor.o
 transitmcmc5: $(tfit5src)transitmcmc5.f $(MCMC5INCL)
@@ -249,6 +253,8 @@ $(tfit5src)mandelagol.o: $(tfit5src)$(UTILS)mandelagol.f
 	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)mandelagol.f
 $(tfit5src)dataio.o: $(tfit5src)$(UTILS)dataio.f
 	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)dataio.f
+$(tfit5src)dataioSC.o: $(tfit5src)$(UTILS)dataioSC.f
+	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)dataioSC.f
 $(tfit5src)fittransitmodel.o: $(tfit5src)$(UTILS)fittransitmodel.f
 	cd $(tfit5src) ; $(F90) -c $(FFLAGS) $(UTILS)fittransitmodel.f
 $(tfit5src)fittransitmodel2.o: $(tfit5src)$(UTILS)fittransitmodel2.f
