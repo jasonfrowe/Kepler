@@ -1,0 +1,88 @@
+The files provided in this directory allow us to work through an example
+of using the codes to analyze Kepler data.
+
+Commands are show on lines that start with a " : " 
+Here's an example
+ : ../bin/transitfit5 lc.dat null n0.dat > /dev/null 
+You would type everything after " : " 
+
+Okay, let's get started.  First we need to create some data to use.  The 
+direction "FITS" contains Kepler FITS files downloaded from MAST for the
+Kepler-11 system.  The codes typically work with simple ASCII files.
+
+*A1. Convert FITS tables retrieve from MAST to a simple ASCII file
+
+ : ../bin/kfitsread `find FITS | grep fits` > klc06541920.dat
+
+ We use the command kfitsread.  By making use the UNIX find and grep 
+ commands we can feed all the FITS files to the program.  The extracted
+ lightcurve is outputed to STDOUT, so we redirect it into a file.  The
+ new file, klc06541920.dat, contains three columns,
+ 
+ 1. Time-stamp : BJD-2450000.5
+ 2. median subtracted PDC flux
+ 3. photometric error as retrieved from the FITS binary table. 
+
+You can now use any plotting software (e.g., gnuplot) to view the 
+time-series.
+
+*A2. Detrend the lightcurve.
+
+ : ../bin/detrend5 0 klc06541920.dat 2 n0.dat > klc06541920.d.dat
+ 
+The command detrend5 is used to detrend the dataset.  The first argument 
+selects the type of detrender to use. "0" selects a polynomial filter 
+and '1' selects a simple boxcar.  The second argument is the input
+lightcurve which generated in A1.  The third argument selects the 
+width of the filter in days - using something much larger than the 
+expected transit-duration is a good choice.  Common values are 2, 5 and 
+10 days.  The forth, and optional, argument is a file that contains a 
+transit mode.  When a model is provided the code uses the model to 
+mask off the transits so they are not distorted by the filter.  For 
+this example, a fitted solution has been provided and contained in the 
+file 'n0.dat'.  We will revisit this file later.
+
+When the command is run, a detrended time-series is output to STDOUT, we
+redirect the output into a new file which has the same format as the
+input file.
+
+*A3. Plot a transit-model 
+
+ : ../bin/transitplot5 klc06541920.d.dat n0_g.dat
+ 
+Each panel shows the lightcurve folded at the orbital period for a 
+single planet using the model to remove transits from other planets.
+ 
+You will notice some outliers, lets fix that.
+ 
+*A4. Clip outliers
+
+ : ../bin/transitsigclip5 klc06541920.d.dat n0_g.dat > klc06541920.dc.dat
+ 
+or you can even edit the light-curve yourself.
+
+*A5. Cut out-of-transit data
+ 
+ : ../bin/transitcut5 klc06541920.dc.dat n0_g.dat > klc06541920.dct.dat
+
+This can help speed-up the codes, but only looking at the data that 
+occurs close to or in-transit.  You don't need to do this, but can be
+useful.
+
+*A6. Fitting a transit-model
+
+ : ../bin/transitfit5 klc06541920.dct.dat null n0_g.dat > /dev/null
+ : mv newfit.dat n0.dat
+ 
+Takes n0_g.dat as an initial guess.  When finished a file called 
+'newfit.dat' will be created.  This file should be renamed.
+
+
+
+
+
+
+
+ 
+
+ 

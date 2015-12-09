@@ -128,7 +128,7 @@ c        write(0,*) "ntt",i,ntt(i)
  21   continue
 
 C     Skip fitting and just exit..
-      goto 20
+C      goto 20
 
 C     Use common block Fitting
       dchistop=1.0d-5
