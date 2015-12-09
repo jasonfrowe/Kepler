@@ -2,6 +2,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       program transitfit5
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C     Fits for mean stellar density (p_star) for multi-planet candidates
+C     gfortran for OS/X fails with minpack as -mcmodel=large is broken
+C     for the default assemler. This version falls back to the slower
+C     Numerical Recipes version for compatiblity.
       implicit none
       integer iargc,nfit,npt,nmax,i,nunit,nptv,npta,nplanet,ndt,
      .  nplanetmax
@@ -23,9 +26,9 @@ C     TT variations
       double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax)
       character*3 titles(15)
       character*80 inputsol,obsfile,rvfile,cline,ttfile
-c      common /Fitting/ npta,nplanet,aIT,ntt,tobs,omc
-      common /Fitting2/ nfrho,nplanet,dtype,aT,aM,aE,aIT,sol,serr,
-     .  rhoi,rhoierr,chifac,ntt,tobs,omc
+      common /Fitting/ npta,nplanet,aIT,ntt,tobs,omc
+c      common /Fitting2/ nfrho,nplanet,dtype,aT,aM,aE,aIT,sol,serr,
+c     .  rhoi,rhoierr,chifac,ntt,tobs,omc
       
       nfrho=1
       
@@ -132,11 +135,11 @@ C      goto 20
 
 C     Use common block Fitting
       dchistop=1.0d-5
-c      call fittransitmodel(npta,aT,aM,aE,dtype,nfit,nplanet,sol,serr,ia,
-c     .  covar,alpha,dchistop,err)
+      call fittransitmodel(npta,aT,aM,aE,dtype,nfit,nplanet,sol,serr,ia,
+     .  covar,alpha,dchistop,err)
 
 C     Use common block Fitting2
-      call fittransitmodel2(npta,nfit,sol,sol2,serr,fvec,iwa,lwa,wa)
+c      call fittransitmodel2(npta,nfit,sol,sol2,serr,fvec,iwa,lwa,wa)
 
 
       call exportfit(nfit,nplanet,sol,serr,err,titles)
