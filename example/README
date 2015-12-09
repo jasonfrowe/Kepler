@@ -129,7 +129,7 @@ useful.
 
 *A6. Fitting a transit-model
 
- : ../bin/transitfit5 klc06541920.dct.dat null n0_g.dat > tmodel.dat
+ : ../bin/transitfit5 klc06541920.dct.dat null n0_g.dat > tmodel.n0.dat
  : mv newfit.dat n0.dat
  
 Transitfit5 uses a Levenberg-Marquardt minimizer to find a best-fit 
@@ -148,7 +148,71 @@ also replot the fit with transitplot5.
 
 *A7. Setting up for MCMC
 
- : 
+ : ../bin/mcmcsetup klc06541920.dct.dat null n0.dat 0
+ : mv newfit.dat n0.dat
+ 
+The MCMC code uses a Gibbs sampler as part of its routine.  This needs
+to be initialized with an inital guess for the jump-size to use.  The
+code mcmcsetup does this by estimate 1-sigma errors by calculating 
+simple numerical derivatives.  After finishing a file called 'newfit.dat'
+is created which we rename n0.dat.  If you look at the contents of the
+file you will see that in column 4 the '-1' entries have been replaces
+with guesses for the Gibb's sampler.  Sometimes these values can be
+bad.  If the MCMC code is giving convergence problems, try looking at
+the values in column 4 to make sure they make sense.  Ideally these 
+should be equal to the square-root of the covarience.
+
+The last parameter for mcmcsetup gives the planet number.  If set to 0 
+then all planet parameters are output in newfit.dat.  If you wanted to
+only analyze planet 1, then you would run,
+
+ : ../bin/mcmcsetup klc06541920.dct.dat null n0.dat 1
+ : mv newfit.dat n1.dat
+
+In this case we renamed newfit.dat to n1.dat and the contents of the
+n1.dat file would only contain a fit for planet 1.
+
+*A8. Running MCMC
+
+At this point we *could* run MCMC for the multi-planet system Kepler-11.
+This would be the command you would run
+
+ : ../bin/transitmcmc5 klc06541920.dct.dat null n0.dat 1000000 > mcmc.K11.n0.dat
+ 
+This will produce a Markov-Chain with 1-million entries.  About what
+is needed for convergence with a multi-planet system.  This will take
+a few days to run. So lets look at the simpler case of running MCMC
+on one planet from the system.  
+
+*A9. Running MCMC for one planet
+
+Running the MCMC code for all 6-planets can take a long time - so lets
+defer that activity and look at how to run MCMC on a single planet 
+extracted from a multi-planet dataset.  First we need to extract the
+lightcurve for a single planet to avoid the problem of overlapping 
+transits.
+
+ : ../bin/datadump5 klc06541920.dct.dat n0.dat 1 > tremove.1.dat
+
+The code datadump5 takes the multi-planet solution stored in n0.dat and
+removes all planets except the planet indicated by the third argument.
+We have redirected the output in a file called tremove.1.dat.  If you
+were to compare tremove.1.dat and klc06541920.dct.dat you would notice
+that the transits for planets 2 through 6 have been removed and only
+1 is left.  
+
+It now a good idea to refit n1.dat to tremove.1.dat.
+
+ : ../bin/transitfit5 tremove.1.dat null n1.dat > tmodel.n1.dat
+ : mv newfit.dat n1.dat
+
+We can now run the MCMC code to find posteriors on the 
+model parameters for the first planet independently.
+
+ : ../bin/transitmcmc5 tremove.1.dat null n1.dat 100000 > mcmc.K11.n1.dat
+ 
+The code will now begin to run.  It will take an hour or so to complete,
+so grab a coffee and head on back when you are ready.
 
 
 

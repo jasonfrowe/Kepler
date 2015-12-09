@@ -18,7 +18,7 @@
       data ubs/0.003,0.01,0.01,0.01,0.01,0.01,1.0,1.0e-6,1.0e-5,1.0e-5,
      .   0.10,0.003,0.01,0.01,1.0,1.0,1.0,1.0/
 
-      if(iargc().lt.3) goto 901
+      if(iargc().lt.4) goto 901
 
 C     Parse the name of the observations data file from the commandline
       call getarg(1,obsfile)
@@ -72,8 +72,12 @@ c      call getfitpars(nunit,nfit,sol,serr,err)
 
       call getarg(4,cline) !planet number for chi-sq calc..
       read(cline,*) np
+      if(np.lt.0) then
+         write(0,*) "np must be greater than zero"
+         stop
+      endif
 
-      do 22 i=1,nplanet
+      do 22 i=1,nplanet !deal with transit-timing variations
         if(iargc().ge.4+i)then
             call getarg(4+i,ttfile)
 
@@ -205,17 +209,20 @@ C     calculate global chi-sq
  20      continue
  19   continue
 
-      col=10*(np-1)
-      do 25 i=1,8
-         sol2(i)=sol(i)
- 25   continue
-      do 26 i=9,18
-         sol2(i)=sol(i+col)
-         serr2(i,1)=serr2(i+col,1)
-         serr2(i,2)=serr2(i+col,2)
- 26   continue
-      call exportfit(nfit,1,sol2,serr2,err,titles)
-c      call exportfit(nfit,nplanet,sol,serr2,err,titles)
+      if(np.gt.0)then !only export one planet
+         col=10*(np-1)
+         do 25 i=1,8
+            sol2(i)=sol(i)
+ 25      continue
+         do 26 i=9,18
+            sol2(i)=sol(i+col)
+            serr2(i,1)=serr2(i+col,1)
+            serr2(i,2)=serr2(i+col,2)
+ 26      continue
+         call exportfit(nfit,1,sol2,serr2,err,titles)
+      else  !export all planets
+         call exportfit(nfit,nplanet,sol,serr2,err,titles)
+      endif
 
       goto 999
  901  write(0,*) 'Usage: transitchisq photometry rv n1.dat nplanet'
