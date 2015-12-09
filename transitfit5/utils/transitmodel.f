@@ -2,6 +2,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine transitmodel(nfit,nplanet,nplanetmax,sol,nmax,npt,time,
      .  itime,ntt,tobs,omc,tmodel,dtype)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C     My Transit-model.  Handles multi-planets, TTVs, phase-curves and
+C     radial-velocities
+C     (c) jasonfrowe@gmail.com
       implicit none
       integer nfit,npt,i,j,nintg,dtype(npt),ii,nplanet,nplanetmax,nmax,
      .   caltran
