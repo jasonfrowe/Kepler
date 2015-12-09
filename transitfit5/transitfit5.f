@@ -26,9 +26,12 @@ C     TT variations
       double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax)
       character*3 titles(15)
       character*80 inputsol,obsfile,rvfile,cline,ttfile
+#ifdef gfortran
       common /Fitting/ npta,nplanet,aIT,ntt,tobs,omc
-c      common /Fitting2/ nfrho,nplanet,dtype,aT,aM,aE,aIT,sol,serr,
-c     .  rhoi,rhoierr,chifac,ntt,tobs,omc
+#else
+      common /Fitting2/ nfrho,nplanet,dtype,aT,aM,aE,aIT,sol,serr,
+     .  rhoi,rhoierr,chifac,ntt,tobs,omc
+#endif
       
       nfrho=1
       
@@ -133,14 +136,14 @@ c        write(0,*) "ntt",i,ntt(i)
 C     Skip fitting and just exit..
 C      goto 20
 
-C     Use common block Fitting
+C     Use common block Fitting or Fitting2 as required
       dchistop=1.0d-5
+#ifdef gfortran
       call fittransitmodel(npta,aT,aM,aE,dtype,nfit,nplanet,sol,serr,ia,
      .  covar,alpha,dchistop,err)
-
-C     Use common block Fitting2
-c      call fittransitmodel2(npta,nfit,sol,sol2,serr,fvec,iwa,lwa,wa)
-
+#else
+      call fittransitmodel2(npta,nfit,sol,sol2,serr,fvec,iwa,lwa,wa)
+#endif
 
       call exportfit(nfit,nplanet,sol,serr,err,titles)
 

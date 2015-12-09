@@ -15,7 +15,7 @@ tfit5src = transitfit5/
 
 TRANSINCL5 = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)fittransitmodel.o $(tfit5src)mrqmin.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o $(tfit5src)fittransitmodel2.o $(tfit5src)minpack.o $(tfit5src)getrhosig.o $(tfit5src)ttcor.o
 transitfit5: $(tfit5src)transitfit5.f $(TRANSINCL5)
-	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitfit5.f $(TRANSINCL5)
+	$(F90) -cpp -D$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitfit5.f $(TRANSINCL5)
 
 MCMC5INCL = $(tfit5src)getfitpars.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)fittransitmodel.o $(tfit5src)mrqmin.o $(tfit5src)keplerian.o $(tfit5src)dmcmc.o $(tfit5src)ran2.o $(tfit5src)getrhosig.o $(tfit5src)occultquad.o $(tfit5src)ttcor.o
 transitmcmc5: $(tfit5src)transitmcmc5.f $(MCMC5INCL)
