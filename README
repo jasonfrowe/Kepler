@@ -1,4 +1,6 @@
+------------------------------------------------------------------------
 Source Code for NASA's Kepler Mission (jasonfrowe@gmail.com)
+------------------------------------------------------------------------
 
 Requires:  X11,PGPlot,CFITSIO libraries (-lX11 -lpgplot -lcfitsio)
 **If you use OS/X I recommend 'homebrew' to install pgplot and cfitsio
@@ -6,6 +8,7 @@ Requires:  X11,PGPlot,CFITSIO libraries (-lX11 -lpgplot -lcfitsio)
 **If you are a Linux fan, either use your favourite package installer
   (e.g., yum) or install pgplot/cfitsio from source.  
 
+------------------------------------------------------------------------
 Quick INSTALL:
 
  ./configure
@@ -14,6 +17,7 @@ Quick INSTALL:
 This should make binaries in the 'bin' directory.
 
 **I'm new to using autoconf, so if you run into trouble - let me know.
+------------------------------------------------------------------------
 
 If you find these codes useful please reference:
 Rowe et al. 2014 ApJ, 784, 45  
@@ -26,6 +30,8 @@ Uniform Modeling of KOIs: MCMC Data Release Notes
 http://adsabs.harvard.edu/abs/2015arXiv150400707R
 
 As a good resource to understand the file formats.
+
+------------------------------------------------------------------------
 
 TRANSITFIT5 - used to model planetary transits based on Kepler photometry
  -handles multi-planets, RVs and TTVs and deMCMC framework for posteriors. 
@@ -84,7 +90,8 @@ TRANSITFIT5 - used to model planetary transits based on Kepler photometry
  DATATEST - routines to read FITS files retrieved from MAST and 
  detrending
    
-   detrend5: detrends lightcurves but preserves transit using a transit-model
+   detrend5: detrends lightcurves but preserves transit using a 
+   transit-model
    
    kfitsread: reads Kepler data FITS files from MAST 
    

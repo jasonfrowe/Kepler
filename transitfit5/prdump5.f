@@ -16,7 +16,7 @@ C     TT variations
       Pi=acos(-1.d0)   !Pi
       tPi=2.0d0*Pi
 
-      call idate(today(1),today(2),today(3))
+      call idate(today)
 
       if(iargc().lt.2) goto 901 !check number of command line arguements
       call getarg(1,obsfile) !get filename for input solution
