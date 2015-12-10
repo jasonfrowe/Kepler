@@ -116,4 +116,15 @@ TRANSITFIT5 - used to model planetary transits based on Kepler photometry
    around the center of mass produces a timing delay in the observed 
    pulsations.
    
+RHOSTAR - routines to calculate stellar parameters and posteriors 
+
+   rhostar: given some combination of Teff, log(g), [Fe/H] and rhostar
+   estimate M*, R*, L and Age using the Yale-Yonsei Isochrones and 
+   output Markov-Chains.
+   
+   rhoboot2: displays histograms of Markov-Chain output from rhostar and
+   calculate posterior distibutions of stellar parameters
+   
+   rhorand: simulate output of rhostar.
+   
    
