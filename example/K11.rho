@@ -1,0 +1,10 @@
+0   0.   0    0.    0.      0.      0.      0.      0.      0.
+5680 150                  #Teff
+0.000 0.150 0.0024        #[Fe/H]
+0.0000 0.0000             #L
+4.30 0.20                 #log(g)
+1.3024924069E+01          #Period
+0.020                     #Gibbs Mass
+0.500                     #Gibbs Age
+0.0 0.0                   #Extra mass smudge
+K00157                    #Un-used name

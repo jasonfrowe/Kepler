@@ -8,7 +8,7 @@ FFLAGS = -O3
 BIN = ./bin/
 UTILS = utils/
 
-all: transitfit5 transitfit5sc transitmcmc5 transitsn5 transittiming5 prdump5 mcmcsetup transitdepth5 transitcut5 datadump5 transitdur5 transitremove5 transitchisq5 transitsigclip5 plottimeseries transitplot5 mcmchistnew mcmchist5 mcmchist5bf transitfind2 kfitsread detrend5 sigclip freqremove keplerper ttper freqmod
+all: transitfit5 transitfit5sc transitmcmc5 transitsn5 transittiming5 prdump5 mcmcsetup transitdepth5 transitcut5 datadump5 transitdur5 transitremove5 transitchisq5 transitsigclip5 plottimeseries transitplot5 mcmchistnew mcmchist5 mcmchist5bf transitfind2 kfitsread detrend5 sigclip freqremove keplerper ttper freqmod rhostar rhoboot2 rhorand
 
 #TransitFit5 Sourcebase
 tfit5src = transitfit5/
@@ -127,6 +127,50 @@ keplerper: $(persrc)keplerper.f $(perincls)
 ttincls = $(persrc)readdata_tt.o $(persrc)nyquest.o $(persrc)modecal.o $(persrc)stdev.o $(persrc)sigclip.o $(persrc)avgrm.o $(persrc)moment.o $(persrc)bindt.o $(persrc)graphics_tt.o $(persrc)jmfourw_tt.o $(persrc)ovrwrt.o $(persrc)cosinefit.o $(persrc)integrate.o $(persrc)phasept.o $(persrc)rqsort.o $(persrc)mrqmin.o $(persrc)windowfn.o $(persrc)shaperm.o $(persrc)detrend.o $(persrc)boxcar_old.o $(persrc)plotfit.o $(persrc)freqout.o
 ttper: $(persrc)ttper.f $(ttincls)
 	$(F90) $(FFLAGS) -o $(BIN)$@ $(persrc)ttper.f $(ttincls) $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+#Rhostar Sources
+rhosrc = rhostarsrc/
+RHOSTARINCL = $(rhosrc)getinputpars.o $(rhosrc)gettrack.o $(rhosrc)yytrack.o $(rhosrc)getage.o $(rhosrc)spline.o $(rhosrc)random.o $(rhosrc)mcmc.o $(rhosrc)getrhosig.o $(rhosrc)lininterp.o $(rhosrc)mcoresig.o $(rhosrc)massscan.o
+rhostar: $(rhosrc)rhostar.f $(RHOSTARINCL)
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(rhosrc)rhostar.f $(RHOSTARINCL)	
+	
+rhoboot2: $(rhosrc)rhoboot2.f
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(rhosrc)rhoboot2.f $(LFLAGS) $(XFLAGS) $(PFLAGS)
+	
+rhorand: $(rhosrc)rhorand.f
+	$(F90) $(FFLAGS) -o $(BIN)$@ $(rhosrc)rhorand.f
+	
+#building object libraries for rhostar
+$(rhosrc)isochrones.o: $(rhosrc)$(UTILS)isochrones.f90
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)isochrones.f90
+$(rhosrc)precision.o: $(rhosrc)$(UTILS)precision.f90
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)precision.f90
+$(rhosrc)mrqmin.o: $(rhosrc)$(UTILS)mrqmin.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)mrqmin.f
+$(rhosrc)minpack.o: $(rhosrc)$(UTILS)minpack.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)minpack.f
+$(rhosrc)massscan.o: $(rhosrc)$(UTILS)massscan.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)massscan.f
+$(rhosrc)mcoresig.o: $(rhosrc)$(UTILS)mcoresig.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)mcoresig.f
+$(rhosrc)lininterp.o: $(rhosrc)$(UTILS)lininterp.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)lininterp.f
+$(rhosrc)getrhosig.o: $(rhosrc)$(UTILS)getrhosig.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)getrhosig.f
+$(rhosrc)yytrack.o: $(rhosrc)$(UTILS)yytrack.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)yytrack.f
+$(rhosrc)getinputpars.o: $(rhosrc)$(UTILS)getinputpars.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)getinputpars.f
+$(rhosrc)gettrack.o: $(rhosrc)$(UTILS)gettrack.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)gettrack.f
+$(rhosrc)getage.o: $(rhosrc)$(UTILS)getage.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)getage.f
+$(rhosrc)spline.o: $(rhosrc)$(UTILS)spline.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)spline.f
+$(rhosrc)random.o: $(rhosrc)$(UTILS)random.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)random.f
+$(rhosrc)mcmc.o: $(rhosrc)$(UTILS)mcmc.f
+	cd $(rhosrc) ; $(F90) -c $(FFLAGS) $(UTILS)mcmc.f
 	
 #building object libraries for Period
 $(persrc)precision.o: $(persrc)$(UTILS)precision.f90
