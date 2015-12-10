@@ -235,7 +235,7 @@ c        write(6,500) ave,std,(errs(k),k=1,6)
  503  format(17(1PE17.10,1X))
 
       goto 999
- 901  write(0,*) "Usage: mcmchist5 n1.dat rhoboot.file mcmc.dat"
+ 901  write(0,*) "Usage: mcmchist5 n1.dat mcmc.dat"
       goto 999
  902  write(0,*) "Cannot open ",rhofile
       goto 999

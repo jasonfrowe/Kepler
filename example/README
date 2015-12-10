@@ -137,16 +137,44 @@ solution.  There are three main parameters needed, a lightcurve,
 a radial velocity file and an initial guess for the model parameters.
 We will use the .dct.dat file produced in step A5 for the lightcurve,
 since we do not have radial velocities, we enter 'null' and we will use
-n0_g.dat as an initial guess.  Kepler-11 has 6 known transiting planets,
-so running transitfit5 can take a few minutes - be patient. When 
-finished a file called 'newfit.dat' will be created.  This file should 
-be renamed, in this  example we will call the new fit 'n0.dat'.  The 
-output of transitfit5 contains 3 columns: Time, Flux, Model-Flux.  We 
-redirected this into a file called tmodel.dat which can be used to 
-examine the quality of the fit or whatever use you might have.  You can 
-also replot the fit with transitplot5.
+n0_g.dat as an initial guess.  The n0_g.dat file is set up to fit for
+circular orbits.  Thus ecosw and esinw are set to zero.  If you would
+like eccentricity, you need to allow these parameters to be fit.
 
-*A7. Setting up for MCMC
+Kepler-11 has 6 known transiting planets, so running transitfit5 can 
+take a few minutes - be patient. When finished a file called 
+'newfit.dat' will be created.  This file should be renamed, in this 
+example we will call the new fit 'n0.dat'.  The output of transitfit5 
+contains 3 columns: Time, Flux, Model-Flux.  We redirected this into a 
+file called tmodel.dat which can be used to examine the quality of the 
+fit or whatever use you might have.  You can also replot the fit with 
+transitplot5.
+
+*A7. Extracting some information about the transit.
+
+With a best-fit model and detrended photometry, let extract some basic
+information about the transit, data and fit.  Here are some examples.
+
+To get reduced Chi-square for planet 2
+
+ : ../bin/transitchisq5 klc06541920.dc.dat n0.dat 2
+
+To get an estimate of the transit S/N for planet 3
+
+ : ../bin/transitsn5 klc06541920.dc.dat n0.dat 3
+ 
+To get the transit-duration, in hours, for planet 1
+
+ : ../bin/transitdur5 n0.dat 1
+ 
+To get the transit-depth, in ppm, for planet 4
+
+ : ../bin/transitdepth5 n0.dat 4
+ 
+Right now the transit-duration calculation only works for 
+circular-orbits.  This should be fixed in the future.
+
+*A8. Setting up for MCMC
 
  : ../bin/mcmcsetup klc06541920.dct.dat null n0.dat 0
  : mv newfit.dat n0.dat
@@ -172,7 +200,7 @@ only analyze planet 1, then you would run,
 In this case we renamed newfit.dat to n1.dat and the contents of the
 n1.dat file would only contain a fit for planet 1.
 
-*A8. Running MCMC
+*A9. Running MCMC
 
 At this point we *could* run MCMC for the multi-planet system Kepler-11.
 This would be the command you would run
@@ -181,10 +209,10 @@ This would be the command you would run
  
 This will produce a Markov-Chain with 1-million entries.  About what
 is needed for convergence with a multi-planet system.  This will take
-a few days to run. So lets look at the simpler case of running MCMC
-on one planet from the system.  
+a few days to run. Feel free to let it run in the background. So lets 
+look at the simpler case of running MCMC on one planet from the system.  
 
-*A9. Running MCMC for one planet
+*A10. Running MCMC for one planet
 
 Running the MCMC code for all 6-planets can take a long time - so lets
 defer that activity and look at how to run MCMC on a single planet 
@@ -212,7 +240,33 @@ model parameters for the first planet independently.
  : ../bin/transitmcmc5 tremove.1.dat null n1.dat 100000 > mcmc.K11.n1.dat
  
 The code will now begin to run.  It will take an hour or so to complete,
-so grab a coffee and head on back when you are ready.
+so grab a coffee and relax.
+
+*A11. Estimating posterior distributions
+
+Once transitmcmc5 has completed, the file mcmc.K11.n1.dat will contain
+Markov-Chains for the model parameters.  To see the a histogram of the
+Chains and recreate a table of measured uncertainties we can run 
+mcmchist5 
+
+ : ../bin/mcmchist5 n1.dat mcmc.K11.n1.dat
+ 
+This will plot the distributions and output a Table of uncertainties for
+each model parameter and for three calculated parameters: a/R*, transit
+depth and transit-duration.   
+
+*A12. Stellar Parameters
+
+The transit model only estimates planet radius relative to the star, to
+get the absolute planet radius we need stellar parameters.  Ideally,
+we would like to account for correlations between various stellar
+parameters, so we will create a Markov-Chain to mix with the 
+transit-model.
+
+
+
+
+*A13. Transiting-Timing-Variations 
 
 
 
