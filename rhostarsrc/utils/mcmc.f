@@ -4,6 +4,8 @@
      .  ngcorsub,ngprob,ngprobsub,nbuffer,nb,nmov,buffer,nup,
      .  npars,nupdate,corscale,nacor,nacorsub,naprob,naprobsub,tmcore,
      .  aotu,tdloggdt)
+C     Implementation of efficient and automatic deMCMC
+C     Jason Rowe - jasonfrowe@gmail.com
       implicit none
       integer seed,nmodelmax,nmodel,flag,ng,i,ntry,ntrymax,nfrho,nsol,
      .  nfit

@@ -3,6 +3,7 @@ ccccCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      .     plot,ma,aerr,panx,pany,w,nstar,fixfreq)
 CCCCccccCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C     The one and only Fourier Decomposition routine.
+C     Jason Rowe - jasonfrowe@gmail.com
 C     per - fixed period for data
 C     id,xcoo,ycoo - id and co-ordinates of object.
 C     data is passed by common block /data/ 

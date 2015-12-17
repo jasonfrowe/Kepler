@@ -1,4 +1,6 @@
       program keplerper
+C     Automatic DFT for Fourier Decomposition
+C     Jason Rowe - jasonfrowe@gmail.com
       implicit none
       integer nmax,fixfreq,steps,nfit,iargc,kID,npt,i,nb,nc,bins,nfitl,
      .  nstarmax,niter,nstar,plot,nfmax,ma,itmax,nunit

@@ -1,4 +1,5 @@
 C     Tags on BJD corrections.
+C     Jason Rowe 2015 - jasonfrowe@gmail.com
       program bjdcorrection
       implicit none
       integer kid,gap

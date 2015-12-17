@@ -5,6 +5,7 @@ C     Fits for mean stellar density (p_star) for multi-planet candidates
 C     gfortran for OS/X fails with minpack as -mcmodel=large is broken
 C     for the default assemler. This version falls back to the slower
 C     Numerical Recipes version for compatiblity.
+C     Jason Rowe - jasonfrowe@gmail.com
       implicit none
       integer iargc,nfit,npt,nmax,i,nunit,nptv,npta,nplanet,ndt,
      .  nplanetmax

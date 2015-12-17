@@ -2,6 +2,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       program transitmcmc5
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C     Fits for stellar density (a/R*)
+C     Jason Rowe - jasonfrowe@gmail.com
       implicit none
       integer iargc,nfit,npt,nmax,i,nunit,nptv,npta,j,naccept,ng,
      .  nplanet,nfitm,nbuffer,nmov,nup,nb,npars,nupdate,nplanetmax

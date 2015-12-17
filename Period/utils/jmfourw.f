@@ -2,6 +2,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine jmfourw(npt,time,mag,merr,freq1,freq2,steps,bper,
      .  btheta,signoise,panx,pany,snlimit,plot)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C     Discrete Fourier Transform
+C     Jason Rowe - jasonfrowe@gmail.com
       implicit none
       integer npt,steps,panx,pany,nmax,stepmax,k,j,nf,snw,n1,n2,plot,
      .   ne6

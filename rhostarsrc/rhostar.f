@@ -1,4 +1,6 @@
       program rhostar
+C     Matches Teff/log(g)/rhostar/[Fe/H]/L to Y^2 Stellar models
+C     Jason Rowe - jasonfrowe@gmail.com
       implicit none
       integer iargc,nunit,i,nline,inda,indz,indm,nmodel,nmodelmax,seed,
      .  now(3),niter,flag,j,naccept,ng,nfrho,nsol,nfitm,nbuffer

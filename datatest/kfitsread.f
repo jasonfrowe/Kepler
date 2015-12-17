@@ -1,4 +1,6 @@
       program kfitsread
+C     Reads in FITS files with Kepler data from MAST
+C     Jason Rowe - jasonfrowe@gmail.com
       implicit none
       integer unitfits,status,iargc,readwrite,blocksize,nhuds,hudtype,
      .  hud,nrecmax,j,nkeys,nmax,npt,k,i,nfile

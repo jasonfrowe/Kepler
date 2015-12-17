@@ -5,6 +5,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      .  gscale,ngcor,ngcorsub,ngprob,ngprobsub,nupdate,gratio,nfrho,
      .  rhoi,rhoierr,rhoin,nplanetmax,nmax,ntt,tobs,omc,ngs,nas)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C     Implementation of deMCMC
+C     Jason Rowe - jasonfrowe@gmail.com
       implicit none
       integer npta,nfitm,nfit,nplanet,seed,flag,ng,i,nbuffer,nmov,nup,
      .  nb,ng2,npars,nsel,nsel2,j,nupcor,nupdate
