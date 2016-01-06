@@ -309,10 +309,33 @@ acceptance rates.  The code also uses a 'deMCMC' style vector jumper
 to supplement the Gibbs jumper.  So don't worry too much about your
 choice of Gibbs values.
 
+Once the rhoboot code has finished running you can use rhoboot2 to
+examine the output,
 
+ : ../bin/rhoboot2 K11.rhoboot 50
+ 
+The last parameter '50' chooses how much to bin the data for creating
+histograms. Now we can combine the stellar and transit MCMC results
+to generate absolute posteriors of the planet parameters.
+
+ : ../bin/mcmchistnew n1.dat K11.rhoboot mcmc.K11.n1.dat
+ 
+We should now have a large table of parameters giving stellar
+parameter, transit parameters and planet parameters.  You will notice
+that two values of 'rhostar' are given.  The first is based on the 
+input stellar parameters, then second is based on the transit model.
+A large mismatch between the two is an indication that either the
+stellar parameters or transit model are incorrect.
+
+We will revisit estimating stellar parameters using constaints from
+the transit model after we have built an eccentric model.
 
 *A13. Transiting-Timing-Variations 
 
+Multi-planet systems such as Kepler-11 are dynamically interacting.
+This means that the individual planets are gravitationally 
+tugging each other which results in a change in the orbits of the 
+planets that is seen as a variation in the measured times of transit.
 
 
 
