@@ -229,9 +229,12 @@ were to compare tremove.1.dat and klc06541920.dct.dat you would notice
 that the transits for planets 2 through 6 have been removed and only
 1 is left.  
 
-It now a good idea to refit n1.dat to tremove.1.dat.
+It now a good idea to refit n1.dat to tremove.1.dat and then run
+mcmcsetup.
 
  : ../bin/transitfit5 tremove.1.dat null n1.dat > tmodel.n1.dat
+ : mv newfit.dat n1.dat
+ : ../bin/mcmcsetup tremove.1.dat null n0.dat 1
  : mv newfit.dat n1.dat
 
 We can now run the MCMC code to find posteriors on the 
@@ -261,8 +264,50 @@ The transit model only estimates planet radius relative to the star, to
 get the absolute planet radius we need stellar parameters.  Ideally,
 we would like to account for correlations between various stellar
 parameters, so we will create a Markov-Chain to mix with the 
-transit-model.
+transit-model. This task is acomplished with the rhostar tool, which can
+be run 
 
+ : ../bin/rhostar K11.rho 100000 > K11.rhoboot
+ 
+This will generate a file called K11.rhoboot which contains 100000 
+entries that match the stellar parameters found in K11.rho to the 
+Y^2 stellar models.  The file format of K11.rho looks like the 
+following,
+
+0   0.   0    0.    0.      0.      0.      0.      0.      0.
+5680 150                  #Teff (K)
+0.000 0.150 0.0024        #[Fe/H] 
+0.0000 0.0000             #L (Lsun)
+4.30 0.20                 #log(g)
+1.3024924069E+01          #Period (days)
+0.020                     #Gibbs Mass (Msun)
+0.500                     #Gibbs Age (Gyr)
+0.0 0.0                   #Extra mass smudge
+K00157                    #Un-used name
+
+The first line is used to supply a posterior distibution of a/R* which
+used with the the orbital period provides a constaint on the mean
+stellar density of the star.  The second line gives the stellar 
+effective temperature and its uncertainty.  The third line give
+the stellar metallicity, uncertainty.  The third parameter gives an
+estimate of the Gibbs value as part of the metropolis algorthim for the 
+MCMC routine.  The provided value is usually fine, but if you have an
+exquisite measurement of the metallicity you may need to lower its 
+value.  The forth line gives the luminosity of the star.  If the error
+is set to zero, then this constaint is ignored.  The fifth line gives
+log(g) and error, again, if the error is set to zero, then this 
+constaint is ignored.  The sixth line is the orbital period of the 
+transiting planet and is only needed if values of a/R* are provided 
+(in this case they are not).  The seventh and eighth lines give Gibbs
+values that code uses internally to vary the model mass and age.  The
+provided values work well for most stars G-type and later.  For massive
+stars, since evolution occurs so rapidly one may need to decrease the
+Gibbs Age value to reach convergence.   
+
+The MCMC code dynamically adjusts the Gibbs values to find appropriate
+acceptance rates.  The code also uses a 'deMCMC' style vector jumper
+to supplement the Gibbs jumper.  So don't worry too much about your
+choice of Gibbs values.
 
 
 
