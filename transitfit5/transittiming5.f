@@ -185,7 +185,7 @@ c     .          covar,alpha,dchistop,err)
       write(0,*) "photometry: Kepler photometry"
       write(0,*) "RVs : radial velocity measurements"
       write(0,*) "n1.dat : transit model solution"
-      write(0,*) "data.tt : transit timing measurements"
+C      write(0,*) "data.tt : transit timing measurements"
       write(0,*) "Kmag : Kepler magnitude (optional)"
       goto 999
  902  write(0,*) "Cannot open ",inputsol
