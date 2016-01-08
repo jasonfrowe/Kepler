@@ -330,6 +330,10 @@ stellar parameters or transit model are incorrect.
 We will revisit estimating stellar parameters using constaints from
 the transit model after we have built an eccentric model.
 
+It is important to note that rhostar expects the following directories
+to be present in the working directory: a0o2, a2o2, a4o2.  These 
+directories contain the Y^2 models.
+
 *A13. Transiting-Timing-Variations 
 
 Multi-planet systems such as Kepler-11 are dynamically interacting.

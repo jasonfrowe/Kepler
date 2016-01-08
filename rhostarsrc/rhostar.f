@@ -31,6 +31,11 @@ C     Jason Rowe - jasonfrowe@gmail.com
       data rhoin/-1.0d2,-3.0d0,-2.0d0,-1.0d0,0.0d0,1.0d0,2.0d0,3.0d0,
      .  1.0d2/
       
+!     simple check to see if a Y^2 track is present.
+      open(unit=10,file="a0o2/x53z08/m04x53z08.track1",
+     .  status='old',err=904)
+!     if the file opened without an error, close it and move on.
+      close(10)
       
       aotu=14.0d0 !Age Of The Universe.
       Pi=acos(-1.d0)!define Pi and 2*Pi
@@ -163,6 +168,9 @@ C     initializing counters for MCMC
  902  write(0,*) "Cannot open ",inputparms
       goto 999
  903  write(0,*) "Cannot place age on initial Teff,Mass pair"
+      goto 999
+ 904  write(0,*) "Y^2 Models seems to be missing"
+      write(0,*) "a0o2,a2o2,a4o2 directories need to be in working dir"
       goto 999
  999  end
  

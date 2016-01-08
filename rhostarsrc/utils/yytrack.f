@@ -166,7 +166,7 @@ C      write(0,*)' Input  -> ',filename
 C      m_one=0
       kkip=kkip-1
       goto 99
-C      stop ' no such file exist...'
+c      stop ' no such file exist...'
       end
 
       subroutine newton(x,yy,n,xbar,ybar)
