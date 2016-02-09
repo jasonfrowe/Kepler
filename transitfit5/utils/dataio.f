@@ -130,6 +130,7 @@ c     .      1.1208d0)*0.00280758d0
         flux(i)=flux(i)+1.0!-2.5*log10(mag(i)+1.0d0)
 c        ferr(i)=0.00005
         itime(i)=1765.5/sec2day
+c        itime(i)=123.41/sec2day !WR71 cadence
 c        itime(i)=58.85/sec2day !short cadence
 c        itime(i)=0.1d0/sec2day
 c         itime(i)=itime(i)/sec2day

@@ -13,7 +13,8 @@ C     Jason Rowe - jasonfrowe@gmail.com
       double precision time(npt),mag(npt),freq1,freq2,bper,btheta,by(4),
      .  nx(stepmax),ny1(stepmax),ny2(stepmax),bx(4),tbin,dum,weight,
      .  merr(npt),amps(ne6),cf(2*snw+2),stdev,std,cf2(2*snw+2),mean,
-     .  signoise,snplot(ne6),freqs(ne6),snlimit
+     .  signoise,snplot(ne6),freqs(ne6),snlimit,mtheta,mthetapow,
+     .  bthetapow,cd2uhz
       character*80 tmpc
 
       INTEGER I,NUMPTS,NMDENU
@@ -22,6 +23,8 @@ C     Jason Rowe - jasonfrowe@gmail.com
       DOUBLE PRECISION SISUM,COSUM,SN,NU,AMP,PHI
 c      CHARACTER *20 INFILE,SPFILE
       DOUBLE PRECISION JDTMP,LOJD,HIJD,BTMP,JDZRO
+
+      cd2uhz=1.0d6/86400.0d0 !converting c/d to uHz
 
 c      snlimit=3.6
 
@@ -33,13 +36,16 @@ c         write(6,*) "Increasing number of steps to ",stepmax
 
       tbin=0.0
 
+      mtheta= 99.9d10 !extreme range
       btheta=-99.9d10
+      mthetapow=mtheta
+      bthetapow=btheta
       do 5 i=1,stepmax
          ny1(i)=-99.9d10
          ny2(i)= 99.9d10
  5    continue
 C     Uncomment the c21 lines to output the FT to a text file.
-c      open(unit=21,file="ft.dat")
+      open(unit=21,file="ft.dat")
 
       LOJD=0.
       HIJD=100.
@@ -83,6 +89,7 @@ c         endif
  41      CONTINUE
 C     WRITE (50,*) NU,SISUM,COSUM
          AMP = (2./weight)*SQRT(SISUM**2. + COSUM**2.)
+         amp=amp*1.0d3 !convert to ppm
          PHI = ATAN(-SISUM/COSUM)
 C     Doh.. mistake
 c         PHI= ATAN(COSUM/SISUM)
@@ -101,14 +108,26 @@ c            bper=nu
 c            nf=j
 c         endif
 c         else
+         if(amp.lt.mtheta)then !get range of power for plotting
+!            write(0,*) mtheta,amp
+            mtheta=amp
+         endif
          if(amp.gt.btheta) then
             btheta=amp
             bper=nu
             nf=j
          endif
+
+         if(amp*amp/(nu*cd2uhz).lt.mthetapow)then
+            mthetapow=amp*amp/(nu*cd2uhz)
+         endif
+         if(amp*amp/(nu*cd2uhz).gt.bthetapow)then
+            bthetapow=amp*amp/(nu*cd2uhz)
+         endif
+
 c         endif 
 c     call pgpt1(NU,AMP,1)
-c21      WRITE (21,*) NU,AMP,PHI
+      WRITE (21,*) NU,AMP,PHI
 c     
          DO 31 I=1,NUMPTS
             SN = SI(I)
@@ -116,33 +135,17 @@ c
             CO(I) = CO(I)*CODEL(I) - SN*SIDEL(I)
  31      CONTINUE
          NU = NU + DELTNU
+
  51   CONTINUE
  
-cC     do s/n calc.
-c      n1=nf-snw-1
-c      n2=nf+snw
-c      if(n1.le.0)n1=1
-c      if(n2.gt.NMDENU)n2=NMDENU
-c      j=0
-c      do 200 i=n1,n2
-c         j=j+1
-c         cf(j)=amps(i)
-c 200  continue
-c      std=stdev(j,cf,mean)
-c      k=0
-c      do 201 i=1,j
-c         if(abs(cf(i)-mean).lt.3.0*std) then
-c            k=k+1
-c            cf2(k)=cf(i)
-c         endif
-c 201  continue
-c      std=stdev(k,cf2,mean)
-c      signoise=btheta/mean
-      
-      bb(1)=real(freq1)
-      bb(2)=real(freq2)
-      bb(3)=0.0
-      bb(4)=real(btheta)
+
+!      write(0,*) "mtheta: ",mtheta
+      bb(1)=real(log10(freq1))
+      bb(2)=real(log10(freq2))
+      bb(3)=real(log10(mthetapow))
+      bb(4)=real(log10(bthetapow+0.20*(bthetapow-mthetapow)))
+!      write(0,*) "m: ",mthetapow,bthetapow
+      write(0,*) bb(1),bb(2),bb(3),bb(4)
       
       if(plot.eq.1)then
 c      call pgpage()
@@ -152,22 +155,28 @@ c      call pgpage()
 cc      call pgbox('BNTS1',0.0,0,'BCNTSV1',0.0,0)
 c      call pgbox('BTS',0.0,0,'BCNTSV1',0.0,0)
 c      call pglabel("Frequency","AMP"," ")
-        call pgptxt((bb(1)+bb(2))/2.0,-0.25*(bb(4)),0.0,0.5,
+        call pgptxt((bb(1)+bb(2))/2.0,bb(3)-0.25*(bb(4)-bb(3)),0.0,0.5,
      .      "Frequency (c/d)")
-        call pgptxt((bb(1)+bb(2))/2.0,bb(4)+0.23*(bb(4)),0.0,0.5,
+        call pgptxt((bb(1)+bb(2))/2.0,bb(4)+0.26*(bb(4)-bb(3)),0.0,0.5,
      .      "Frequency (\(0638)Hz)")
-        call pgptxt(bb(1)-0.05*(bb(2)-bb(1)),(bb(4))/2,90.0,0.5,
-     .      "Amplitude (ppm)")
+        call pgptxt(bb(1)-0.05*(bb(2)-bb(1)),(bb(4)+bb(3))/2,90.0,0.5,
+     .      "Power (ppm\u2\d \(0638)Hz\u-1\d)")
         call pgbbuf()
       
-c21      close(21)
+      close(21)
         do 30 i=2,stepmax
-            px(1)=real(nx(i-1))
-            py(1)=real(ny2(i-1))
-            px(2)=real(nx(i))
-            px(3)=real(nx(i))
-            py(2)=real(ny1(i))
-            py(3)=real(ny2(i))
+!            px(1)=real(nx(i-1))
+!            py(1)=real(ny2(i-1))
+!            px(2)=real(nx(i))
+!            px(3)=real(nx(i))
+!            py(2)=real(ny1(i))
+!            py(3)=real(ny2(i))
+            px(1)=real(log10(nx(i-1)))
+            py(1)=real(log10(ny2(i-1)*ny2(i-1)/(nx(i-1)*cd2uhz)))
+            px(2)=real(log10(nx(i)))
+            px(3)=real(log10(nx(i)))
+            py(2)=real(log10(ny1(i)*ny1(i)/(nx(i)*cd2uhz)))
+            py(3)=real(log10(ny2(i)*ny2(i)/(nx(i)*cd2uhz)))
             call pgline(3,px,py)
  30     continue
         call pgebuf()
@@ -232,21 +241,25 @@ c         read(5,*)
 c      call pgsls(2)
 C     draw S/N line
         do 303 i=1,steps
-            px2(i)=real(freqs(i))
-            py2(i)=real(snplot(i))
+!            px2(i)=real(freqs(i))
+!            py2(i)=real(snplot(i))
+            px2(i)=real(log10(freqs(i)))
+            py2(i)=real(log10(snplot(i)*snplot(i)/(freqs(i)*cd2uhz)))
  303    continue
         call pgline(steps,px2,py2)
         call pgsci(1)
 c      call pgsls(1)
 
-        call pgwindow(bb(1),bb(2),bb(3),1000.0*bb(4))
+!        call pgwindow(bb(1),bb(2),bb(3),1000.0*bb(4))
 c        call pgwindow(bb(1),bb(2),bb(3),bb(4))
-        call pgbox('BNTS1',0.0,0,'BCNTSV1',0.0,0)
+!        call pgbox('BNTS1',0.0,0,'BCNTSV1',0.0,0)
+        call pgbox('BLNTS',0.0,0,'BCLNTSV',0.0,0)
 
         dumr=1.0e6/86400.0
-        call pgwindow(dumr*bb(1),dumr*bb(2),bb(3),1000.0*bb(4))
-c        call pgwindow(dumr*bb(1),dumr*bb(2),bb(3),bb(4))
-        call pgbox('CMTS1',0.0,0,'',0.0,0)
+        bb(1)=real(log10(freq1*cd2uhz))
+        bb(2)=real(log10(freq2*cd2uhz))
+        call pgwindow(bb(1),bb(2),bb(3),bb(4))
+        call pgbox('CLMTS',0.0,0,'',0.0,0)
       endif
 c      call pgbox('CTS',0.0,0,'',0.0,0)
 

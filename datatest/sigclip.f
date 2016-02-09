@@ -1,7 +1,7 @@
       program sigclipprog
       implicit none
       integer iargc,nmax,npt,nfit,nunit,i,j,npt2
-      parameter(nmax=1650000,nfit=18)
+      parameter(nmax=1700000,nfit=18)
       integer tflag(nmax),cflag(nmax)
       double precision sigclip,sol(nfit),serr(nfit,2),Dpvary(nfit),
      .  err(nfit),doe,toff,eoff,phase(nmax),x(nmax),y(nmax),time(nmax),

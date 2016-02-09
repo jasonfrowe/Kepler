@@ -87,8 +87,8 @@ c      open(unit=14,file="freqs.dat") !stores frequency fits
             
 C     These lines convert to parts-per-thousand
       do 11 i=1,npt
-        mag(i)=mag(i)*1000.0
-        merr(i)=merr(i)*1000.0
+        mag(i)=mag(i)*1.0e3
+        merr(i)=merr(i)*1.0e3
  11   continue
 
       write(0,*) "Points Read: ",npt
@@ -180,7 +180,7 @@ c      call plotph(npt,time,mag,3.52474859,1,2)
      .  title)
       call jmfourw(npt,time,mag,merr,freq1,freq2,steps,bper,btheta,sn,
      .  1,2,snlimit,1)
-c      goto 31
+      goto 31
 
       write(0,*) "bper:",bper
       plot=0

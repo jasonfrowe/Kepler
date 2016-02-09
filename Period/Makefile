@@ -4,7 +4,7 @@ CCMPL = gcc
 F77 = ifort
 F90 = ifort
 #compiling object file flags
-OPT1 = -O3 -fast -parallel -ipo -no-prec-div
+OPT1 = -O3 -parallel -ipo 
 OPT2 = 
 FFLAGS = -c $(OPT1) $(OPT2)
 #FFLAGS = -c -O0 -g -CB -warn $(OPT2)
@@ -12,7 +12,7 @@ FFLAGS = -c $(OPT1) $(OPT2)
 LFLAGS = $(OPT1) $(OPT2)
 #LFLAGS = -O0 -g -CB -warn $(OPT2)
 #other linking flags
-LFLAGS2 = -O2
+#LFLAGS2 = -O2
 #testing flags
 #LFLAGS = -O0 -g -CB 
 #fitsio libraries

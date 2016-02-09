@@ -115,7 +115,7 @@ transitmcmc5: transitmcmc5.f $(MCMC5INCL)
 	$(F77) $(LFLAGS) -o $(BIN)$@ transitmcmc5.f $(MCMC5INCL)
 TRANSINCL3 = getfitpars.o transitmodel.o mandelagol.o dataio.o fittransitmodel.o mrqmin.o keplerian.o occultquad.o fittransitmodel2.o minpack.o getrhosig.o ttcor.o
 transitfit5: transitfit5.f $(TRANSINCL3)
-	$(F77) $(LFLAGS) -o $(BIN)$@ \
+	$(F77) -cpp -Difort $(LFLAGS) -o $(BIN)$@ \
 	transitfit5.f $(TRANSINCL3) $(LIBS)
 transittiming: transittiming.f $(TRANSINCL3)
 	$(F77) $(LFLAGS) -o $(BIN)$@ transittiming.f $(TRANSINCL3) 
