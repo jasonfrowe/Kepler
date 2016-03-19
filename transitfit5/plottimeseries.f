@@ -72,6 +72,9 @@ c      call readdata(nunit,nmax,nptr,rtime,rflux,rferr,ritime,Keplertime)
       call pgpage()
       call pgslw(2)
       call pgsch(4.0)
+
+      goto 500
+
       call pgvport(0.15,0.95,0.0,0.8)
       call pgwindow(rbb(1),rbb(2),rbb(3),rbb(4))
       call pgptxt(rbb(1)-0.10*(rbb(2)-rbb(1)),(rbb(3)+rbb(4))/2.0,90.0,
@@ -104,6 +107,8 @@ c        write(6,*) px(i),py(i)
       call pgsch(4.0)
 
 CCCCCCC PLOT CORRECTED TIME SERIES CCCCCCC
+
+ 500  continue
 
       mmin=flux(1)
       mmax=flux(1)

@@ -12,7 +12,7 @@
      .   vtime(nmax),vel(nmax),verr(nmax),vetime(nmax),aT(nmax),
      .   aM(nmax),aE(nmax),aIT(nmax),ubs(18)
       character*80 obsfile,inputsol,cline,ttfile,rvfile
-      character*3 titles(15)
+      character*3 titles(18)
       data var/0.003,0.01,0.01,0.01,0.01,0.01,0.1,1.0e-6,1.0e-6,5.0e-6,
      .   0.003,1.0e-4,0.003,0.003,0.3,1.0,1.0,0.5/
       data ubs/0.003,0.01,0.01,0.01,0.01,0.01,1.0,1.0e-6,1.0e-5,1.0e-5,

@@ -81,9 +81,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             tit=titles(i)
         else
             tit=titles(i-10*((i-9)/10))
+!            write(0,*) titles(i-10*((i-9)/10))
             write(tit(3:3),501) ((i-9)/10)+1
  501        format(I1)
-c            write(0,*) i,i-10*((i-9)/10)
+!            write(0,*) i,i-10*((i-9)/10),tit
         endif
         write(11,500) tit,sol(i),serr(i,1),serr(i,2),err(i)
  10   continue
