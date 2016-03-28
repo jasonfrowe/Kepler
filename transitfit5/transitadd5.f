@@ -149,10 +149,10 @@ c      call exportfit(nfit,nplanet,sol,serr,err,titles)
         if(dtype(i).eq.ndt)then !select RV or phot
             if(ndt.eq.1) write(6,*) aT(i)+4900.0d0,aM(i),tmodel(i)
             if(ndt.eq.0) then
-                write(6,*) aT(i)+54900.0d0-0.5d0,
-     .              aM(i)-tmodel(i),ferr(i)!,tmodel(i)
-c               write(6,*) aT(i)+54900.0d0-0.5d0,aM(i)+tmodel(i)-2.0d0,
-c     .            ferr(i)
+c                write(6,*) aT(i)+54900.0d0-0.5d0,
+c     .              aM(i)-tmodel(i),ferr(i)!,tmodel(i)
+               write(6,*) aT(i)+54900.0d0-0.5d0,aM(i)+tmodel(i)-2.0d0,
+     .            ferr(i)
 c               write(6,*) aT(i)+54900.0d0-0.5d0,aM(i)-tmodel(i),
 c     .            ferr(i)
 c                write(6,*) aT(i)+54900.0d0-0.5d0,aM(i),tmodel(i)

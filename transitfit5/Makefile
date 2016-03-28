@@ -70,6 +70,9 @@ transitdur5: transitdur5.f $(durincl)
 remove5incl = getfitpars.o transitmodel.o mandelagol.o dataio.o keplerian.o occultquad.o ttcor.o
 transitremove5: transitremove5.f $(remove5incl)
 	$(F77) $(LFLAGS) -o $(BIN)$@ transitremove5.f $(remove5incl)
+add5incl = getfitpars.o transitmodel.o mandelagol.o dataio.o keplerian.o occultquad.o ttcor.o
+transitadd5: transitadd5.f $(add5incl)
+	$(F77) $(LFLAGS) -o $(BIN)$@ transitadd5.f $(add5incl)
 CHISQINCL = getfitpars.o transitmodel.o mandelagol.o dataio.o keplerian.o occultquad.o ttcor.o
 transitchisq5: transitchisq5.f $(CHISQINCL)
 	$(F77) $(LFLAGS) -o $(BIN)$@ transitchisq5.f $(CHISQINCL)
