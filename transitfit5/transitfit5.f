@@ -25,7 +25,7 @@ C     rhostar chi-square?
       double precision rhoierr(9),rhoi,chifac
 C     TT variations
       double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax)
-      character*3 titles(15)
+      character*3 titles(18)
       character*80 inputsol,obsfile,rvfile,cline,ttfile
 #ifdef gfortran
       common /Fitting/ npta,nplanet,aIT,ntt,tobs,omc
@@ -135,7 +135,7 @@ c        write(0,*) "ntt",i,ntt(i)
  21   continue
 
 C     Skip fitting and just exit..
-C      goto 20
+c      goto 20
 
 C     Use common block Fitting or Fitting2 as required
       dchistop=1.0d-5

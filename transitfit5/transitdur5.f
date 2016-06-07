@@ -27,7 +27,8 @@ c      write(0,*) "done reading input solution"
       tdur=transitdur(nfit,sol,np) !returns transit duration in hours
 c      tdurf=transitdurflat(nfit,sol,np) !'flat' part of transits
       write(6,500) tdur
- 500  format(F7.4)  
+! 500  format(F7.4)
+ 500  format(F13.9)
        
       goto 999
  901  write(0,*) "Usage: transitdur5 <n1.dat> <np>"

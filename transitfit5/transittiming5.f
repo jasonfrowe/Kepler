@@ -10,7 +10,7 @@
      .  aM(nmax),aE(nmax),aIT(nmax),tdur,transitdur,Tmin,Tmax,T0,
      .  tobs(nplanetmax,nmax),omc(nplanetmax,nmax),ttcor,ttold,
      .  tcor(nmax),Ts,Te,Ts2,Te2,sol2(nfit),dchistop,ttold2,
-     .  covar(nfit,nfit),alpha(nfit,nfit)
+     .  covar(nfit,nfit),alpha(nfit,nfit),tdurout,tdurerr
       character*80 obsfile,cline,rvfile,inputsol
       common /Fitting/ npta,nplanet,aIT,ntt,tobs,omc
 
@@ -114,7 +114,7 @@ c      read(5,*)
         goto 999
       endif
 
-      ttold=0.15 !use timing offset from previous measurement
+      ttold=0.0 !use timing offset from previous measurement
 c       ttold=-0.5
 c      ttold=1.5
 
@@ -134,8 +134,9 @@ C       We only fit the epoch
         do 12 i=1,nfit
             serr(i,2)=0.0d0 !disable all parameter fits, except epoch
  12     continue
-        serr(8,2)= -1.0d0
-        serr(9,2)= -1.0d0
+        serr(8,2)= -1.0d0 !zero point
+        serr(9,2)= -1.0d0 !T0 - center of transit time
+        serr(11,2)= -1.0d0 !b - impact parameter (duration)
 C       Copy all-fit solution
         do 13 i=1,nfit
             sol2(i)=sol(i)
@@ -167,7 +168,14 @@ c     .          covar,alpha,dchistop,err)
      .         serr,ia,covar,alpha,dchistop,err)
             ttold2=sol2(9)-sol(9)-ttold
             ttold=sol2(9)-sol(9)
-            write(6,*) T0,sol2(9)-sol(9),err(9)!,sol(4),err(4)
+
+!           estimating transit durations
+            tdurout=transitdur(nfit,sol2,np)
+            sol2(11)=sol2(11)+err(11)
+            tdurerr=abs(transitdur(nfit,sol2,np)-tdurout)
+
+            write(6,500) T0,sol2(9)-sol(9),err(9),tdurout/
+     .         8.64d4,tdurerr/8.64d4
  500  format(19(1X,1PE17.10))
         else
             ttold=ttold+ttold2

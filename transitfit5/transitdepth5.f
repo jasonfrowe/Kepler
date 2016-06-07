@@ -72,7 +72,8 @@ c     .  ntt,tobs,omc,tmodel,dtype)
       tdep=(1.0d0-tmodel(1)+sol(8))*1.0d6
 
       write(6,500) tdep
- 500  format(F8.1)
+! 500  format(F8.1)
+ 500  format(F13.5)
 
       goto 999
  901  write(0,*) 'Usage: transitdepth5 n1.dat nplanet'

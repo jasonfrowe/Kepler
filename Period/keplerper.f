@@ -180,7 +180,7 @@ c      call plotph(npt,time,mag,3.52474859,1,2)
      .  title)
       call jmfourw(npt,time,mag,merr,freq1,freq2,steps,bper,btheta,sn,
      .  1,2,snlimit,1)
-      goto 31
+c      goto 31
 
       write(0,*) "bper:",bper
       plot=0

@@ -63,40 +63,44 @@ c        write(0,*) "ntt",i,ntt(i)
 
       rprs=sol(10*(dplanet-1)+8+4)
       sol(10*(dplanet-1)+8+4)=0.0d0 !set r/R*=0
+      sol(10*(dplanet-1)+8+7)=0.0d0 !set K=0
+      sol(10*(dplanet-1)+8+8)=0.0d0 !set TED=0
+      sol(10*(dplanet-1)+8+9)=0.0d0 !set ELL=0
+      sol(10*(dplanet-1)+8+10)=0.0d0 !set ALB=0
       call transitmodel(nfit,nplanet,nplanetmax,sol,nmax,npt,time,
      .   itime,ntt,tobs,omc,tmodel,dtype)
-      sol(10*(dplanet-1)+8+4)=rprs
-      do 11 i=1,nplanet
-         if(i.ne.dplanet) sol(10*(i-1)+8+4)=0.0d0
- 11   continue
-      call transitmodel(nfit,nplanet,nplanetmax,sol,nmax,npt,time,
-     .   itime,ntt,tobs,omc,tmodel2,dtype)
+!      sol(10*(dplanet-1)+8+4)=rprs
+!      do 11 i=1,nplanet
+!         if(i.ne.dplanet) sol(10*(i-1)+8+4)=0.0d0
+! 11   continue
+!      call transitmodel(nfit,nplanet,nplanetmax,sol,nmax,npt,time,
+!     .   itime,ntt,tobs,omc,tmodel2,dtype)
 
-      per=sol(10*(dplanet-1)+8+2)
-      ecw=sol(10*(dplanet-1)+8+6)
-      esw=sol(10*(dplanet-1)+8+5)
-      eccn=sqrt(ecw*ecw+esw*esw) !eccentricity
-      if(eccn.ge.1.0) eccn=0.99
-      if(eccn.eq.0.0d0)then
-         w=0.0d0
-      else
-         if(ecw.eq.0.0d0)then
-            w=Pi/2.0d0
-         else
-            w=atan(esw/ecw)
-         endif
-         if((ecw.gt.0.0d0).and.(esw.lt.0.0d0))then
-            w=tPi+w
-         elseif((ecw.lt.0.0d0).and.(esw.ge.0.0d0))then
-            w=Pi+w
-         elseif((ecw.le.0.0d0).and.(esw.lt.0.0d0))then
-            w=Pi+w
-         endif
-      endif
-      epoch=sol(10*(dplanet-1)+8+1)
-      Eanom=tan(w/2.0d0)/sqrt((1.0d0+eccn)/(1.0d0-eccn)) !mean anomaly
-      Eanom=2.0d0*atan(Eanom)
-      phi0=Eanom-eccn*sin(Eanom)
+!      per=sol(10*(dplanet-1)+8+2)
+!      ecw=sol(10*(dplanet-1)+8+6)
+!      esw=sol(10*(dplanet-1)+8+5)
+!      eccn=sqrt(ecw*ecw+esw*esw) !eccentricity
+!      if(eccn.ge.1.0) eccn=0.99
+!      if(eccn.eq.0.0d0)then
+!         w=0.0d0
+!      else
+!         if(ecw.eq.0.0d0)then
+!            w=Pi/2.0d0
+!         else
+!            w=atan(esw/ecw)
+!         endif
+!         if((ecw.gt.0.0d0).and.(esw.lt.0.0d0))then
+!            w=tPi+w
+!         elseif((ecw.lt.0.0d0).and.(esw.ge.0.0d0))then
+!            w=Pi+w
+!         elseif((ecw.le.0.0d0).and.(esw.lt.0.0d0))then
+!            w=Pi+w
+!         endif
+!      endif
+!      epoch=sol(10*(dplanet-1)+8+1)
+!      Eanom=tan(w/2.0d0)/sqrt((1.0d0+eccn)/(1.0d0-eccn)) !mean anomaly
+!      Eanom=2.0d0*atan(Eanom)
+!      phi0=Eanom-eccn*sin(Eanom)
 
       do 10 i=1,npt
          call lininterp(tobs,omc,nplanetmax,nmax,dplanet,ntt,time(i),
