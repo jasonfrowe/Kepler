@@ -83,7 +83,7 @@ C     Exclude bad data
         k=0
         do 13 j=1,npt
 c            call getbit(qflag(j),qfbit)
-            if((qflag(j).eq.0).and.(isnan(flux(j)).eq..false.))then
+            if((qflag(j).le.16).and.(isnan(flux(j)).eqv..false.))then
                   k=k+1
                   time(k)=time(j)
                   flux(k)=flux(j)
@@ -101,7 +101,7 @@ c        write(0,*) "Median: ",median
   
 C     Output the data 
         do 12 j=1,npt
-            if(qflag(j).eq.0)then
+            if((qflag(j).le.16).and.(flux(j)/median.gt.-0.9999))then
                 write(6,*) time(j)+54833.0-0.5,flux(j)/median-1.0d0,
      .              ferr(j)/median
 c               write(6,*) time(j)+54833.0-0.5,flux(j),ferr(j)

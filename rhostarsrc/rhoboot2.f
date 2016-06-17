@@ -395,7 +395,7 @@ c     .              *(bdatax(i)-bdatax(i-1))
  11     enddo
 
         sumval=0.0
-        do 15 i=intl,inth
+        do 15 i=int(intl),int(inth)
             sumval=sumval+bdatay(i)
  15     continue
         per=sumval/sumby

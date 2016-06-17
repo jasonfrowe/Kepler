@@ -3,14 +3,14 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      .  btheta,signoise,panx,pany,snlimit,plot)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
-      integer npt,steps,panx,pany,nmax,stepmax,k,j,nf,snw,n1,n2,plot
+      integer npt,steps,panx,pany,nmax,stepmax,k,j,nf,snw,n1,n2,plot,nnp
       parameter(stepmax=2000,snw=2000)
-      parameter(nmax=2000000)
-      real percold,perc,bb(4),px(3),py(3),orbper,px2(1e6),py2(1e6),dumr
+      parameter(nmax=2000000,nnp=1000000)
+      real percold,perc,bb(4),px(3),py(3),orbper,px2(nnp),py2(nnp),dumr
       double precision time(npt),mag(npt),freq1,freq2,bper,btheta,by(4),
      .  nx(stepmax),ny1(stepmax),ny2(stepmax),bx(4),tbin,dum,weight,
-     .  merr(npt),amps(1e6),cf(2*snw+2),stdev,std,cf2(2*snw+2),mean,
-     .  signoise,snplot(1e6),freqs(1e6),snlimit
+     .  merr(npt),amps(nnp),cf(2*snw+2),stdev,std,cf2(2*snw+2),mean,
+     .  signoise,snplot(nnp),freqs(nnp),snlimit
       character*80 tmpc
 
       INTEGER I,NUMPTS,NMDENU
