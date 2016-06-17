@@ -49,7 +49,7 @@ cut5incl = $(tfit5src)getfitpars.o $(tfit5src)ttcor.o
 transitcut5: $(tfit5src)transitcut5.f $(cut5incl)
 	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)transitcut5.f $(cut5incl)
 	
-datadumpincl = $(tfit5src)dataio.o $(tfit5src)getfitpars.o $(tfit5src)ttcor.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)dataio.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o
+datadumpincl = $(tfit5src)dataio.o $(tfit5src)getfitpars.o $(tfit5src)ttcor.o $(tfit5src)transitmodel.o $(tfit5src)mandelagol.o $(tfit5src)keplerian.o $(tfit5src)occultquad.o
 datadump5: $(tfit5src)datadump5.f $(datadumpincl)
 	$(F90) $(FFLAGS) -o $(BIN)$@ $(tfit5src)datadump5.f $(datadumpincl)
 	
