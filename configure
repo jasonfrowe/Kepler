@@ -3610,7 +3610,7 @@ else
 $as_echo "libraries $x_libraries, headers $x_includes" >&6; }
 fi
 
-LFLAGS="$LDFLAGS -L$ac_x_libraries"
+LFLAGS="$LDFLAGS -L/$ac_x_libraries"
 XFLAGS="-lX11"
 { $as_echo "$as_me:${as_lineno-$LINENO}: $LFLAGS" >&5
 $as_echo "$as_me: $LFLAGS" >&6;}

@@ -23,7 +23,7 @@ AC_CHECK_LIB([png],     [png_error], [PGPLOTLIB="-lpng $PGPLOTLIB"],
 AC_MSG_NOTICE([  -- CFITSIO -- ])
 AC_CHECK_LIB([cfitsio], [ffopen],[CFITSIOLIB="-lcfitsio"],[AC_MSG_ERROR([CFITSIO NOT FOUND])],)
 AC_PATH_X
-LFLAGS="$LDFLAGS -L$ac_x_libraries"
+LFLAGS="$LDFLAGS -L/$ac_x_libraries"
 XFLAGS="-lX11"
 AC_MSG_NOTICE([$LFLAGS])
 AC_SUBST(LFLAGS)
