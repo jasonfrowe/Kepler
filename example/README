@@ -70,7 +70,7 @@ with simple ASCII files.
 
 *A1. Convert FITS tables retrieve from MAST to a simple ASCII file
 
- : ../bin/kfitsread `find FITS | grep fits` > klc06541920.dat
+ : ../bin/kfitsread `find FITS | grep fits` | sort -bn -k1 > klc06541920.dat
 
  We use the command kfitsread.  By making use the UNIX find and grep 
  commands we can feed all the FITS files to the program.  The extracted

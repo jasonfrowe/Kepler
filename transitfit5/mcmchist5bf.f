@@ -166,11 +166,11 @@ c                write(6,500) sol(ii),ave,std,(errs(k),k=1,6)
                   output(6)=sol(ii)
                   output(7)=std
                 elseif(j.eq.3)then
-                  output(8)=ave
+                  output(8)=sol(ii)!ave
                   output(9)=errs(1)
                   output(10)=errs(2)
                 elseif(j.eq.4)then
-                  output(11)=ave
+                  output(11)=sol(ii)!ave
                   output(12)=errs(1)
                   output(13)=errs(2)
                 endif
