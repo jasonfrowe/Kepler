@@ -230,6 +230,7 @@ c                if((j.eq.15).and.(sol(i).lt.0.0d0)) goto 22
             endif
         endif
  13   continue
+      sol(1)=abs(sol(1)) !mean-stellar density must be positive!
  21   sol(6)=gasdev(seed)*dil(2)+dil(1)
       if(sol(6).lt.0.0d0) goto 21
 
