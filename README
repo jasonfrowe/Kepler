@@ -1,6 +1,8 @@
 ------------------------------------------------------------------------
 Source Code for NASA's Kepler Mission (jasonfrowe@gmail.com)
 ------------------------------------------------------------------------
+!!!NEW!!! - There are now Python wrappers for some subroutines, ask for
+            details. 
 
 Requires:  X11,PGPlot,CFITSIO libraries (-lX11 -lpgplot -lcfitsio)
 **If you use OS/X I recommend 'homebrew' to install pgplot and cfitsio

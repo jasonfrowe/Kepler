@@ -162,3 +162,4 @@ write(0,*) "Done fitting.."
 call exportsol(nstar,Id,Ic,xcoo,ycoo,ngsol,gsol)
 
 end program psffit
+

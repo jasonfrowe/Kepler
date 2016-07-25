@@ -156,17 +156,40 @@ integer, dimension(:) :: id
 real(double), dimension(:) :: time
 real(double), dimension(:,:) :: phot
 !local vars
-integer :: i,j
+integer :: i,j,nunit
+character(80) :: filename
+
+nunit=10
 
 do i=1,nstar
-   if(id(i).eq.10002261)then
-      do j=1,np
-         if(phot(i,j).gt.0.0) write(6,500) time(j),phot(i,j),sqrt(phot(i,j))
-      enddo
+!   if(id(i).eq.10002261)then
+   if(id(i).gt.99999999)then
+      write(filename,'(A3,I9,A4)') "klc",id(i),".dat"
+   elseif(id(i).gt.9999999)then
+      write(filename,'(A4,I8,A4)') "klc0",id(i),".dat"
+   elseif(id(i).gt.999999)then
+      write(filename,'(A5,I7,A4)') "klc00",id(i),".dat"
+   elseif(id(i).gt.99999)then
+      write(filename,'(A6,I6,A4)') "klc000",id(i),".dat"
+   elseif(id(i).gt.9999)then
+      write(filename,'(A7,I5,A4)') "klc0000",id(i),".dat"
+   elseif(id(i).gt.999)then
+      write(filename,'(A8,I4,A4)') "klc00000",id(i),".dat"
+   elseif(id(i).gt.99)then
+      write(filename,'(A9,I3,A4)') "klc000000",id(i),".dat"
+   elseif(id(i).gt.9)then
+      write(filename,'(A10,I2,A4)') "klc0000000",id(i),".dat"
+   else
+      write(filename,'(A11,I1,A4)') "klc00000000",id(i),".dat"
    endif
+   open(unit=nunit,file=filename)
+   do j=1,np
+      if(phot(i,j).gt.0.0) write(nunit,500) time(j),phot(i,j),sqrt(phot(i,j)),j
+   enddo
+   close(nunit)
 enddo
 
-500 format(5(1PE17.10,1X))
+500 format(3(1PE17.10,1X),I6)
 
 return
 end subroutine exportphot
