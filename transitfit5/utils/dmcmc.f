@@ -175,22 +175,31 @@ c      chi2=chi2+dsig*dsig
       endif
 c      write(0,*) "rchi:",rchi,npta
       
+      flag=0 !pass everything (for now)
       if((sol2(1).lt.1.0e-5).or.(sol2(1).gt.1000.0)) flag=1 !density
+
+      ! simple addition to look at MCMC priors (zero-point)
+!      if((sol2(8).lt.-1.0e-5).or.(sol2(8).gt.1.0e-5)) flag=1 !zpt
+
       do 25 i=1,nplanet
-c        b=sqrt(sol2(11+10*(i-1)))
-c        if(sol2(11+10*(i-1)).lt.0.0) flag=1 !b^2
+
+      ! simple addition to look at MCMC priors (epoch and period)
+!        if((sol2(9+10*(i-1)).lt.68.0).or.
+!     .     (sol2(9+10*(i-1)).gt.68.2)) flag=1 !EPO
+!        if((sol2(10+10*(i-1)).lt.17.0).or.
+!     .     (sol2(10+10*(i-1)).gt.17.4)) flag=1 !Period
+
         b=sol2(11+10*(i-1)) !changed from b^2 to b
         if((b.lt.0.0).or.
      .     (b.ge.1.0+sol2(12+10*(i-1)))) flag=1 !impact parameter
         if((sol2(12+10*(i-1)).lt.0.0).or.
-     .     (sol2(12+10*(i-1)).gt.100.0)) flag=1 !r/R*
+     .     (sol2(12+10*(i-1)).gt.10.0)) flag=1 !r/R*
         if((sol2(13+10*(i-1)).lt.-1.0).or.
      .     (sol2(13+10*(i-1)).gt.1.0)) flag=1 !ecosw
         if((sol2(14+10*(i-1)).lt.-1.0).or.
      .     (sol2(14+10*(i-1)).gt.1.0)) flag=1 !esinw
         echeck=sol2(13+10*(i-1))**2 + sol2(14+10*(i-1))**2
         if((echeck.lt.0.0).or.(echeck.ge.1.0)) flag=1 !e
-
 C        uncomment this line to restrict K > 0
 C        if(sol2(15+10*(i-1)).lt.0.0) flag=1  !K
  25   continue

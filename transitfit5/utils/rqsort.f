@@ -28,6 +28,7 @@ c     Local:
       real*8      x
       integer   stackl(LGN),stackr(LGN),s,t,l,m,r,i,j
 
+
 c     Initialize the stack
       stackl(1)=1
       stackr(1)=n
