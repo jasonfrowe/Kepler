@@ -18,8 +18,6 @@ C     (c) jasonfrowe@gmail.com
      .  occ(nintg),bp(nintg),jm1,tdnintg
       integer ntt(nplanetmax)
       double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax),ttcor
-
-      write(0,*) "hello!"
       
       Pi=acos(-1.d0)!define Pi and 2*Pi
       tPi=2.0d0*Pi 
