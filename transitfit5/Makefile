@@ -2,11 +2,12 @@
 CCMPL = gcc
 #Name of Fortran compiler
 F77 = ifort
+F90 = ifort
 #F77 = gfortran
 #compiling object file flags
-OPT1 = -O3 -fast -parallel -ipo -no-prec-div
+OPT1 = -O3 -parallel -mkl -ipo
 OPT2 = 
-#OPT1 = -O3 
+#OPT1 = -O0 -g -CB -warn 
 #OPT2 = 
 FFLAGS = -c $(OPT1) $(OPT2)
 #FFLAGS = -c -O0 -g -CB -warn $(OPT2)
@@ -33,7 +34,11 @@ UTILS = utils/
 
 #Listing of programs to create.
 
-all: transitfit5 transitmcmc5 mcmchist5 mcmc_corr mcmcphys mcmchistnew a2n plottimeseries rvplot transitplot5 updaten transitchisq5 transitdur5 n1update transitcut5 transitsigclip5 transittiming5 transitsn5
+all: transitfit51 transitfit5 transitmcmc5 mcmchist5 mcmc_corr mcmcphys mcmchistnew a2n plottimeseries rvplot transitplot5 updaten transitchisq5 transitdur5 n1update transitcut5 transitsigclip5 transittiming5 transitsn5
+
+tfit51incl = precision.o fittermod.o getfitpars.o ttcor.o transitmodel.o mandelagol.o keplerian.o occultquad.o fittransitmodel3.o minpack.o getrhosig.o 
+transitfit51: transitfit51.f90 $(tfit51incl)
+	$(F90) $(LFLAGS) -o $(BIN)$@ transitfit51.f90 $(tfit51incl)
 
 sn5incl = dataio.o getfitpars.o ttcor.o transitmodel.o mandelagol.o keplerian.o occultquad.o stdev.o
 transitsn5: transitsn5.f $(sn5incl)
@@ -125,6 +130,12 @@ transittiming: transittiming.f $(TRANSINCL3)
 
 
 #building object libraries
+fittermod.o: $(UTILS)fittermod.f90
+	$(F90) $(FFLAGS) $(UTILS)fittermod.f90
+fittransitmodel3.o: $(UTILS)fittransitmodel3.f90
+	$(F90) $(FFLAGS) $(UTILS)fittransitmodel3.f90
+precision.o: $(UTILS)precision.f90
+	$(F90) $(FFLAGS) $(UTILS)precision.f90
 stdev.o: $(UTILS)stdev.f
 	$(F77) $(FFLAGS) $(UTILS)stdev.f
 transitdur.o: $(UTILS)transitdur.f
