@@ -105,6 +105,7 @@ enddo
 
 call transitmodel(nfit,nplanet2,nplanet2,sol,m,m,aT2,aIT2,ntt2,tobs2,   &
   omc2,fvec,dtype2)
+!write(0,*) aM2(1),fvec(1)
 
 !fold in priors on rho-star
 if(nfrho2.eq.0)then
@@ -126,7 +127,7 @@ do i=1,m
 !   write(6,*) i,fvec(i)
 !   read(5,*)
 enddo
-!write(0,*) sum(fvec(1:m))
+!write(0,*) "chi: ",sum(fvec(1:m))
 !read(5,*)
 
 

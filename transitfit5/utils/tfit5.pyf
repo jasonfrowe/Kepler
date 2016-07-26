@@ -23,12 +23,12 @@ python module tfit5 ! in
             real*8 dimension(n),intent(inout) :: a
             integer dimension(n),depend(n),intent(inout) :: p
         end subroutine rqsort
-	function transitdur(nfit,sol,np) ! in :tfit5:transitdur.f
+        function transitdur(nfit,sol,np) ! in :tfit5:transitdur.f
     	    integer, optional,check(len(sol)>=nfit),depend(sol) :: nfit=len(sol)
     	    double precision dimension(nfit), intent(in) :: sol
     	    integer,intent(in) :: np
     	    double precision :: transitdur
-	end function transitdur
+        end function transitdur
         function albedomod(pi,ag,phi) ! in :tfit5:transitmodel.f
             double precision :: pi
             double precision :: ag
