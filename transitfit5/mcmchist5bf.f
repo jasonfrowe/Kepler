@@ -70,7 +70,7 @@ c      call pgopen('/null')
       call PGPAP ( 8.0 ,1.0) !paper size
       call pgsubp(5,5)  !break up plot into grid
 
-      write(6,501) "Parameter    ","Median    ", "Stdev     ",
+      write(6,501) "Parameter    ","Bestfit   ", "Stdev     ",
      .  "+1 sig     ", "-1 sig     ", "+2 sig     ", "-2 sig     ",
      .  "+3 sig     ", "-3 sig     "
       write(6,502) "----------------------------------------------------

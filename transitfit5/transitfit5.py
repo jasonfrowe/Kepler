@@ -79,6 +79,8 @@ def transitplot(time,flux,sol,nplanetplot=1, itime=-1, ntt=0, tobs=0, omc=0, dty
             sol2[nc+3]=0.0 #rdrs
     tmodel= zeros(len(time)) #contains the transit model
     tfit5.transitmodel(nplanet,sol2,time,itime,nttin,tobsin,omcin,tmodel,dtypein)
+    stdev=np.std(flux-tmodel)
+    #print(stdev)
     
     #make a model with only the other transits to subtract
     nc=8+10*(nplanetplot-1)
@@ -131,12 +133,14 @@ def transitplot(time,flux,sol,nplanetplot=1, itime=-1, ntt=0, tobs=0, omc=0, dty
     plt.xlabel('Phase (hours)') #x-label
     plt.ylabel('Relative Flux') #y-label
     x1,x2,y1,y2 = plt.axis()    #get range of plot
-    ymin=min(fplot[i1:i2])
-    ymax=max(fplot[i1:i2])
-    y1=ymin-0.1*(ymax-ymin)
-    y2=ymax+0.1*(ymax-ymin)
+    ymin=min(fluxsort[i1:i2])
+    ymax=max(fluxsort[i1:i2])
+    y1=ymin-0.1*(ymax-ymin)-2.0*stdev
+    y2=ymax+0.1*(ymax-ymin)+2.0*stdev
     plt.axis((-tdur,tdur,y1,y2)) #readjust range
     plt.show()  #show the plot
+        
+    return;
         
     return;
 
