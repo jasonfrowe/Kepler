@@ -5,7 +5,7 @@ integer :: iargc,filestatus,nunit,nmax,npt,nb,in1,in2,nstep,nplot
 real(double) :: nyq,mint,maxt,fread,freq1,freq2,ofac,Mstar,Rstar,qtran, &
    depth,bper,bpow,epo,pmean,std,SNR
 real(double), allocatable, dimension(:) :: time,flux,ferr,psmooth,p,    &
-   freqs
+   freqs,sn
 character(80) :: obsfile,cline
 
 interface
@@ -29,13 +29,13 @@ end interface
 
 interface
    subroutine bls2(Mstar,Rstar,freq1,freq2,nyq,ofac,nb,npt,time,flux,   &
-      in1,in2,qtran,depth,bper,bpow,freqs,p,psmooth)
+      in1,in2,qtran,depth,bper,bpow,freqs,p,psmooth,sn)
       use precision
       integer, intent(in) :: npt,nb
       integer, intent(out) :: in1,in2
       real(double), intent(in) :: Mstar,Rstar,freq1,freq2,nyq,ofac
       real(double), intent(out) :: qtran,depth,bper,bpow
-      real(double), dimension(:), intent(in) :: time,flux,psmooth
+      real(double), dimension(:), intent(in) :: time,flux,psmooth,sn
       real(double), dimension(:), intent(out) :: freqs,p
    end subroutine bls2
 end interface
@@ -50,11 +50,11 @@ interface
 end interface
 
 interface
-   subroutine smooth(nstep,p,psmooth,ofac)
+   subroutine smooth(nstep,p,psmooth,sn,ofac)
       use precision
       integer, intent(in) :: nstep
       real(double), dimension(:), intent(in) :: p
-      real(double), dimension(:), intent(out) :: psmooth
+      real(double), dimension(:), intent(out) :: psmooth,sn
       real(double), intent(in) :: ofac
    end subroutine smooth
 end interface
@@ -112,7 +112,6 @@ if(npt.lt.3)then  !we should have at least 3 data points.
    bpow=0.0
    SNR=0.0
    qtran=0.0
-   bper=0.0
    depth=0.0
 
 else !if we have data, then do all the work..
@@ -160,16 +159,17 @@ else !if we have data, then do all the work..
    write(0,*) "Calc number of steps"
    call calcnsteps(nstep,Mstar,Rstar,freq1,freq2,nyq,ofac,npt) !number of f's
    write(0,*) "nstep: ",nstep
-   allocate(psmooth(nstep),p(nstep),freqs(nstep)) !allocate arrays
+   allocate(psmooth(nstep),p(nstep),freqs(nstep),sn(nstep)) !allocate arrays
    psmooth=0.0d0 !intitalize to zero (1/f estimate)
+   sn=1.0d0
    write(0,*) "BLS pass 1"
    call bls2(Mstar,Rstar,freq1,freq2,nyq,ofac,nb,npt,time,flux,in1,in2, &
-      qtran,depth,bper,bpow,freqs,p,psmooth)
+      qtran,depth,bper,bpow,freqs,p,psmooth,sn)
    write(0,*) "Smooth"
-   call smooth(nstep,p,psmooth,ofac) !used to get rid of 1/f ramp
+   call smooth(nstep,p,psmooth,sn,ofac) !used to get rid of 1/f ramp
    write(0,*) "BLS pass 2"
    call bls2(Mstar,Rstar,freq1,freq2,nyq,ofac,nb,npt,time,flux,in1,in2, &
-      qtran,depth,bper,bpow,freqs,p,psmooth) !run BLS again but with 1/f estimate
+      qtran,depth,bper,bpow,freqs,p,psmooth,sn) !run BLS again but with 1/f estimate
 
    !Time of first Transit
    if(in1.lt.in2)then
@@ -327,18 +327,18 @@ return
 end
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-subroutine smooth(nstep,p,psmooth,ofac)
+subroutine smooth(nstep,p,psmooth,sn,ofac)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 use precision
 implicit none
 integer :: nstep,i,i1,i2,k,j,nsamp
 integer, allocatable, dimension(:) :: nd
-real(double) :: ofac
-real(double), dimension(:) :: p,psmooth
+real(double) :: ofac,pmean,stdev
+real(double), dimension(:) :: p,psmooth,sn
 real(double), allocatable, dimension(:) :: pcut
 
 !nsamp=max(int(ofac),nstep/1000)
-nsamp=int(ofac)*5
+nsamp=min(int(ofac)*100,nstep)
 
 allocate(pcut(nstep),nd(nstep))
 
@@ -347,8 +347,10 @@ do i=1,nstep
    i2=min(nstep,i+nsamp)
    k=0
    do j=i1,i2
-      k=k+1
-      pcut(k)=p(j)
+      if((j.gt.i+nsamp/4).or.(j.lt.i-nsamp/4))then !chop out frequency of interest
+         k=k+1
+         pcut(k)=p(j)
+      endif
    enddo
 !   psmooth(i)=pcut(1)
 !   do j=2,k
@@ -356,6 +358,7 @@ do i=1,nstep
 !   enddo
   call rqsort(k,pcut,nd)
   psmooth(i)=pcut(nd(k/2))
+  sn(i)=stdev(k, pcut, pmean)
 enddo
 
 return
@@ -396,7 +399,7 @@ end
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 subroutine bls2(Mstar,Rstar,freq1,freq2,nyq,ofac,nb,n,t,x,in1,in2,qtran,&
-   depth,bper,bpow,freqs,p,psmooth)
+   depth,bper,bpow,freqs,p,psmooth,sn)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 use precision
 implicit none
@@ -406,7 +409,7 @@ integer, allocatable, dimension(:) :: ibi
 real(double) :: Mstar,Rstar,freq1,freq2,f,df,q,nyq,ofac,steps,df0,rn,   &
    rnb,bpow,onehour,qma,qmi,s,t1,f0,p0,ph,power,rn1,pow,rn3,s3,sn1,ps1, &
    qtran,depth,bper
-real(double), dimension(:) :: t,x,freqs,p,psmooth
+real(double), dimension(:) :: t,x,freqs,p,psmooth,sn
 real(double), allocatable, dimension(:) :: y,u,v
 
 interface
@@ -458,8 +461,10 @@ do while(f.lt.freq2)
    freqs(nstep)=f0
 
 !  Added by JR
-   sn1=1.0!sn(nstep)
+   sn1=sn(nstep)
    ps1=psmooth(nstep)
+!   sn1=psmooth(nstep)
+!   ps1=0.0!
 !  Added by JR
 
 !  optimum q to scan based on stellar parameters

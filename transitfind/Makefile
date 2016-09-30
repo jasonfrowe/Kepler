@@ -4,7 +4,8 @@ CCMPL = gcc
 F77 = ifort
 F90 = ifort
 #compiling object file flags
-OPT1 = -O3 -fast -parallel -ipo -no-prec-div
+#OPT1 = -O3 -fast -parallel -ipo -no-prec-div
+OPT1 = -O3 -parallel -openmp -mkl
 OPT2 = 
 FFLAGS = -c $(OPT1) $(OPT2)
 #FFLAGS = -c -O0 -g -CB $(OPT2)
@@ -31,6 +32,10 @@ UTILS = utils/
 #Listing of programs to create.
 
 all: transitfind tpsclean tpsstats effplot transitfind2
+
+pdmsearchincl = precision.o readdata2.o nyquest2.o rqsort.o calcnsteps.o qfunc.o pdm.o ovrwrt.o makeplot.o graphics.o
+pdmsearch: pdmsearch.f90 $(pdmsearchincl)
+	$(F90) $(LFLAGS) -o $(BIN)pdmsearch pdmsearch.f90 $(pdmsearchincl) $(LIBS)
 
 pickincl = precision.o
 pickcandidates: pickcandidates.f90 $(pickincl)
@@ -60,7 +65,20 @@ transitfind: transitfind1.f $(FINDINCL)
 	$(F77) $(LFLAGS) -o $(BIN)transitfind transitfind1.f $(FINDINCL) $(LIBS)
 
 #building object libraries
-
+makeplot.o: $(UTILS)makeplot.f90
+	$(F90) $(FFLAGS) $(UTILS)makeplot.f90
+ovrwrt.o: $(UTILS)ovrwrt.f
+	$(F90) $(FFLAGS) $(UTILS)ovrwrt.f
+pdm.o: $(UTILS)pdm.f90
+	$(F90) $(FFLAGS) $(UTILS)pdm.f90
+qfunc.o: $(UTILS)qfunc.f90
+	$(F90) $(FFLAGS) $(UTILS)qfunc.f90
+calcnsteps.o: $(UTILS)calcnsteps.f90
+	$(F90) $(FFLAGS) $(UTILS)calcnsteps.f90
+readdata2.o: $(UTILS)readdata2.f90
+	$(F90) $(FFLAGS) $(UTILS)readdata2.f90
+nyquest2.o: $(UTILS)nyquest2.f90
+	$(F90) $(FFLAGS) $(UTILS)nyquest2.f90
 graphics.o: $(UTILS)graphics.f
 	$(F77) $(FFLAGS) $(UTILS)graphics.f
 stdev.o: $(UTILS)stdev.f
