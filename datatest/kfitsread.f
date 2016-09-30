@@ -3,11 +3,12 @@ C     Reads in FITS files with Kepler data from MAST
 C     Jason Rowe - jasonfrowe@gmail.com
       implicit none
       integer unitfits,status,iargc,readwrite,blocksize,nhuds,hudtype,
-     .  hud,nrecmax,j,nkeys,nmax,npt,k,i,nfile
+     .  hud,nrecmax,j,nkeys,nmax,npt,k,i,nfile,qflagcomb
       parameter(nrecmax=700,nmax=2000000)
-      integer qflag(nmax),ns(nmax),qfbit(14)
+      integer qflag(nmax),ns(nmax),qfbit(21)
       double precision time(nmax),flux(nmax),ferr(nmax),median
-      character*80 filename,header(nrecmax)
+      character*160 filename
+      character*80 header(nrecmax)
       character*8 imagetype,extname
       
       if(iargc().lt.1) goto 901
@@ -48,7 +49,8 @@ C               Read in all the header information
                     if(header(j)(1:8).eq."XTENSION") then
                         read(header(j)(12:19),503) imagetype
  503                    format(A8)
-C                    write(6,*) header(j)(1:8),header(j)(12:19)
+c                    write(6,*) header(j)(1:8),header(j)(12:19)
+c                     write(0,*) imagetype
                     endif
                     if(header(j)(1:8).eq."EXTNAME") then
                         read(header(j)(12:19),503) extname
@@ -58,7 +60,8 @@ c                  write(6,*) "extname:",extname
 11              continue
 
                 if((imagetype.eq."BINTABLE").and.
-     .            (extname.eq."LIGHTCUR")) then
+     .            ((extname.eq."LIGHTCUR").or.
+     .            (extname.eq."INJECTED"))) then
 c                if((imagetype.eq."BINTABLE").and.
 c     .            (extname.eq."TARGETTA")) then
                     call rdfitbtab(unitfits,status,nmax,npt,time,flux,
@@ -82,8 +85,8 @@ C       check for any FITSIO error codes.
 C     Exclude bad data
         k=0
         do 13 j=1,npt
-c            call getbit(qflag(j),qfbit)
-            if((qflag(j).le.16).and.(isnan(flux(j)).eqv..false.))then
+            call getbit(qflag(j),qfbit,qflagcomb)
+            if((qflagcomb.eq.0).and.(isnan(flux(j)).eqv..false.))then
                   k=k+1
                   time(k)=time(j)
                   flux(k)=flux(j)
@@ -101,7 +104,7 @@ c        write(0,*) "Median: ",median
   
 C     Output the data 
         do 12 j=1,npt
-            if((qflag(j).le.16).and.(flux(j)/median.gt.-0.9999))then
+            if((qflagcomb.eq.0).and.(flux(j)/median.gt.-0.9999))then
                 write(6,*) time(j)+54833.0-0.5,flux(j)/median-1.0d0,
      .              ferr(j)/median
 c               write(6,*) time(j)+54833.0-0.5,flux(j),ferr(j)
@@ -124,21 +127,38 @@ c       write(0,*) unitfits,status,nhuds
  999  end
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine getbit(qflag,qfbit)
+      subroutine getbit(qflag,qfbit,qflagcomb)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
-      integer qflag,qfbit(14),i
-      character*14 cbin
+      integer qflag,qfbit(21),i,qflagcomb
+      character(len=21) cbin
 
+      !write(0,*) "qflag: ",qflag
       write(cbin,500) qflag
- 500  format(B14.1)
-      do 10 i=1,14
-         qfbit(i)=0
-         read(cbin(i:i),*,end=10) qfbit(i)
+!      write(0,*) cbin(1:21)
+ 500  format(B21.21)
+      do 10 i=1,21
+!         write(0,*) 22-i,cbin(i:i),i
+         read(cbin(i:i),*) qfbit(22-i)
  10   continue
 
-      write(6,501) (qfbit(i),i=1,14)
- 501  format(14I1)
+      qflagcomb=0
+      if (qfbit(1).eq.1) qflagcomb=1
+      if (qfbit(2).eq.1) qflagcomb=1
+      if (qfbit(3).eq.1) qflagcomb=1
+      if (qfbit(4).eq.1) qflagcomb=1
+      if (qfbit(6).eq.1) qflagcomb=1
+      if (qfbit(7).eq.1) qflagcomb=1
+      if (qfbit(9).eq.1) qflagcomb=1
+      if (qfbit(13).eq.1) qflagcomb=1
+      if (qfbit(15).eq.1) qflagcomb=1
+      if (qfbit(16).eq.1) qflagcomb=1
+      if (qfbit(17).eq.1) qflagcomb=1
+
+!      write(6,501) (qfbit(i),i=1,21)
+ 501  format(21I1)
+
+!      read(5,*)
 
       return
       end
