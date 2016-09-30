@@ -36,8 +36,7 @@ end interface
 nfrho=1 !flag for folding in rho-star priors
 
 if(iargc().lt.3)then
-   write(0,*) "Usage: transitfit5 <photfile> <rvfile> <fitpars> [kmag] &
-[ttfiles]"
+   write(6,*) "Usage: transitfit5 <photfile> <rvfile> <fitpars> [ttfiles]"
    stop
 endif
 

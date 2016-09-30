@@ -76,6 +76,7 @@ c        write(0,*) "ntt",i,ntt(i)
 
 
       call pgopen('?') !open PGPlot device
+c      call pgopen('test.png/png')
       call pgask(.true.) !don't ask for new page.. just do it.
 c      call PGPAP (10.0/real(nplanet+1) ,real(nplanet+1)/2.0) !paper size
       call PGPAP(8.0/real(nplanet+1)*2.0 ,real(nplanet+1)/2.0) 
