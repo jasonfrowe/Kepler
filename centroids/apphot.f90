@@ -164,23 +164,23 @@ nunit=10
 do i=1,nstar
 !   if(id(i).eq.10002261)then
    if(id(i).gt.99999999)then
-      write(filename,'(A3,I9,A4)') "klc",id(i),".dat"
+      write(filename,'(A3,I9,A4)') "klc",id(i),".pho"
    elseif(id(i).gt.9999999)then
-      write(filename,'(A4,I8,A4)') "klc0",id(i),".dat"
+      write(filename,'(A4,I8,A4)') "klc0",id(i),".pho"
    elseif(id(i).gt.999999)then
-      write(filename,'(A5,I7,A4)') "klc00",id(i),".dat"
+      write(filename,'(A5,I7,A4)') "klc00",id(i),".pho"
    elseif(id(i).gt.99999)then
-      write(filename,'(A6,I6,A4)') "klc000",id(i),".dat"
+      write(filename,'(A6,I6,A4)') "klc000",id(i),".pho"
    elseif(id(i).gt.9999)then
-      write(filename,'(A7,I5,A4)') "klc0000",id(i),".dat"
+      write(filename,'(A7,I5,A4)') "klc0000",id(i),".pho"
    elseif(id(i).gt.999)then
-      write(filename,'(A8,I4,A4)') "klc00000",id(i),".dat"
+      write(filename,'(A8,I4,A4)') "klc00000",id(i),".pho"
    elseif(id(i).gt.99)then
-      write(filename,'(A9,I3,A4)') "klc000000",id(i),".dat"
+      write(filename,'(A9,I3,A4)') "klc000000",id(i),".pho"
    elseif(id(i).gt.9)then
-      write(filename,'(A10,I2,A4)') "klc0000000",id(i),".dat"
+      write(filename,'(A10,I2,A4)') "klc0000000",id(i),".pho"
    else
-      write(filename,'(A11,I1,A4)') "klc00000000",id(i),".dat"
+      write(filename,'(A11,I1,A4)') "klc00000000",id(i),".pho"
    endif
    open(unit=nunit,file=filename)
    do j=1,np
