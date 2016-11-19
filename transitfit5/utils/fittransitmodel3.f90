@@ -30,9 +30,8 @@ enddo
 tol=1.0d-8 !tolerance parameter for fits
 
 !show a subset of the parameters prior to fitting
-
-write(0,'(A108)') "   RHO        ZPT        EP1        PE1        BB1        RD1        EC1        ES1        KR1        TE1  "
-write(0,503) sol(1),sol(8),sol(9),sol(10),sol(11),sol(12),sol(13),      &
+write(0,'(A130)') "   RHO        NL1        NL2        ZPT        EP1        PE1        BB1        RD1        EC1        ES1        KR1        TE1  "
+write(0,503) sol(1),sol(2),sol(3),sol(8),sol(9),sol(10),sol(11),sol(12),sol(13),      &
    sol(14),sol(15),sol(16)
 503 format(28(1PE10.3,1X))
 
@@ -70,7 +69,7 @@ do i=1,nfit
 enddo
 
 !show a subset of the parameters after fitting
-write(0,503) sol(1),sol(8),sol(9),sol(10),sol(11),sol(12),sol(13),      &
+write(0,503) sol(1),sol(2),sol(3),sol(8),sol(9),sol(10),sol(11),sol(12),sol(13),      &
    sol(14),sol(15),sol(16)
 
 return
@@ -86,7 +85,7 @@ integer :: m,n,iflag
 real(double) :: x(n),fvec(m)
 !local vars
 integer :: i,j,nfit
-real(double) :: y,yy,drho,rhoin(9),yp,dsig
+real(double) :: y,yy,drho,rhoin(9),yp,dsig,c1,c2,c3,c4
 real(double), allocatable, dimension(:) :: sol
 data rhoin/-1.0d2,-3.0d0,-2.0d0,-1.0d0,0.0d0,1.0d0,2.0d0,3.0d0,1.0d2/
 
@@ -102,6 +101,25 @@ do i=1,nfit
    endif
    if(j.gt.n)write(0,*) "whoops.. j>n"
 enddo
+
+!Check that limb-darkening is valid
+c1=sol(2)      !limb-darkening
+c2=sol(3)
+c3=sol(4)
+c4=sol(5)
+if((c1.eq.0.0).and.(c2.eq.0.0))then
+   if((c3.lt.0.0).or.(c3.gt.1.0).or.(c4.lt.0.0).or.(c4.gt.1.0))then
+      fvec=9.9e30
+      return
+   endif
+elseif((c3.eq.0.0).and.(c4.eq.0.0))then
+   !write(0,*) "Quad..",c1,c2
+   if((c1+c2.gt.1.0).or.(c1.lt.0).or.(c1+2.0d0*c2.lt.0))then
+      !write(0,*) "invalid.."
+      fvec=9.9e30
+      return
+   endif
+endif
 
 call transitmodel(nfit,nplanet2,nplanet2,sol,m,m,aT2,aIT2,ntt2,tobs2,   &
   omc2,fvec,dtype2)

@@ -53,7 +53,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       double precision x(n),fvec(m),aT(nmax),aM(nmax),aE(nmax),
      .  aIT(nmax),sol(nfit),serr(nfit,2),sol2(nfit),rhoin(9),rhoierr(9),
      .  y,yy,yp,rhoi,drho,dsig,chifac,tobs(nplanetmax,nmax),
-     .  omc(nplanetmax,nmax)
+     .  omc(nplanetmax,nmax),c1,c2,c3,c4
       common /Fitting2/ nfrho,nplanet,dtype,aT,aM,aE,aIT,sol,
      .  serr,rhoi,rhoierr,chifac,ntt,tobs,omc
       data rhoin/-1.0d2,-3.0d0,-2.0d0,-1.0d0,0.0d0,1.0d0,2.0d0,3.0d0,
@@ -71,6 +71,24 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         endif
         if(j.gt.n)write(0,*) "whoops.. j>n"
  11   continue
+
+C     Check that limb-darkening is valid
+      c1=sol2(2)      !limb-darkening
+      c2=sol2(3)
+      c3=sol2(4)
+      c4=sol2(5)
+      if((c1.eq.0.0).and.(c2.eq.0.0))then
+        if((c3.lt.0.0).or.(c3.gt.1.0).or.(c4.lt.0.0).or.(c4.gt.1.0))then
+            fvec=9.9e30
+            return
+         endif
+      elseif((c3.eq.0.0).and.(c4.eq.0.0))then
+         if((c1+c2.gt.1.0).or.(c1.lt.0).or.(c1+2.0d0*c2.lt.0))then
+            fvec=9.9e30
+            return
+         endif
+      endif
+
 
 c      call transitmodel(nfit,nplanet,sol2,m,aT,aIT,fvec,dtype)
       call transitmodel(nfit,nplanet,nplanetmax,sol2,nmax,m,aT,aIT,ntt,

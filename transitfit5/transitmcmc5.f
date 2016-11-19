@@ -17,7 +17,7 @@ C     Jason Rowe - jasonfrowe@gmail.com
      .  aT(nmax),aM(nmax),aE(nmax),aIT(nmax),kmag,kerr,ran2,dumr,
      .  sol2(nfitm),rchi,bchi,gasdev,accrate,dil(2),
      .  buffer(nfitm,nbuffer),corscale,gscale(nfitm),gratio(nfitm),
-     .  fchi
+     .  fchi,chiold
 C     Random number generation
       integer now(3),seed
       character*80 inputsol,obsfile,rvfile,cline,chseed,rhofile,ttfile
@@ -234,6 +234,7 @@ c                if((j.eq.15).and.(sol(i).lt.0.0d0)) goto 22
  21   sol(6)=gasdev(seed)*dil(2)+dil(1)
       if(sol(6).lt.0.0d0) goto 21
 
+      chiold=0.0 !keeps track of previous chi-sq.
       write(6,*) nfit
       naccept=0 !calculate accept rate
       call getarg(4,cline)
@@ -244,7 +245,7 @@ c                if((j.eq.15).and.(sol(i).lt.0.0d0)) goto 22
      .      nbuffer,buffer,npars,corscale,nacor,nacorsub,naprob,
      .      naprobsub,gscale,ngcor,ngcorsub,ngprob,ngprobsub,nupdate,
      .      gratio,nfrho,rhoi,rhoierr,rhoin,nplanetmax,nmax,ntt,tobs,
-     .      omc,ngs,nas)
+     .      omc,ngs,nas,chiold)
         if(flag.eq.0)then
             do 20 i=1,nfit
                 sol(i)=sol2(i)

@@ -194,12 +194,19 @@ C       If we have a transit
                         endif
  18                 continue
                     if(caltran.eq.1) then
+                       !quadratic co-efficients
                        if((c3.eq.0.0).and.(c4.eq.0.0))then
                          call occultquad(bt,c1,c2,RpRs,tflux,mu,nintg)
 c                         write(0,*) (tflux(j),j=1,nintg)
 c                         write(0,*) (bt(j),j=1,nintg)
 c                         read(5,*)
+                      !Kipping co-efficients
+                       elseif((c1.eq.0.0).and.(c2.eq.0.0))then
+                          c1=2.0d0*sqrt(c3)*c4
+                          c2=sqrt(c3)*(1.0d0-2.0d0*c4)
+                          call occultquad(bt,c3,c4,RpRs,tflux,mu,nintg)
                        else
+                      !non-linear law.
                        call occultsmall(RpRs,c1,c2,c3,c4,nintg,bt,tflux)
 c                         call occultnl(RpRs,c1,c2,c3,c4,bt,tflux,
 c     .                     mulimbf,nintg)

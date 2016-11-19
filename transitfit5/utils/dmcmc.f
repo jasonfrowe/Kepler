@@ -3,7 +3,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      .  sol2,serr,err,tmodel,rchi,seed,flag,bchi,ng,dil,nup,nb,nmov,
      .  nbuffer,buffer,npars,corscale,nacor,nacorsub,naprob,naprobsub,
      .  gscale,ngcor,ngcorsub,ngprob,ngprobsub,nupdate,gratio,nfrho,
-     .  rhoi,rhoierr,rhoin,nplanetmax,nmax,ntt,tobs,omc,ngs,nas)
+     .  rhoi,rhoierr,rhoin,nplanetmax,nmax,ntt,tobs,omc,ngs,nas,chiold)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C     Implementation of deMCMC
 C     Jason Rowe - jasonfrowe@gmail.com
@@ -18,7 +18,7 @@ C     Jason Rowe - jasonfrowe@gmail.com
      .  dil(2),jitter(2),jrvp(2),jrv,ran2,dm,gasdev,rgas,chi1,chi2,
      .  fratio,u,alpha,buffer(nfitm,nbuffer),mcmctype,dif1,dif2,
      .  corscale,acorsub,gscale(nfitm),gcorsub,gratio(nfitm),echeck,b,
-     .  perprior(2),epoprior(2)
+     .  perprior(2),epoprior(2),chiold
       integer nfrho
       double precision rhoi,rhoierr(9),rhoin(9),dsig,drho
       character*80 cout 
@@ -69,34 +69,35 @@ c      write(0,*) sol(6),sol2(6),dil(1)
 c        write(0,*) "jrv",jrv,rgas*jitter(2)+jitter(1)
 c        read(5,*)
       endif
-      
-C     Get chi-squared for both models
-c      call transitmodel(nfit,nplanet,sol,npta,aT,aIT,tmodel,dtype)
-      call transitmodel(nfit,nplanet,nplanetmax,sol,nmax,npta,aT,aIT,
-     .  ntt,tobs,omc,tmodel,dtype)
-      
-      chi1=0.0d0
-      do 11 i=1,npta
-        if(dtype(i).eq.1)then
-            chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i)+
-     .          jrv*jrv)
-        else
-            chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i))
-        endif
-c        chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i))
-c        chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/tmodel(i)
- 11   continue
-      chi1=chi1*bchi
-      
-      if(nfrho.eq.0)then  !if nfrho=0, then we are fitting rho_*
-        drho=1.0d3*sol(1)-rhoi
-c        call splint(rhoierr,rhoin,yprho,9,drho,dsig)
-        call getrhosig(rhoierr,rhoin,9,drho,dsig)
-c        write(0,*) "dsig",rhoierr(2),dsig
-c        write(6,*) "dsig:",dsig,(Teffn1-Teff)/Tefferr
-        chi1=chi1+dsig*dsig
-c        write(0,*) 1.0d3*sol(1),rhoi,dsig
-      endif
+
+      if (chiold.le.1.0e-15) then
+C      Get chi-squared for both models
+c       call transitmodel(nfit,nplanet,sol,npta,aT,aIT,tmodel,dtype)
+       call transitmodel(nfit,nplanet,nplanetmax,sol,nmax,npta,aT,aIT,
+     .   ntt,tobs,omc,tmodel,dtype)
+
+       chi1=0.0d0
+       do 11 i=1,npta
+         if(dtype(i).eq.1)then
+             chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i)+
+     .           jrv*jrv)
+         else
+             chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i))
+         endif
+c         chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i))
+c         chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/tmodel(i)
+ 11    continue
+       chi1=chi1*bchi
+
+       if(nfrho.eq.0)then  !if nfrho=0, then we are fitting rho_*
+         drho=1.0d3*sol(1)-rhoi
+c         call splint(rhoierr,rhoin,yprho,9,drho,dsig)
+         call getrhosig(rhoierr,rhoin,9,drho,dsig)
+c         write(0,*) "dsig",rhoierr(2),dsig
+c         write(6,*) "dsig:",dsig,(Teffn1-Teff)/Tefferr
+         chi1=chi1+dsig*dsig
+c         write(0,*) 1.0d3*sol(1),rhoi,dsig
+       endif
 
 C     Eccentricity constraints...
 c      do 26 i=1,8+nplanet*10
@@ -116,6 +117,9 @@ c      chi1=chi1+dsig*dsig
 c      dsig=(epoprior(1)-sol(9)-436.0d0*sol(10))/epoprior(2)
 c      chi1=chi1+dsig*dsig
 cC      write(0,*) dsig,epoprior(1)-sol(9)-436.0d0*sol(10)
+      else
+         chi1=chiold*bchi
+      endif
 
 c      call transitmodel(nfit,nplanet,sol2,npta,aT,aIT,tmodel,dtype)
       call transitmodel(nfit,nplanet,nplanetmax,sol2,nmax,npta,aT,aIT,
@@ -173,9 +177,10 @@ c      chi2=chi2+dsig*dsig
         flag=1  !reject chain
         rchi=chi1
       endif
+
 c      write(0,*) "rchi:",rchi,npta
       
-      flag=0 !pass everything (for now)
+c      flag=0 !pass everything (for now)
       if((sol2(1).lt.1.0e-5).or.(sol2(1).gt.1000.0)) flag=1 !density
 
       ! simple addition to look at MCMC priors (zero-point)
@@ -204,6 +209,14 @@ C        uncomment this line to restrict K > 0
 C        if(sol2(15+10*(i-1)).lt.0.0) flag=1  !K
  25   continue
       
+c      write(0,*) chi1,chi2,flag
+      !save old MCMC value
+      if(flag.eq.0)then
+         chiold=chi2/bchi
+      else
+         chiold=chi1/bchi
+      endif
+
 c      write(0,*) floor(mcmctype+0.5),flag
 
 C     Filling buffer      

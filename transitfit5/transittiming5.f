@@ -136,7 +136,7 @@ C       We only fit the epoch
  12     continue
         serr(8,2)= -1.0d0 !zero point
         serr(9,2)= -1.0d0 !T0 - center of transit time
-        serr(11,2)= -1.0d0 !b - impact parameter (duration)
+c        serr(11,2)= -1.0d0 !b - impact parameter (duration)
 C       Copy all-fit solution
         do 13 i=1,nfit
             sol2(i)=sol(i)
@@ -170,12 +170,13 @@ c     .          covar,alpha,dchistop,err)
             ttold=sol2(9)-sol(9)
 
 !           estimating transit durations
-            tdurout=transitdur(nfit,sol2,np)
-            sol2(11)=sol2(11)+err(11)
-            tdurerr=abs(transitdur(nfit,sol2,np)-tdurout)
+c            tdurout=transitdur(nfit,sol2,np)
+c            sol2(11)=sol2(11)+err(11)
+c            tdurerr=abs(transitdur(nfit,sol2,np)-tdurout)
 
-            write(6,500) T0,sol2(9)-sol(9),err(9),tdurout/
-     .         8.64d4,tdurerr/8.64d4
+            write(6,500) T0,sol2(9)-sol(9),err(9)
+c            write(6,500) T0,sol2(9)-sol(9),err(9),tdurout/
+c     .         8.64d4,tdurerr/8.64d4
  500  format(19(1X,1PE17.10))
         else
             ttold=ttold+ttold2
