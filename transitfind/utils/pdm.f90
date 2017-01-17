@@ -101,7 +101,9 @@ do while ((f.lt.freq2).and.(iter.le.nstep)) !loop over all frequencies
 
 
 enddo
-write(0,*)
+write(tmpc,'(" Percent Done: ",F6.2," ETA:",I3,"h",I2.2,"m",I2.2,"s")') &
+ 100.00,0,0,0
+write(0,'(A80)') tmpc
 
 return
 end subroutine pdm
