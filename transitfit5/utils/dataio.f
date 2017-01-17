@@ -113,9 +113,11 @@ C     number of seconds in a day
       
       i=1
       
+      itime=0.0d0 !default, incase column is missing.
+
       mintime=99.9d30
   9   continue
- 10   read(nunit,*,err=9,end=20) dtime(i),flux(i),ferr(i)!,itime(i)
+ 10   read(nunit,*,err=9,end=20) dtime(i),flux(i),ferr(i),itime(i)
 cc  reset times form arbitrary start of 0.0 to HJD of field center
 cc  add 53.038152 to MJD center 1st exp
 c        dtime(i)=dtime(i)+53.038152
@@ -130,11 +132,15 @@ c     .      1.1208d0)*0.00280758d0
         mintime=min(mintime,dtime(i))
         flux(i)=flux(i)+1.0!-2.5*log10(mag(i)+1.0d0)
 c        ferr(i)=0.00005
-        itime(i)=1765.5/sec2day
-c        itime(i)=123.41/sec2day !WR71 cadence
-c        itime(i)=58.85/sec2day !short cadence
+        if (itime(i).lt.0.5) then
+         itime(i)=1765.5/sec2day !long cadence
+        else
+         itime(i)=58.85/sec2day !short cadence
+        endif
 c        itime(i)=0.1d0/sec2day
 c         itime(i)=itime(i)/sec2day
+        !write(0,*) dtime(i),flux(i),ferr(i),itime(i)
+        !read(5,*)
         i=i+1
       goto 10
  20   continue

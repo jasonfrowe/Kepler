@@ -216,9 +216,27 @@ c            err(i,1)=sol(i)
 c            err(i,2)=sol(i)
 c        endif
 
-        if(i.ne.6)then
+        if((i.lt.3).or.(i.gt.6))then !skip dilution and do limb-darkening together
 c            if(serr(i,2).gt.0.0) npars=npars+1 !counting fitted pars
  22         sol(i)=gasdev(seed)*serr(i,2)+sol(i)
+
+            if(i.eq.2) then !limb-darkening updates.
+               sol(3)=gasdev(seed)*serr(3,2)+sol(3)
+               sol(4)=gasdev(seed)*serr(4,2)+sol(4)
+               sol(5)=gasdev(seed)*serr(5,2)+sol(5)
+               if((sol(2).eq.0.0).and.(sol(3).eq.0.0))then  !Kipping Limb-darkening
+                  if((sol(4).lt.0.0).or.(sol(4).gt.1.0).or.
+     .             (sol(5).lt.0.0).or.(sol(5).gt.1.0))then
+                     goto 22  !if invalid, draw again
+                  endif
+               elseif((sol(4).eq.0.0).and.(sol(5).eq.0.0))then !Quadratic limb-darkening
+                  if((sol(2)+sol(3).gt.1.0).or.(sol(2).lt.0).or.
+     .             (sol(2)+2.0d0*sol(3).lt.0))then
+                     goto 22 !if invalid, draw again
+                  endif
+               endif
+            endif
+
             if(i.gt.9)then
                 j=i-10*((i-9)/10)
                 if((j.eq.11).and.(sol(i).lt.0.0d0)) goto 22
@@ -228,6 +246,7 @@ c                if((j.eq.11).and.(sol(i).gt.1.0d0)) goto 22
 c     This line keeps K > 0
 c                if((j.eq.15).and.(sol(i).lt.0.0d0)) goto 22
             endif
+
         endif
  13   continue
       sol(1)=abs(sol(1)) !mean-stellar density must be positive!

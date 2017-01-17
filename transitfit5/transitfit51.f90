@@ -201,7 +201,7 @@ real(double), dimension(:) :: time,flux,ferr,itime
 character(80) :: obsfile
 !local vars
 integer :: nunit,filestatus,i
-real(double) :: t,f,e,sec2day
+real(double) :: t,f,e,sec2day,it
 
 sec2day=86400.0d0
 
@@ -219,14 +219,17 @@ do
       write(0,*) "nmax: ",nmax
       stop
    endif
-   read(nunit,*,iostat=filestatus) t,f,e
+   read(nunit,*,iostat=filestatus) t,f,e,it
    if(filestatus == 0) then
       i=i+1
       time(i)=t-ztime+0.5d0
       flux(i)=f+1.0
       ferr(i)=e
-      itime(i)=1765.5/sec2day
-      !itime(i)=58.85/sec2day !short cadence
+      if (it.lt.0.5) then
+         itime(i)=1765.5/sec2day
+      else
+         itime(i)=58.85/sec2day !short cadence
+      endif
    elseif(filestatus == -1) then
       exit  !successively break from data read loop.
    else

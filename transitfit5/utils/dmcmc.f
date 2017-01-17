@@ -25,6 +25,7 @@ C     Jason Rowe - jasonfrowe@gmail.com
       integer nplanetmax,nmax,ntt(nplanetmax)
       double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax)
 
+C     Hack for imposing a specific period and epoch
       perprior(1)=3.2357
       perprior(2)=0.0008
       epoprior(1)=3735.17
@@ -181,7 +182,23 @@ c      chi2=chi2+dsig*dsig
 c      write(0,*) "rchi:",rchi,npta
       
 c      flag=0 !pass everything (for now)
+
+C     bounds for the mean-stellar density
       if((sol2(1).lt.1.0e-5).or.(sol2(1).gt.1000.0)) flag=1 !density
+
+C     bounds for limb-darkening
+      if((sol2(2).eq.0.0).and.(sol2(3).eq.0.0))then  !Kipping Limb-darkening
+         if((sol2(4).lt.0.0).or.(sol2(4).gt.1.0).or.
+     .    (sol2(5).lt.0.0).or.(sol2(5).gt.1.0))then
+            flag=1  !reject model if limb-darkening is out-of-bounds
+         endif
+      elseif((sol2(4).eq.0.0).and.(sol2(5).eq.0.0))then !Quadratic limb-darkening
+         if((sol2(2)+sol2(3).gt.1.0).or.(sol2(2).lt.0).or.
+     .    (sol2(2)+2.0d0*sol2(3).lt.0))then
+            flag=1  !reject model if limb-darkening is out-of-bounds
+         endif
+      endif
+
 
       ! simple addition to look at MCMC priors (zero-point)
 !      if((sol2(8).lt.-1.0e-5).or.(sol2(8).gt.1.0e-5)) flag=1 !zpt
