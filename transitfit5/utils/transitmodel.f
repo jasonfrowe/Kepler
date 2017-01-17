@@ -202,9 +202,11 @@ c                         write(0,*) (bt(j),j=1,nintg)
 c                         read(5,*)
                       !Kipping co-efficients
                        elseif((c1.eq.0.0).and.(c2.eq.0.0))then
-                          c1=2.0d0*sqrt(c3)*c4
+                          c1=2.0d0*sqrt(c3)*c4 !convert to regular LD
                           c2=sqrt(c3)*(1.0d0-2.0d0*c4)
-                          call occultquad(bt,c3,c4,RpRs,tflux,mu,nintg)
+                          call occultquad(bt,c1,c2,RpRs,tflux,mu,nintg)
+                          c1=0.0d0  !zero out entries.
+                          c2=0.0d0
                        else
                       !non-linear law.
                        call occultsmall(RpRs,c1,c2,c3,c4,nintg,bt,tflux)
