@@ -211,9 +211,12 @@ C     calculate global chi-sq
 
       if(np.gt.0)then !only export one planet
          col=10*(np-1)
-         do 25 i=1,8
+         do 25 i=1,5
             sol2(i)=sol(i)
  25      continue
+         do 27 i=7,8
+            sol2(i)=sol(i)
+ 27      continue
          do 26 i=9,18
             sol2(i)=sol(i+col)
             serr2(i,1)=serr2(i+col,1)
