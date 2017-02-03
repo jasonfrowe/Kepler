@@ -193,6 +193,14 @@ c            write(6,500) sol(i),ave,std,(errs(j),j=1,6)
             endif
          endif
  10   continue
+
+      call getemin(nunit,npt,dd,np,rhostar,seed)
+      title="e min"
+      call histogram(npt,rp,dd,work,nd,nbin,nbinmax,bdatax,
+     .    bdatay,title,ave,std,errs)
+      name="e min"
+      call writetable(ave,std,errs,name)
+      rewind(nunit)
       
       do 11 i=1,nplanet
          do 17 j=2,17
@@ -416,23 +424,23 @@ c            write(6,500) ave,std,(errs(k),k=1,6)
          output(17)=ave
          outerr(17)=std
 
-c        call gett12(nunit,i,nmax,npt,dd,np,rstar,mstar,seed)
-c        title="T\d12\u (h)"
-c        call histogram(npt,rp,dd,work,nd,nbin,nbinmax,bdatax,
-c     .      bdatay,title,ave,std,errs)
-cc        write(6,500) ave,std,(errs(k),k=1,6)
-c        name="T12 (h)"
-c        call writetable(ave,std,errs,name)
-c        rewind(nunit)        
+        call gett12(nunit,i,nmax,npt,dd,np,rstar,mstar,seed)
+        title="T\d12\u (h)"
+        call histogram(npt,rp,dd,work,nd,nbin,nbinmax,bdatax,
+     .      bdatay,title,ave,std,errs)
+c        write(6,500) ave,std,(errs(k),k=1,6)
+        name="T12 (h)"
+        call writetable(ave,std,errs,name)
+        rewind(nunit)
  
-c        call gettdur2(nunit,i,nmax,npt,dd,np,rstar,mstar,seed)
-c        title="T\dd\u (h)"
-c        call histogram(npt,rp,dd,work,nd,nbin,nbinmax,bdatax,
-c     .      bdatay,title,ave,std,errs)
-cc        write(6,500) ave,std,(errs(k),k=1,6)
-c        name="Tdur (h)"
-c        call writetable(ave,std,errs,name)
-c        rewind(nunit)
+        call gettdur2(nunit,i,nmax,npt,dd,np,rstar,mstar,seed)
+        title="T\dd\u (h)"
+        call histogram(npt,rp,dd,work,nd,nbin,nbinmax,bdatax,
+     .      bdatay,title,ave,std,errs)
+c        write(6,500) ave,std,(errs(k),k=1,6)
+        name="Tdur (h)"
+        call writetable(ave,std,errs,name)
+        rewind(nunit)
 
       write(6,503) (output(j),j=1,17)
       write(6,503) (outerr(j),j=1,17)
@@ -1189,6 +1197,52 @@ C     Need period from transit models
         goto 10
  11   continue
       
+      return
+      end
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine getemin(nunit,npt,emin,np,rhostar,seed)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      implicit none
+C     input vars
+      integer nunit,npt,np,seed
+      double precision emin(npt),rhostar(np),rhostarmodel
+C     local vars
+      integer i,k
+      double precision rhoratio,dumr,ran2,temp(4),twothirds,rhoe2d3,
+     .   fourthirds
+
+      twothirds=2.0d0/3.0d0
+      fourthirds=4.0d0/3.0d0
+
+C     Need rhostarmodel from transit models
+      i=1 !counter
+      read(10,*) dumr
+ 10   read(nunit,*,end=11) dumr,dumr,dumr,rhostarmodel
+         k=ran2(seed)*(np-1)+1 !pick a random selection from isochrones
+         rhoratio=rhostarmodel/rhostar(k)
+         rhoe2d3=rhoratio**twothirds
+         temp(1)=(rhoe2d3-1.0d0)/(rhoe2d3+1.0d0)
+         temp(2)=rhoratio-1.0d0
+         if(temp(2)<0.0d0)then
+            temp(2)=0.0d0
+         else
+            temp(2)=1.0d0
+         endif
+         temp(3)=(1.0d0-rhoe2d3)*(1.0d0-rhoe2d3+rhoratio**fourthirds)/
+     .      (1.0d0+rhoratio*rhoratio)
+         temp(4)=1.0d0-rhoratio
+         if(temp(4)<0.0d0)then
+            temp(4)=0.0d0
+         else
+            temp(4)=1.0d0
+         endif
+         emin(i)=temp(1)*temp(2)+temp(3)*temp(4)
+         i=i+1
+         goto 10
+ 11   continue
+      npt=i-1 !update counter
+
       return
       end
 

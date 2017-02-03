@@ -48,17 +48,18 @@ C     Find datarange
  12   continue
  
       call bindata(nbin,npt2,rp,bdatax,bdatay,datamin,datamax,bmax)
-      
-c      fc=(datamax-datamin)/real(nbin)/2.0d0 !center histograms
-c      mode=bdatax(1)+fc
-c      nmode=bdatay(1)
-c      do 13 i=2,nbin
-c         if(bdatay(i).gt.nmode)then
-c            nmode=bdatay(i)
-c            mode=bdatax(i)+fc
-c         endif
-c 13   continue
-c      rmed=mode
+
+!     calculating modes
+      fc=(datamax-datamin)/real(nbin)/2.0d0 !center histograms
+      mode=bdatax(1)+fc
+      nmode=bdatay(1)
+      do 13 i=2,nbin
+         if(bdatay(i).gt.nmode)then
+            nmode=bdatay(i)
+            mode=bdatax(i)+fc
+         endif
+ 13   continue
+      rmed=mode
 
       call pgpage() !fresh plotting surface
       call pgslw(1)

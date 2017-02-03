@@ -18,12 +18,15 @@ C     Jason Rowe - jasonfrowe@gmail.com
      .  dil(2),jitter(2),jrvp(2),jrv,ran2,dm,gasdev,rgas,chi1,chi2,
      .  fratio,u,alpha,buffer(nfitm,nbuffer),mcmctype,dif1,dif2,
      .  corscale,acorsub,gscale(nfitm),gcorsub,gratio(nfitm),echeck,b,
-     .  perprior(2),epoprior(2),chiold
+     .  perprior(2),epoprior(2),chiold,eccn,ecw,esw,w,pi,tpi,rdr
       integer nfrho
       double precision rhoi,rhoierr(9),rhoin(9),dsig,drho
       character*80 cout 
       integer nplanetmax,nmax,ntt(nplanetmax)
       double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax)
+
+      Pi=acos(-1.d0)!define Pi and 2*Pi
+      tPi=2.0d0*Pi
 
 C     Hack for imposing a specific period and epoch
       perprior(1)=3.2357
@@ -43,8 +46,8 @@ C     reformalize jitters for log scale
       do 16 i=1,nfit
         sol2(i)=sol(i)
   16  continue
-  
-  15  ng=int(ran2(seed)*dble(nfit)+1.0d0)
+
+ 15   ng=int(ran2(seed)*dble(nfit)+1.0d0)
 c      write(0,*) ng,serr(ng,2)
       if((ng.lt.1).or.(ng.gt.nfit)) goto 15 !make sure we have a valid i
       if(ng.eq.6) goto 15 !dilution is not fitted.
@@ -60,6 +63,7 @@ c      write(0,*) ng,serr(ng,2)
             sol2(i)=sol(i)+(buffer(i,nsel2)-buffer(i,nsel))*corscale
  24     continue
       endif
+
       
  17   sol2(6)=gasdev(seed)*dil(2)+dil(1)  !update dilution.
 c      write(0,*) sol(6),sol2(6),dil(1)
@@ -71,7 +75,7 @@ c        write(0,*) "jrv",jrv,rgas*jitter(2)+jitter(1)
 c        read(5,*)
       endif
 
-      if (chiold.le.1.0e-15) then
+      if (chiold.le.1.0e-15) then !only compute chi1 for the first iter
 C      Get chi-squared for both models
 c       call transitmodel(nfit,nplanet,sol,npta,aT,aIT,tmodel,dtype)
        call transitmodel(nfit,nplanet,nplanetmax,sol,nmax,npta,aT,aIT,
@@ -150,6 +154,17 @@ c        write(0,*) 1.0d3*sol2(1),rhoi,dsig
 c        read(5,*)
       endif 
 
+C     if b>1
+      do 28 i=1,nplanet
+         b=sol2(11+10*(i-1))
+         rdr=sol2(12+10*(i-1))
+         if( (b.gt.1.0).and.(rdr.gt.0.0)) then
+            chi2=chi2+log(rdr*(b-1.0)/2.0)
+         endif
+ 28   continue
+
+
+
 C     eccentricity constraints
 c      do 27 i=1,8+nplanet*10
 c         if(serr(i,1).ne.0)then
@@ -181,7 +196,7 @@ c      chi2=chi2+dsig*dsig
 
 c      write(0,*) "rchi:",rchi,npta
       
-c      flag=0 !pass everything (for now)
+!      flag=0 !pass everything (for now)
 
 C     bounds for the mean-stellar density
       if((sol2(1).lt.1.0e-5).or.(sol2(1).gt.1000.0)) flag=1 !density
@@ -201,15 +216,15 @@ C     bounds for limb-darkening
 
 
       ! simple addition to look at MCMC priors (zero-point)
-!      if((sol2(8).lt.-1.0e-5).or.(sol2(8).gt.1.0e-5)) flag=1 !zpt
+!      if((sol2(8).lt.-5.0e-5).or.(sol2(8).gt.5.0e-5)) flag=1 !zpt
 
       do 25 i=1,nplanet
 
       ! simple addition to look at MCMC priors (epoch and period)
-!        if((sol2(9+10*(i-1)).lt.68.0).or.
-!     .     (sol2(9+10*(i-1)).gt.68.2)) flag=1 !EPO
-!        if((sol2(10+10*(i-1)).lt.17.0).or.
-!     .     (sol2(10+10*(i-1)).gt.17.4)) flag=1 !Period
+!        if((sol2(9+10*(i-1)).lt.99.2).or.
+!     .     (sol2(9+10*(i-1)).gt.99.4)) flag=1 !EPO
+!        if((sol2(10+10*(i-1)).lt.386.5).or.
+!     .     (sol2(10+10*(i-1)).gt.386.7)) flag=1 !Period
 
         b=sol2(11+10*(i-1)) !changed from b^2 to b
         if((b.lt.0.0).or.

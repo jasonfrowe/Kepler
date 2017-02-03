@@ -51,7 +51,8 @@ c        write(0,*) bs2,b
 
         ecw=sol(10*(ii-1)+8+6)
         esw=sol(10*(ii-1)+8+5)
-        eccn=sqrt(ecw*ecw+esw*esw) !eccentricity
+c        eccn=sqrt(ecw*ecw+esw*esw) !eccentricity
+        eccn=(ecw*ecw+esw*esw)
         if(eccn.ge.1.0) eccn=0.99
         if(eccn.eq.0.0d0)then
             w=0.0d0
