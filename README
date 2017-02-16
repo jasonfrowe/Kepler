@@ -24,6 +24,9 @@ This should make binaries in the 'bin' directory.
 If you find these codes useful please reference:
 Rowe et al. 2014 ApJ, 784, 45  
 Rowe et al. 2015 ApJs, 217, 16
+--or--
+Jason Rowe (2016). Kepler: Kepler Transit Model Codebase Release. [Data set]. 
+ Zenodo. http://doi.org/10.5281/zenodo.60297
 
 Full documentation is a work in progress, but for now, have a look at
 the 'example' directory to get a start.  I can also recommend:
