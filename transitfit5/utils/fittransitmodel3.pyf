@@ -1,0 +1,60 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module fittransitmodel ! in 
+    interface  ! in :fittransitmodel
+        module precision ! in :fittransitmodel:precision.f90
+            integer, parameter,optional :: double_bn=8
+        end module precision
+        module fittermod ! in :fittransitmodel:fittermod.f90
+            use precision, only: double
+            real(kind=8), pointer,dimension(:) :: at2
+            integer, pointer :: nplanet2
+            real(kind=8), pointer,dimension(:) :: rhoierr2
+            integer, pointer :: nfrho2
+            integer, pointer :: nfit2
+            real(kind=8), pointer :: rhoi2
+            real(kind=8), pointer,dimension(:) :: am2
+            integer, pointer,dimension(:) :: ntt2
+            real(kind=8), pointer,dimension(:) :: sol2
+            real(kind=8), pointer,dimension(:) :: ait2
+            real(kind=8), pointer,dimension(:,:) :: serr2
+            real(kind=8), pointer,dimension(:) :: ae2
+            real(kind=8), pointer,dimension(:,:) :: omc2
+            integer, pointer,dimension(:) :: dtype2
+            real(kind=8), pointer,dimension(:,:) :: tobs2
+        end module fittermod
+        subroutine fittransitmodel3(nfit,sol,serr,nplanet,npt,at,am,ae,ait,dtype,ntt,tobs,omc,nfrho,rhoi,rhoierr) ! in :fittransitmodel:fittransitmodel3.f90
+            use fittermod
+            use precision
+            integer, target :: nfit
+            real(kind=8), target,dimension(:) :: sol
+            real(kind=8), target,dimension(:,:) :: serr
+            integer, target :: nplanet
+            integer, target :: npt
+            real(kind=8), target,dimension(:) :: at
+            real(kind=8), target,dimension(:) :: am
+            real(kind=8), target,dimension(:) :: ae
+            real(kind=8), target,dimension(:) :: ait
+            integer, target,dimension(:) :: dtype
+            integer, target,dimension(:) :: ntt
+            real(kind=8), target,dimension(:,:) :: tobs
+            real(kind=8), target,dimension(:,:) :: omc
+            integer, target :: nfrho
+            real(kind=8), target :: rhoi
+            real(kind=8), target,dimension(:) :: rhoierr
+        end subroutine fittransitmodel3
+        subroutine fcn(m,n,x,fvec,iflag) ! in :fittransitmodel:fittransitmodel3.f90
+            use fittermod
+            use precision
+            integer, optional,check(len(fvec)>=m),depend(fvec) :: m=len(fvec)
+            integer, optional,check(len(x)>=n),depend(x) :: n=len(x)
+            real(kind=8) dimension(n) :: x
+            real(kind=8) dimension(m) :: fvec
+            integer :: iflag
+        end subroutine fcn
+    end interface 
+end python module fittransitmodel
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/

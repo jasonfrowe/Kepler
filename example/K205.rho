@@ -1,0 +1,10 @@
+0   0.   0    0.    0.      0.      0.      0.      0.      0.
+5231 152              #Teff (K)
+-1.300 0.310 0.0024       #[Fe/H] 
+0.0000 0.0000             #L (Lsun)
+4.521 0.083                 #log(g)
+4.8126136020E+00          #Period (days)
+0.020                     #Gibbs Mass (Msun)
+0.500                     #Gibbs Age (Gyr)
+0.0 0.0                   #Extra mass smudge
+K00205                    #Un-used name

@@ -118,6 +118,7 @@ C     number of seconds in a day
       mintime=99.9d30
   9   continue
  10   read(nunit,*,err=9,end=20) dtime(i),flux(i),ferr(i),itime(i)
+      !write(0,*) "itime: ",itime(i)
 cc  reset times form arbitrary start of 0.0 to HJD of field center
 cc  add 53.038152 to MJD center 1st exp
 c        dtime(i)=dtime(i)+53.038152

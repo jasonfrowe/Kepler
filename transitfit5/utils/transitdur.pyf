@@ -1,0 +1,12 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+function transitdur(nfit,sol,np) ! in transitdur.f
+    integer, optional,check(len(sol)>=nfit),depend(sol) :: nfit=len(sol)
+    double precision dimension(nfit) :: sol
+    integer :: np
+    double precision :: transitdur
+end function transitdur
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/

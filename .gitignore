@@ -1,0 +1,8 @@
+/Debug/
+*.o
+*.mod
+/Makefile
+/autom4te.cache/
+/config.log
+/config.status
+/test.f

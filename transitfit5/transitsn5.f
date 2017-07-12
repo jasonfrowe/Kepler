@@ -97,19 +97,19 @@ c      sol(10*(dplanet-1)+8+4)=rprs
 
  500    format(F17.11,4(1X,F17.11))
 
-      goto 999
+      goto 999 !clean exit
  901  write(0,*) "Usage: transitfit5 <photfile> <fitpars> <planetnumber>
      . [ttfiles]"
-      goto 999
+      stop 11
  902  write(0,*) "Error opening ",inputsol
-      goto 999
+      stop 12
  903  write(0,*) "Error opening ",obsfile
-      goto 999
+      stop 13
  904  write(0,*) "Error reading planetnumber: ",cline
-      goto 999
+      stop 14
  905  write(0,*) "Error planetnumber out of range: ",dplanet, nplanet
-      goto 999
+      stop 15
  906  write(0,*) "Error opening ",ttfile
-      goto 999
+      stop 16
  999  end
 

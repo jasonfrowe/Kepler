@@ -159,7 +159,7 @@ C     if b>1
          b=sol2(11+10*(i-1))
          rdr=sol2(12+10*(i-1))
          if( (b.gt.1.0).and.(rdr.gt.0.0)) then
-            chi2=chi2+log(rdr*(b-1.0)/2.0)
+            chi2=chi2+log(1.d0+rdr*(b-1.0)/1.0d0)*0.5d0
          endif
  28   continue
 
@@ -196,7 +196,7 @@ c      chi2=chi2+dsig*dsig
 
 c      write(0,*) "rchi:",rchi,npta
       
-!      flag=0 !pass everything (for now)
+c      flag=0 !pass everything (for now)
 
 C     bounds for the mean-stellar density
       if((sol2(1).lt.1.0e-5).or.(sol2(1).gt.1000.0)) flag=1 !density
@@ -216,19 +216,20 @@ C     bounds for limb-darkening
 
 
       ! simple addition to look at MCMC priors (zero-point)
-!      if((sol2(8).lt.-5.0e-5).or.(sol2(8).gt.5.0e-5)) flag=1 !zpt
+c      if((sol2(8).lt.-5.0e-5).or.(sol2(8).gt.5.0e-5)) flag=1 !zpt
 
       do 25 i=1,nplanet
 
       ! simple addition to look at MCMC priors (epoch and period)
-!        if((sol2(9+10*(i-1)).lt.99.2).or.
-!     .     (sol2(9+10*(i-1)).gt.99.4)) flag=1 !EPO
-!        if((sol2(10+10*(i-1)).lt.386.5).or.
-!     .     (sol2(10+10*(i-1)).gt.386.7)) flag=1 !Period
+c        if((sol2(9+10*(i-1)).lt.67.00).or.
+c     .     (sol2(9+10*(i-1)).gt.68.00)) flag=1 !EPO
+c        if((sol2(10+10*(i-1)).lt.3.00).or.
+c     .     (sol2(10+10*(i-1)).gt.4.00)) flag=1 !Period
 
         b=sol2(11+10*(i-1)) !changed from b^2 to b
         if((b.lt.0.0).or.
      .     (b.ge.1.0+sol2(12+10*(i-1)))) flag=1 !impact parameter
+c     .   (b.gt.1.0)) flag=1
         if((sol2(12+10*(i-1)).lt.0.0).or.
      .     (sol2(12+10*(i-1)).gt.10.0)) flag=1 !r/R*
         if((sol2(13+10*(i-1)).lt.-1.0).or.

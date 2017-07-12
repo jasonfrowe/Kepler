@@ -220,6 +220,7 @@ do
       stop
    endif
    read(nunit,*,iostat=filestatus) t,f,e,it
+   it=0.0
    if(filestatus == 0) then
       i=i+1
       time(i)=t-ztime+0.5d0

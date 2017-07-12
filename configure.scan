@@ -1,0 +1,53 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ([2.69])
+AC_INIT([FULL-PACKAGE-NAME], [VERSION], [BUG-REPORT-ADDRESS])
+
+# Checks for programs.
+AC_PROG_CC
+
+# Checks for libraries.
+# FIXME: Replace `main' with a function in `-lX11':
+AC_CHECK_LIB([X11], [main])
+# FIXME: Replace `main' with a function in `-lcfitsio':
+AC_CHECK_LIB([cfitsio], [main])
+# FIXME: Replace `main' with a function in `-lpgplot':
+AC_CHECK_LIB([pgplot], [main])
+# FIXME: Replace `main' with a function in `-lplplotf95cd':
+AC_CHECK_LIB([plplotf95cd], [main])
+# FIXME: Replace `main' with a function in `-lplplotf95d':
+AC_CHECK_LIB([plplotf95d], [main])
+# FIXME: Replace `main' with a function in `-lpng':
+AC_CHECK_LIB([png], [main])
+# FIXME: Replace `main' with a function in `-lsvml':
+AC_CHECK_LIB([svml], [main])
+
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+
+AC_CONFIG_FILES([Makefile
+                 Neptune/Makefile
+                 Period/Makefile
+                 blender/Makefile
+                 datatest/Makefile
+                 figures/Makefile
+                 lensing/Makefile
+                 multipaper/Makefile
+                 q1q12cat/Makefile
+                 rhostarsrc/Makefile
+                 smodels/Makefile
+                 specfit/Makefile
+                 throck/Makefile
+                 timing/Makefile
+                 transitfind/Makefile
+                 transitfit/Makefile
+                 transitfit4/Makefile
+                 transitfit5/Makefile
+                 transitfit6/Makefile
+                 transitfit7/Makefile
+                 ulwd/Makefile])
+AC_OUTPUT

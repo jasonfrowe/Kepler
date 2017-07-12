@@ -66,7 +66,7 @@ C     Find datarange
       call pgsch(2.0)
 c         call windowsetup(xb1,xb2,yb1,yb2) !make a square plotting surface
 c         call pgvport(xb1,xb2,yb1,yb2)
-      call pgvport(0.2,1.0,0.2,0.9)
+      call pgvport(0.2,0.99,0.2,0.9)
 c      fc=2.*(datamax-datamin)/real(nbin) !center histograms
       call pgwindow(datamin,datamax,0.,bmax+0.1*bmax) !set size
          

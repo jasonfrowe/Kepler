@@ -1,8 +1,9 @@
 #Name of C compiler
 CCMPL = gcc
 #Name of Fortran compiler
-F77 = ifort
-F90 = ifort
+FPATH = 
+F77 = $(FPATH)ifort
+F90 = $(FPATH)ifort
 #F77 = gfortran
 #compiling object file flags
 OPT1 = -O3 -parallel -mkl -ipo
@@ -21,7 +22,7 @@ FITSIODIR = /usr/local/lib
 #Pgplot plot libraries
 PGPLOTDIR = /usr/local/lib
 #X11 libraries
-X11DIR = /usr/X11R6/lib
+X11DIR = /usr/X11/lib
 # libraries for linking PGPLOT
 LIBS = -L$(PGPLOTDIR) -L$(X11DIR) -lX11 -lpgplot -lpng
 #LIBS = -L$(PGPLOTDIR) -L$(X11DIR) -lX11 -lpgplot -lpng 
@@ -189,3 +190,4 @@ rqsort.o: $(UTILS)rqsort.f
 .PHONY : clean
 clean :
 	rm *.o
+	rm *.mod

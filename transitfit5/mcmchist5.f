@@ -67,7 +67,7 @@
 c      call pgopen('/null')
       call pgask(.true.) !don't ask for new page.. just do it.
       call PGPAP ( 8.0 ,1.0) !paper size
-      call pgsubp(5,5)  !break up plot into grid
+      call pgsubp(3,3)  !break up plot into grid
 
       write(6,501) "Parameter    ","Median    ", "Stdev     ",
      .  "+1 sig     ", "-1 sig     ", "+2 sig     ", "-2 sig     ",

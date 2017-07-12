@@ -1,0 +1,15 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module rq ! in 
+    interface  ! in :rq
+        subroutine rqsort(n,a,p) ! in :rq:rqsort.f
+            integer, optional,check(len(a)>=n),depend(a) :: n=len(a)
+            real*8 dimension(n),intent(inout) :: a
+            integer dimension(n),depend(n),intent(inout) :: p
+        end subroutine rqsort
+    end interface 
+end python module rq
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/

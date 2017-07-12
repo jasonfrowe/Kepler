@@ -53,6 +53,7 @@ c        write(0,*) bs2,b
         esw=sol(10*(ii-1)+8+5)
 c        eccn=sqrt(ecw*ecw+esw*esw) !eccentricity
         eccn=(ecw*ecw+esw*esw)
+
         if(eccn.ge.1.0) eccn=0.99
         if(eccn.eq.0.0d0)then
             w=0.0d0
@@ -174,14 +175,16 @@ c     .              cos(2.0d0*(Pid2+phi))
                 alb(j)=albedomod(Pi,ag,Tanom-w)*adrs/drs
 c                alb(j)=albedomod(Pi,ag,phi)*adrs/drs
             
-                if(j.eq.nintg/2+1)then
+c                if(j.eq.nintg/2+1)then
 c                    phase=Tanom-w!phi(nintg/2+1)
 c                    if(phase.gt.Pi) phase=phase-tPi
 c                    if(phase.lt.-Pi) phase=phase+tPi
 c                    write(6,*) time(i),x2/adrs,y2/adrs/cos(incl)
 c                    write(6,*) time(i),vt(j),w
 c                     write(6,*) time(i),vt(j),w
-                endif
+c                endif
+
+c               write(6,*) t,x2,y2
 
  11         continue
             if(dtype(i).eq.0)then

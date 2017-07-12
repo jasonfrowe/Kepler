@@ -115,7 +115,7 @@ c      read(5,*)
       endif
 
       ttold=0.0 !use timing offset from previous measurement
-c       ttold=-0.5
+c      ttold=-0.2
 c      ttold=1.5
 
       do while(T0.lt.Tmax)
