@@ -104,6 +104,10 @@ c        phi1=(epoch/per-int(epoch/per))*twopi
         Eanom=2.0d0*atan(Eanom)
         phi0=Eanom-eccn*sin(Eanom)
       
+
+!Add parallel commands here
+!$OMP PARALLEL DO PRIVATE(j,jm1,ttcor,tflux,t,phi,Manom,Eanom,Tanom,drs,incl,
+!$OMP& x2,y2,bt,vt,tide,alb,caltran,mu,c1,c2,c3,c4,tm,bp,ratio,occ)
         do 10 i=1,npt
             call lininterp(tobs,omc,nplanetmax,nmax,ii,ntt,time(i),
      .          ttcor)
@@ -272,6 +276,7 @@ c            read(5,*)
             endif
             tmodel(i)=tmodel(i)+tm
  10     continue
+!$OMP END PARALLEL DO
  
 C     Need to add zero points (voff, zpt)
       
