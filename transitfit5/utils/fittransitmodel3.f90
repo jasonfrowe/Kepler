@@ -147,7 +147,7 @@ if(nfrho2.eq.0)then
    enddo
    drho=1.0d3*sol(1)-rhoi2
    call getrhosig(rhoierr2,rhoin,9,drho,dsig)
-   yp=sqrt( (chifac*yy+dsig*dsig)/yy )
+   yp=sqrt( (yy+dsig*dsig)/yy )
 else
    yp=1.0d0
 endif
