@@ -43,9 +43,7 @@ C     reformalize jitters for log scale
       jrvp(2)=(log((jitter(1)+jitter(2))/jitter(1)))**2.0d0
       jrv=0.0d0 !default value of jitter.
       
-      do 16 i=1,nfit
-        sol2(i)=sol(i)
-  16  continue
+      sol2(1:nfit)=sol(1:nfit)
 
  15   ng=int(ran2(seed)*dble(nfit)+1.0d0)
 c      write(0,*) ng,serr(ng,2)
@@ -82,6 +80,7 @@ c       call transitmodel(nfit,nplanet,sol,npta,aT,aIT,tmodel,dtype)
      .   ntt,tobs,omc,tmodel,dtype)
 
        chi1=0.0d0
+       !$OMP PARALLEL DO REDUCTION(+:chi1)
        do 11 i=1,npta
          if(dtype(i).eq.1)then
              chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i)+
@@ -92,6 +91,7 @@ c       call transitmodel(nfit,nplanet,sol,npta,aT,aIT,tmodel,dtype)
 c         chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i))
 c         chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/tmodel(i)
  11    continue
+       !$OMP END PARALLEL DO
        chi1=chi1*bchi
 
        if(nfrho.eq.0)then  !if nfrho=0, then we are fitting rho_*
@@ -131,6 +131,7 @@ c      call transitmodel(nfit,nplanet,sol2,npta,aT,aIT,tmodel,dtype)
      .  ntt,tobs,omc,tmodel,dtype) 
       
       chi2=0.0d0
+      !$OMP PARALLEL DO REDUCTION(+:chi2)
       do 12 i=1,npta
         if(dtype(i).eq.1)then
             chi2=chi2+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i)+
@@ -142,6 +143,7 @@ c        chi2=chi2+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i))
 c        chi2=chi2+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/tmodel(i)
 c        write(0,*) aM(i),tmodel(i)
  12   continue
+      !$OMP END PARALLEL DO
       chi2=chi2*bchi
  
       if(nfrho.eq.0)then  !if nfrho=0, then we are fitting rho_*
