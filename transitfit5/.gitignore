@@ -1,4 +1,4 @@
-/.DS_Store
-/Makefile
+.DS_Store
+Makefile
 *.mod
 *.o

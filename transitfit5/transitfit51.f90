@@ -126,11 +126,11 @@ call transitmodel(nfit,nplanet,nplanetmax,sol,nmax,npta,aT,aIT,         &
  ntt,tobs,omc,tmodel,dtype)
 
 chisq=0.0d0
+!$OMP PARALLEL DO REDUCTION(+:chisq)
 do i=1,npta
-!   write(0,*) aM(i),tmodel(i)
-!   read(5,*)
    chisq=chisq+((aM(i)-tmodel(i))/aE(i))**2.0d0
 enddo
+!$OMP END PARALLEL DO
 write(0,*) "Chisq: ",chisq
 
 end program transitfit51

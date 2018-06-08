@@ -189,9 +189,11 @@ c      endif
      .  ntt,tobs,omc,tmodel,dtype)
       
       bchi=0.0d0
+      !$OMP PARALLEL DO REDUCTION(+:bchi)
       do 12 i=1,npta
         bchi=bchi+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i))
  12   continue
+      !$OMP END PARALLEL DO
       fchi=bchi !keep tabs on the best chi-squared
       write(0,*) "bchi",bchi,npta-1
       bchi=dble(npta-1)/bchi
