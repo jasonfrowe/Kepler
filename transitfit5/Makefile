@@ -13,7 +13,7 @@ OPT2 =
 FFLAGS = -c $(OPT1) $(OPT2)
 #FFLAGS = -c -O0 -g -CB -warn $(OPT2)
 #linking flags
-LFLAGS = $(OPT1) $(OPT2)
+LFLAGS = $(OPT1) $(OPT2) 
 #LFLAGS = -O0 -g -CB -warn $(OPT2)
 #testing flags
 #LFLAGS = -O0 -g -CB 
