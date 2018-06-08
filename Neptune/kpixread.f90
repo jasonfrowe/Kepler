@@ -233,7 +233,7 @@ do while(nstep.lt.nsteps)
    endif
    call displayfits(nxmax,nymax,parray,bpix,tavg,refarray)
 
-!!!   call writefits(nxmax,nymax,parray,bpix,tavg,nkeys,header,nstep)
+   call writefits(nxmax,nymax,parray,bpix,tavg,nkeys,header,nstep)
 !   read(5,*)
 
 !   if(nstep.eq.1)then

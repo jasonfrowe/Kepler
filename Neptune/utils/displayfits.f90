@@ -89,7 +89,7 @@ allocate(a(npt),p(npt))
 k=0
 do i=nr(1),nr(2),5
    do j=nr(3),nr(4),5
-      if((parray(i,j).lt.bpix).and.(abs(parray(i,j).lt.50.0)))then
+      if((parray(i,j).lt.bpix).and.(abs(parray(i,j)).lt.50.0))then
          k=k+1
          a(k)=parray(i,j)
 !         write(0,*) k,a(k)
@@ -267,7 +267,7 @@ write(tchar,500) tavg
 call PGPTXT(rj(2)-0.10*(rj(2)-rj(1)), rj(4)-0.08*(rj(4)-rj(3)), 0.0, 0.0, tchar)
 call pgsch(0.9)
 call PGPTXT(rj(2)-0.12*(rj(2)-rj(1)), rj(3)-0.12*(rj(4)-rj(3)), 0.0, 0.0, "Kepler/K2 Team")
-call PGPTXT(rj(2)-0.12*(rj(2)-rj(1)), rj(3)-0.15*(rj(4)-rj(3)), 0.0, 0.0, "J.Rowe (UdeM/iREx)")
+call PGPTXT(rj(2)-0.12*(rj(2)-rj(1)), rj(3)-0.15*(rj(4)-rj(3)), 0.0, 0.0, "J.Rowe (BU/iREx)")
 call pgsch(1.5)
 call pgsci(1)
 
