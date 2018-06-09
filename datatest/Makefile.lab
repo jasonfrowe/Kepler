@@ -80,10 +80,10 @@ detrend: detrend.f $(detrendincl)
 
 #building object libraries
 %.o : $(UTILS)%.f90
-	$(F90) $(FFLAGS) -o $@ $<
+        $(F90) $(FFLAGS) -o $@ $<
 
 %.o : $(UTILS)%.f
-	$(F77) $(FFLAGS) -o $@ $<
+        $(F90) $(FFLAGS) -o $@ $<
 
 # Removing object files
 .PHONY : clean
