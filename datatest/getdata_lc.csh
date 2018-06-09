@@ -14,7 +14,7 @@ echo ftp://archive.stsci.edu/pub/kepler/lightcurves/$kidXXXX/$kidname/kplr"*"_ll
 wget --quiet ftp://archive.stsci.edu/pub/kepler/lightcurves/$kidXXXX/$kidname/kplr"*"_llc.fits
 
 $bin/kfitsread kplr$kidname* | awk '{print $0,0}' | sort -bn > klc$kidlc.lc.dat
-#/bin/rm kplr$kidname*
+/bin/rm kplr$kidname*
 
 exit(0)
 
