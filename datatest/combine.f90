@@ -115,7 +115,7 @@ do i=1,npt
     write(6,500) time(i),flux(i),fluxerr(i),itype(i)
 end do
 
-500 format(F17.11,1X,F17.11,1X,F17.11,1X,I1,1X,F17.11)
+500 format(3(F17.11,1X),I1)
 
 
 end
