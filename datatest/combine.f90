@@ -36,7 +36,7 @@ do
             write(0,*) "nmax  : ",nmax
             stop
     	endif
-        timeSC(i)=timeSC(i)+0.5d0-54900.0
+        !timeSC(i)=timeSC(i)+0.5d0-54900.0 !this is for sharing with external
         i=i+1
 	elseif(filestatus == -1) then
         exit  !successively break from data read loop.
@@ -69,7 +69,7 @@ do
             write(0,*) "nmax  : ",nmax
             stop
         endif
-        timeLC(i)=timeLC(i)+0.5d0-54900.0
+        !timeLC(i)=timeLC(i)+0.5d0-54900.0 !this is for sharing with external
         i=i+1
     elseif(filestatus == -1) then
         exit  !successively break from data read loop.
