@@ -150,15 +150,17 @@ do while((ii.lt.maxiter).and.(dchi.gt.0.1))
             j=j+1
             time(j)=time(i)
             mag(j)=mag(i)
+            merr(j)=merr(i)
             merr2(j)=merr(i)+abs(work(i))
          endif
  	enddo
+ 	!if(npt.eq.j) exit !break loop, because no data was clipped.
     npt=j
     call lfit(time,mag,merr2,npt,ans,ia,nfit,covar,nfit,chisq)
     dchi=abs(chisq-ochi)
     ochi=chisq
     ii=ii+1  !count number of iterations to avoid infinite loops
-    
+
 enddo
 
 T=0.
