@@ -22,7 +22,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
                         icol=k 
                      endif 
                   else if (ipiv(k).gt.1) then 
-                     pause 'singular matrix in gaussj' 
+                     write(0,*) "sing:",k
+                     return
+c                     stop!pause 'singular matrix in gaussj'
                   endif 
  12            enddo 
             endif 
@@ -42,7 +44,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          endif 
          indxr(i)=irow 
          indxc(i)=icol 
-         if (a(icol,icol).eq.0.) pause 'singular matrix in gaussj' 
+         if (a(icol,icol).eq.0.) then
+            write(0,*) "sing2:",icol
+            return
+c            stop!pause 'singular matrix in gaussj'
+         endif 
          pivinv=1./a(icol,icol) 
          a(icol,icol)=1. 
          do 16 l=1,n 

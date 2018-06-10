@@ -4,7 +4,7 @@ CCMPL = gcc
 F77 = ifort
 F90 = ifort
 #compiling object file flags
-OPT1 = -O3 
+OPT1 = -O3 -parallel 
 OPT2 = 
 FFLAGS = -c $(OPT1) $(OPT2)
 #FFLAGS = -c -O0 -g -CB -warn $(OPT2)
@@ -32,9 +32,16 @@ UTILS = utils/
 
 #Listing of programs to create.
 
-all: detrend2 kfitsread detrend5 sigclip freqremove bjdcorr
+all: combine detrend2 kfitsread detrend5 sigclip freqremove bjdcorr
 
-combine: combine.f90
+detrend51incl = precision_mp.o readdata2_mp.o getfitpars_mp.o ttcor_mp.o marktransit51_mp.o polyfilter51_mp.o rqsort_mp.o lfit_mp.o gaussj_mp.o
+detrend51: LMP = -qopenmp
+detrend51: detrend51.f90 $(detrend51incl)
+	$(F90) $(LFLAGS) $(LMP) -o $(BIN)$@ $@.f90 $(detrend51incl)
+lcupdateformatincl = precision.o
+lcupdateformat: lcupdateformat.f90 $(lcupdateformatincl)
+	$(F90) $(LFLAGS) -o $(BIN)$@ $@.f90 $(lcupdateformatincl)
+combine: combine.f90 precision.o
 	$(F90) $(LFLAGS) -o $(BIN)$@ $@.f90 
 plottest: plottest.f
 	$(F77) $(LFLAGS) -o /home/rowe/temp/$@ plottest.f $(LIBS)
@@ -79,6 +86,19 @@ detrend: detrend.f $(detrendincl)
 	$(F77) $(LFLAGS) -o $(BIN)$@ detrend.f $(detrendincl)
 
 #building object libraries
+#marktransit51_mp.o: $(UTILS)marktransit51.f90
+#	 $(F77) -qopenmp $(FFLAGS) -o marktransit51_mp.o $(UTILS)marktransit51.f90
+#polyfilter51_mp.o: $(UTILS)polyfilter51.f90
+#	$(F77) -qopenmp $(FFLAGS) -o polyfilter51_mp.o $(UTILS)polyfilter51.f90
+
+
+#building object libraries
+%_mp.o : $(UTILS)%.f90
+	$(F90) $(FFLAGS) $(LMP) -o $@ $(UTILS)$*.f90
+
+%_mp.o : $(UTILS)%.f
+	$(F77) $(FFLAGS) $(LMP) -o $@ $(UTILS)$*.f
+
 %.o : $(UTILS)%.f90
 	$(F90) $(FFLAGS) -o $@ $<
 
