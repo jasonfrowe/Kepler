@@ -22,11 +22,11 @@ PGPLOTDIR = /usr/local/lib
 #X11 libraries
 X11DIR = /usr/X11R6/lib
 # libraries for linking PGPLOT
-LIBS = -L$(PGPLOTDIR) -L$(X11DIR) -lX11 -lpgplot -lpng
+LIBS = -L$(PGPLOTDIR) -L$(X11DIR) -lX11 -lpgplot -lpng -lgfortran
 # libraries for linking CFITSIO
-LIBS2 = -L$(PGPLOTDIR) -L$(X11DIR) -L$(FITSIODIR) -lX11 -lpgplot -lcfitsio -lpng
+LIBS2 = -L$(PGPLOTDIR) -L$(X11DIR) -L$(FITSIODIR) -lX11 -lpgplot -lcfitsio -lpng -lgfortran
 #Directory where executable are placed
-BIN = /Users/rowe/Documents/bin/
+BIN = /data/Kepler/bin/
 #utils source directory
 UTILS = utils/
 
@@ -34,6 +34,9 @@ UTILS = utils/
 
 all: detrend2 kfitsread detrend5 sigclip freqremove bjdcorr
 
+lcupdateformatincl = precision.o
+lcupdateformat: lcupdateformat.f90 $(lcupdateformatincl)
+	$(F90) $(LFLAGS) -o $(BIN)$@ $@.f90 $(lcupdateformatincl)
 combine: combine.f90
 	$(F90) $(LFLAGS) -o $(BIN)$@ $@.f90 
 plottest: plottest.f
