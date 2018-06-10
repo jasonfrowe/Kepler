@@ -26,7 +26,7 @@ LIBS = -L$(PGPLOTDIR) -L$(X11DIR) -lX11 -lpgplot -lpng
 # libraries for linking CFITSIO
 LIBS2 = -L$(PGPLOTDIR) -L$(X11DIR) -L$(FITSIODIR) -lX11 -lpgplot -lcfitsio -lpng
 #Directory where executable are placed
-BIN = /Users/rowe/Documents/bin/
+BIN = /data/Kepler/bin/
 #utils source directory
 UTILS = utils/
 
@@ -92,6 +92,7 @@ detrend: detrend.f $(detrendincl)
 #	$(F77) -qopenmp $(FFLAGS) -o polyfilter51_mp.o $(UTILS)polyfilter51.f90
 
 
+#building object libraries
 #building object libraries
 %_mp.o : $(UTILS)%.f90
 	$(F90) $(FFLAGS) $(LMP) -o $@ $(UTILS)$*.f90
