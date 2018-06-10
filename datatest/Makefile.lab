@@ -109,3 +109,5 @@ detrend: detrend.f $(detrendincl)
 .PHONY : clean
 clean :
 	rm *.o
+	rm *.mod
+	rm *__genmod.f90

@@ -70,18 +70,15 @@ do i=1,npt
 	npt2=i2-i1+1
 	k=0
 	do j=i1,i2
-		if(tfsort(j).eq.0)then
+		if(tfsort(j).eq.0)then !only use data outside of transit.
 			k=k+1
 			x(k)=tsort(j)
 			y(k)=fsort(j)
 			z(k)=fesort(j)
 		endif
 	enddo
-	!x(1:npt2)=tsort(i1:i2)
-	!y(1:npt2)=fsort(i1:i2)
-	!z(1:npt2)=fesort(i1:i2)
 	if(npt2.gt.nfitp+1)then
-   	!write(0,*) "into polydetrend"
+!       write(0,*) "into polydetrend"
         call polydetrend(k,x,y,z,nfitp,tzero,off)
 !       write(0,*) "out of polydetrend"
         offset(i)=off
@@ -115,13 +112,15 @@ integer :: npt,nfit
 real(double) :: off,tzero
 real(double), dimension(npt) :: time,mag,merr
 !local vars
-integer :: j
+integer :: i,j,ii,maxiter
 integer, allocatable, dimension(:) :: ia
-real(double) :: meanT,chisq,T
-real(double), allocatable, dimension(:) :: ans
+real(double) :: meanT,chisq,T,std,stdev,mx,dchi,ochi,sigcut
+real(double), allocatable, dimension(:) :: ans,work,merr2
 real(double), allocatable, dimension(:,:) :: covar
 
-allocate(ia(nfit),covar(nfit,nfit),ans(nfit))
+sigcut=3.0
+
+allocate(ia(nfit),covar(nfit,nfit),ans(nfit),work(npt),merr2(npt))
 ia=1 !fit all variables
 
 meanT=Sum(time(1:npt))/dble(npt) !mean Time,
@@ -129,12 +128,44 @@ time=time-meanT !remove mean.
 
 call lfit(time,mag,merr,npt,ans,ia,nfit,covar,nfit,chisq)
 
+ii=0
+dchi=1.0 !initiate delta chisq
+ochi=chisq
+maxiter=10
+do while((ii.lt.maxiter).and.(dchi.gt.0.1))
+
+	do i=1,npt
+    	T=0.
+        do j = 1, nfit
+            T = ans(j)*((time(i))**dble(j-1)) +  T
+ 		enddo
+        work(i)=mag(i)-T
+ 	enddo
+
+	std=stdev(npt,work,mx) !standard deviation
+
+	j=0
+    do i=1,npt
+    	if(abs(work(i)-mx).lt.sigcut*std)then
+            j=j+1
+            time(j)=time(i)
+            mag(j)=mag(i)
+            merr2(j)=merr(i)+abs(work(i))
+         endif
+ 	enddo
+    npt=j
+    call lfit(time,mag,merr2,npt,ans,ia,nfit,covar,nfit,chisq)
+    dchi=abs(chisq-ochi)
+    ochi=chisq
+    ii=ii+1  !count number of iterations to avoid infinite loops
+    
+enddo
+
 T=0.
 do j=1,nfit
 	T = ans(j)*((tzero-meanT)**dble(j-1)) +  T
 enddo
 off=T
-
 
 return
 end
