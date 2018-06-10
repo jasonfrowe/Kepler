@@ -34,7 +34,7 @@ UTILS = utils/
 
 all: combine detrend2 kfitsread detrend5 sigclip freqremove bjdcorr
 
-detrend51incl = precision_mp.o readdata2_mp.o getfitpars_mp.o ttcor_mp.o marktransit51_mp.o polyfilter51_mp.o rqsort_mp.o lfit_mp.o gaussj_mp.o
+detrend51incl = precision_mp.o readdata2_mp.o getfitpars_mp.o ttcor_mp.o marktransit51_mp.o polyfilter51_mp.o rqsort_mp.o lfit_mp.o gaussj_mp.o stdev_mp.o
 detrend51: LMP = -qopenmp
 detrend51: detrend51.f90 $(detrend51incl)
 	$(F90) $(LFLAGS) $(LMP) -o $(BIN)$@ $@.f90 $(detrend51incl)

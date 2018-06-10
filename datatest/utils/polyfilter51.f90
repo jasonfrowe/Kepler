@@ -112,7 +112,7 @@ integer :: npt,nfit
 real(double) :: off,tzero
 real(double), dimension(npt) :: time,mag,merr
 !local vars
-integer :: i,j,ii,maxiter
+integer :: i,j,ii,maxiter,npt1
 integer, allocatable, dimension(:) :: ia
 real(double) :: meanT,chisq,T,std,stdev,mx,dchi,ochi,sigcut
 real(double), allocatable, dimension(:) :: ans,work,merr2
@@ -120,6 +120,7 @@ real(double), allocatable, dimension(:,:) :: covar
 
 sigcut=3.0
 
+npt1=npt
 allocate(ia(nfit),covar(nfit,nfit),ans(nfit),work(npt),merr2(npt))
 ia=1 !fit all variables
 
@@ -156,6 +157,10 @@ do while((ii.lt.maxiter).and.(dchi.gt.0.1))
  	enddo
  	!if(npt.eq.j) exit !break loop, because no data was clipped.
     npt=j
+    if(nfit.gt.npt)then
+        write(0,*) "Error.. nfit > npt",npt,npt1
+        exit
+    endif
     call lfit(time,mag,merr2,npt,ans,ia,nfit,covar,nfit,chisq)
     dchi=abs(chisq-ochi)
     ochi=chisq
