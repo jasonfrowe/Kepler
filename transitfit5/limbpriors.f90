@@ -12,7 +12,7 @@ interface
 		implicit none
 		integer :: npriors,ntype
 		real(double) :: teff, logg, feh
-		real, dimension(:), pointer :: calcldprior
+		real(double), dimension(:), pointer :: calcldprior
 	end function calcldprior
 end interface
 
