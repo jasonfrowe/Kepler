@@ -113,7 +113,7 @@ C     number of seconds in a day
       
       i=1
       
-      itime=0.0d0 !default, incase column is missing.
+      itime=1.0d0 !default, incase column is missing.
 
       mintime=99.9d30
   9   continue

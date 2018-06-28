@@ -39,7 +39,7 @@ UTILS = utils/
 
 all: transitfit51 transitfit5 transitmcmc5 mcmchist5 mcmc_corr mcmcphys mcmchistnew a2n plottimeseries rvplot transitplot5 updaten transitchisq5 transitdur5 n1update transitcut5 transitsigclip5 transittiming5 transitsn5
 
-limbpriorsincl = precision.o calcldprior.o
+limbpriorsincl = precision.o calcldprior.o locate.o trilinear.o
 limbpriors: limbpriors.f90 $(limbpriorsincl)
 	$(F90) $(LFLAGS) -o $(BIN)$@ limbpriors.f90 $(limbpriorsincl)
 
