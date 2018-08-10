@@ -144,18 +144,18 @@ c        ferr(i)=0.00005
         endif
 c        itime(i)=0.1d0/sec2day
 c         itime(i)=itime(i)/sec2day
-        !write(0,*) dtime(i),flux(i),ferr(i),itime(i)
-        !read(5,*)
+c        write(0,*) dtime(i),flux(i),ferr(i),itime(i)
+c        read(5,*)
         i=i+1
       goto 10
  20   continue
         
       npt=i-1
-c      write(0,*)   "-------------------------"
-c      write(0,500) "Observations read: ",npt
+      write(0,*)   "-------------------------"
+      write(0,500) "Observations read: ",npt
 c      write(0,*) "Mintime: ",mintime
-c      write(0,*)   "-------------------------"
- 500  format(1X,A19,I6)
+      write(0,*)   "-------------------------"
+ 500  format(1X,A19,I8)
  
 c      Keplertime=Keplertime+mintime  !correct time=0 time
 c      do 30 i=1,npt

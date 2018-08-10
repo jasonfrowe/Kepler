@@ -4,9 +4,10 @@ CCMPL = gcc
 FPATH = 
 F77 = $(FPATH)ifort
 F90 = $(FPATH)ifort
+LMP = -qopenmp
 #F77 = gfortran
 #compiling object file flags
-OPT1 = -O3 -parallel -mkl
+OPT1 = -O3 -parallel -mkl 
 OPT2 = 
 #OPT1 = -O0 -g -CB -warn 
 #OPT2 = 
@@ -37,9 +38,9 @@ UTILS = utils/
 
 all: transitfit51 transitfit5 transitmcmc5 mcmchist5 mcmc_corr mcmcphys mcmchistnew a2n plottimeseries rvplot transitplot5 updaten transitchisq5 transitdur5 n1update transitcut5 transitsigclip5 transittiming5 transitsn5
 
-tfit51incl = precision.o fittermod.o getfitpars.o ttcor.o transitmodel.o mandelagol.o keplerian.o occultquad.o fittransitmodel3.o minpack.o getrhosig.o 
+tfit51incl = precision_mp.o fittermod_mp.o getfitpars_mp.o ttcor_mp.o transitmodel_mp.o mandelagol_mp.o keplerian_mp.o occultquad_mp.o fittransitmodel3_mp.o minpack_mp.o getrhosig_mp.o 
 transitfit51: transitfit51.f90 $(tfit51incl)
-	$(F90) $(LFLAGS) -o $(BIN)$@ transitfit51.f90 $(tfit51incl)
+	$(F90) $(LMP) $(LFLAGS) -o $(BIN)$@ transitfit51.f90 $(tfit51incl)
 
 sn5incl = dataio.o getfitpars.o ttcor.o transitmodel.o mandelagol.o keplerian.o occultquad.o stdev.o
 transitsn5: transitsn5.f $(sn5incl)
@@ -53,13 +54,13 @@ prdumpincl = dataio.o getfitpars.o ttcor.o transitmodel.o mandelagol.o keplerian
 prdump5: prdump5.f $(prdumpincl)
 	$(F77) $(LFLAGS) -o $(BIN)$@ prdump5.f $(prdumpincl)
 
-mcmcsetincl = getfitpars.o transitmodel.o mandelagol.o dataio.o fittransitmodel.o mrqmin.o keplerian.o occultquad.o fittransitmodel2.o minpack.o ran2.o getrhosig.o ttcor.o
+mcmcsetincl = getfitpars_mp.o transitmodel_mp.o mandelagol_mp.o dataio_mp.o fittransitmodel_mp.o mrqmin_mp.o keplerian_mp.o occultquad_mp.o fittransitmodel2_mp.o minpack_mp.o ran2_mp.o getrhosig_mp.o ttcor_mp.o
 mcmcsetup: $(mcmcsetincl)
 	$(F77) $(LFLAGS) -o $(BIN)$@ mcmcsetup.f $(mcmcsetincl)
 tdepth5 = getfitpars.o transitmodel.o mandelagol.o dataio.o fittransitmodel.o mrqmin.o keplerian.o occultquad.o fittransitmodel2.o minpack.o ran2.o getrhosig.o ttcor.o
 transitdepth5: $(tdepth5)
 	$(F77) $(LFLAGS) -o $(BIN)$@ transitdepth5.f $(tdepth5)
-cut5incl = getfitpars.o ttcor.o
+cut5incl = getfitpars.o ttcor.o dataio.o
 transitcut5: $(cut5incl)
 	$(F77) $(LFLAGS) -o $(BIN)$@ transitcut5.f $(cut5incl)
 occincl = dataio.o getfitpars.o ttcor.o marktransit5.o rqsort.o
@@ -67,7 +68,7 @@ occultfind: $(occincl)
 	$(F77) $(LFLAGS) -o $(BIN)$@ occultfind.f $(occincl)
 n1update: n1update.f getfitpars.o dataio.o
 	$(F77) $(LFLAGS) -o $(BIN)$@ n1update.f getfitpars.o dataio.o
-datadumpincl = dataio.o getfitpars.o ttcor.o transitmodel.o mandelagol.o dataio.o keplerian.o occultquad.o
+datadumpincl = getfitpars.o ttcor.o transitmodel.o mandelagol.o dataio.o keplerian.o occultquad.o
 datadump5: datadump5.f $(datadumpincl)
 	$(F77) $(LFLAGS) -o $(BIN)$@ datadump5.f $(datadumpincl)
 durincl = getfitpars.o
@@ -98,9 +99,9 @@ starplot5: starplot5.f $(STAR5INCL)
 	$(F77) $(LFLAGS) -o $(BIN)$@ starplot5.f $(LIBS) $(STAR5INCL)
 starplot5b: starplot5b.f $(STAR5INCL)
 	$(F77) $(LFLAGS) -o $(BIN)$@ starplot5b.f $(LIBS) $(STAR5INCL)
-TP5INCL = dataio.o getfitpars.o transitmodel.o mandelagol.o keplerian.o occultquad.o ttcor.o
+TP5INCL = dataio_mp.o getfitpars_mp.o transitmodel_mp.o mandelagol_mp.o keplerian_mp.o occultquad_mp.o ttcor_mp.o
 transitplot5: transitplot5.f $(TP5INCL)
-	$(F77) $(LFLAGS) -o $(BIN)$@ transitplot5.f $(LIBS) $(TP5INCL)
+	$(F77) -mcmodel=large $(LFLAGS) -o $(BIN)$@ transitplot5.f $(LIBS) $(TP5INCL)
 UPDATENINCL = getfitpars.o dataio.o
 updaten: updaten.f
 	$(F77) $(LFLAGS) -o $(BIN)$@ updaten.f $(UPDATENINCL)
@@ -119,9 +120,9 @@ mcmchist5: mcmchist5.f  $(HIST5)
 HIST5bf = getrhostar.o histogram2.o avevar.o rqsort.o getfitpars.o ran2.o transitmodel.o mandelagol.o keplerian.o occultquad.o ttcor.o
 mcmchist5bf: mcmchist5bf.f  $(HIST5bf)
 	$(F77) $(LFLAGS) -o $(BIN)$@ mcmchist5bf.f $(LIBS) $(HIST5bf)
-MCMC5INCL = getfitpars.o transitmodel.o mandelagol.o dataio.o fittransitmodel.o mrqmin.o keplerian.o dmcmc.o ran2.o getrhosig.o occultquad.o ttcor.o
+MCMC5INCL = getfitpars_mp.o transitmodel_mp.o mandelagol_mp.o dataio_mp.o fittransitmodel_mp.o mrqmin_mp.o keplerian_mp.o dmcmc_mp.o ran2_mp.o getrhosig_mp.o occultquad_mp.o ttcor_mp.o
 transitmcmc5: transitmcmc5.f $(MCMC5INCL)
-	$(F77) $(LFLAGS) -o $(BIN)$@ transitmcmc5.f $(MCMC5INCL)
+	$(F77) $(LMP) $(LFLAGS) -o $(BIN)$@ transitmcmc5.f $(MCMC5INCL)
 TRANSINCL3 = getfitpars.o transitmodel.o mandelagol.o dataio.o fittransitmodel.o mrqmin.o keplerian.o occultquad.o fittransitmodel2.o minpack.o getrhosig.o ttcor.o
 transitfit5: transitfit5.f $(TRANSINCL3)
 	$(F77) -cpp -Difort -mcmodel=large $(LFLAGS) -o $(BIN)$@ \
@@ -131,60 +132,17 @@ transittiming: transittiming.f $(TRANSINCL3)
 
 
 #building object libraries
-fittermod.o: $(UTILS)fittermod.f90
-	$(F90) $(FFLAGS) $(UTILS)fittermod.f90
-fittransitmodel3.o: $(UTILS)fittransitmodel3.f90
-	$(F90) $(FFLAGS) $(UTILS)fittransitmodel3.f90
-precision.o: $(UTILS)precision.f90
-	$(F90) $(FFLAGS) $(UTILS)precision.f90
-stdev.o: $(UTILS)stdev.f
-	$(F77) $(FFLAGS) $(UTILS)stdev.f
-transitdur.o: $(UTILS)transitdur.f
-	$(F77) $(FFLAGS) $(UTILS)transitdur.f
-histogram2.o: $(UTILS)histogram2.f
-	$(F77) $(FFLAGS) $(UTILS)histogram2.f
-starplot.o: $(UTILS)starplot.f
-	$(F77) $(FFLAGS) $(UTILS)starplot.f
-marktransit5.o: $(UTILS)marktransit5.f
-	$(F77) $(FFLAGS) $(UTILS)marktransit5.f
-ttcor.o: $(UTILS)ttcor.f
-	$(F77) $(FFLAGS) $(UTILS)ttcor.f
-minpack.o: $(UTILS)minpack.f
-	$(F77) $(FFLAGS) $(UTILS)minpack.f
-occultquad.o: $(UTILS)occultquad.f
-	$(F77) $(FFLAGS) $(UTILS)occultquad.f
-getrhosig.o: $(UTILS)getrhosig.f
-	$(F77) $(FFLAGS) $(UTILS)getrhosig.f
-getrhostar.o: $(UTILS)getrhostar.f
-	$(F77) $(FFLAGS) $(UTILS)getrhostar.f
-getfitpars.o: $(UTILS)getfitpars.f
-	$(F77) $(FFLAGS) $(UTILS)getfitpars.f
-transitmodel.o: $(UTILS)transitmodel.f
-	$(F77) $(FFLAGS) $(UTILS)transitmodel.f
-mandelagol.o: $(UTILS)mandelagol.f
-	$(F77) $(FFLAGS) $(UTILS)mandelagol.f
-dataio.o: $(UTILS)dataio.f
-	$(F77) $(FFLAGS) $(UTILS)dataio.f
-fittransitmodel.o: $(UTILS)fittransitmodel.f
-	$(F77) $(FFLAGS) $(UTILS)fittransitmodel.f
-fittransitmodel2.o: $(UTILS)fittransitmodel2.f
-	$(F77) $(FFLAGS) $(UTILS)fittransitmodel2.f
-mrqmin.o: $(UTILS)mrqmin.f
-	$(F77) $(FFLAGS) $(UTILS)mrqmin.f
-keplerian.o: $(UTILS)keplerian.f
-	$(F77) $(FFLAGS) $(UTILS)keplerian.f
-mcmc.o: $(UTILS)mcmc.f
-	$(F77) $(FFLAGS) $(UTILS)mcmc.f
-ran2.o: $(UTILS)ran2.f
-	$(F77) $(FFLAGS) $(UTILS)ran2.f
-dmcmc.o: $(UTILS)dmcmc.f
-	$(F77) $(FFLAGS) $(UTILS)dmcmc.f
-histogram.o: $(UTILS)histogram.f
-	$(F77) $(FFLAGS) $(UTILS)histogram.f
-avevar.o: $(UTILS)avevar.f
-	$(F77) $(FFLAGS) $(UTILS)avevar.f	
-rqsort.o: $(UTILS)rqsort.f
-	$(F77) $(FFLAGS) $(UTILS)rqsort.f
+%_mp.o : $(UTILS)%.f90
+	$(F90) $(FFLAGS) $(LMP) -o $@ $(UTILS)$*.f90
+
+%_mp.o : $(UTILS)%.f
+	$(F77) $(FFLAGS) $(LMP) -o $@ $(UTILS)$*.f
+
+%.o : $(UTILS)%.f90
+	$(F90) $(FFLAGS) -o $@ $<
+
+%.o : $(UTILS)%.f
+	$(F77) $(FFLAGS) -o $@ $<
 
 # Removing object files
 .PHONY : clean

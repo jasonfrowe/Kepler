@@ -32,11 +32,13 @@ tol=1.0d-8 !tolerance parameter for fits
 !show a subset of the parameters prior to fitting
 
 if ((sol(2).eq.0).and.(sol(3).eq.0))then
-write(0,'(A130)') "   RHO        NL3        NL4        ZPT        EP1        PE1        BB1        RD1        EC1        ES1        KR1        TE1  "
+write(0,'(A130)') "   RHO        NL3        NL4        ZPT        EP1        PE1        &
+BB1        RD1        EC1        ES1        KR1        TE1  "
 write(0,503) sol(1),sol(4),sol(5),sol(8),sol(9),sol(10),sol(11),sol(12),sol(13),      &
    sol(14),sol(15),sol(16)
 else
-write(0,'(A130)') "   RHO        NL1        NL2        ZPT        EP1        PE1        BB1        RD1        EC1        ES1        KR1        TE1  "
+write(0,'(A130)') "   RHO        NL1        NL2        ZPT        EP1        PE1        &
+BB1        RD1        EC1        ES1        KR1        TE1  "
 write(0,503) sol(1),sol(2),sol(3),sol(8),sol(9),sol(10),sol(11),sol(12),sol(13),      &
    sol(14),sol(15),sol(16)
 endif

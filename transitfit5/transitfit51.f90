@@ -35,7 +35,7 @@ end interface
 
 nfrho=1 !flag for folding in rho-star priors
 
-idump=1 !idump = 0 ,regular fitting ; idump = 1, skip fitting and just dump the model
+idump=0 !idump = 0 ,regular fitting ; idump = 1, skip fitting and just dump the model
 
 if(iargc().lt.3)then
    write(6,*) "Usage: transitfit5 <photfile> <rvfile> <fitpars> [ttfiles]"

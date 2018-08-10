@@ -15,11 +15,11 @@ C     Cut out all data, except the transits!
 
       nunit=10
       open(unit=nunit,file=filename,status='old',err=902)
-      call readkeplc(nunit,nmax,npt,time,flux,ferr,itime)
       call readkeplc(nunit,nmax,npt,time,flux,ferr,itime,
      .  Keplertime)
       close(nunit)
       if(npt.eq.0) goto 999
+      flux=flux-1.0d0
 
       call getarg(2,inputsol) !get filename for input solution
       nunit=10 !unit number used for file input
