@@ -10,8 +10,11 @@ character(80) :: obsfile
 !local vars
 integer :: nunit,filestatus,i
 real(double) :: t,f,e,sec2day,it
+character(400) :: line
+character(20) :: zeros
 
 sec2day=86400.0d0
+write(zeros, '(*(I2))') (0, i=1, 4) !write a bunch of zeros  
 
 nunit=10
 open(unit=nunit,file=obsfile,iostat=filestatus,status='old')
@@ -27,18 +30,32 @@ do
       write(0,*) "nmax: ",nmax
       stop
    endif
-   read(nunit,*,iostat=filestatus) t,f,e,it
-   it=0.0 !Forces the use of Long Cadence
+   read(nunit,'(A)',iostat=filestatus) line
+   !write(0,*) t,f,e,it
+   !it=0.0 !Forces the use of Long Cadence
    if(filestatus == 0) then
-      i=i+1
-      time(i)=t-ztime+0.5d0
-      flux(i)=f+1.0
-      ferr(i)=e
-      if (it.lt.0.5) then
-         itime(i)=1765.5/sec2day
-      else
-         itime(i)=58.85/sec2day !short cadence
-      endif
+      line=trim(line) // zeros
+      read(line,*,iostat=filestatus) t,f,e,it
+      if(filestatus == 0) then
+         i=i+1
+         time(i)=t-ztime+0.5d0
+         flux(i)=f+1.0
+         ferr(i)=e
+         if (it.lt.1.0d-7) then
+            itime(i)=1765.5/sec2day
+         elseif (it.lt.0.0) then
+            itime(i)=58.85/sec2day !short cadence
+         else
+            itime(i)=it
+         endif
+         !write(0,500) i,time(i),flux(i),ferr(i),itime(i)
+         500 format(I6,1X,F10.5,1X,F8.6,1X,F8.6,1X,F8.6)
+         else
+            write(0,*) "File Error!! Line:",i+1
+            write(0,900) "iostat: ",filestatus
+            stop
+         endif
+      !read(5,*)
    elseif(filestatus == -1) then
       exit  !successively break from data read loop.
    else

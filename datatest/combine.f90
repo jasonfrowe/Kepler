@@ -91,7 +91,7 @@ do i=1,nptLC
     flag=0
 	do j=1,nptSC
 		if(abs(timeLC(i)-timeSC(j)).lt.dtthres)then
-            flag=1
+            flag=-1
 		endif
 	end do
 	if(flag.eq.0)then
