@@ -111,13 +111,17 @@ c        write(0,*) "ntt",i,ntt(i)
          if(phi.lt.0.0)phi=phi+1.0
          Manom=phi*tPi+phi0
 
-         if(itime(i).gt.0.001)then
-            write(6,501) time(i)+54900.0d0-0.5d0,flux(i)-tmodel(i),
-     .       ferr(i),0
-         else
-            write(6,501) time(i)+54900.0d0-0.5d0,flux(i)-tmodel(i),
-     .       ferr(i),1
-         endif
+         write(6,500) time(i)+54900.0d0-0.5d0,flux(i)-tmodel(i),
+     .       ferr(i),itime(i)
+
+c         if(itime(i).gt.0.001)then
+c            write(6,501) time(i)+54900.0d0-0.5d0,flux(i)-tmodel(i),
+c     .       ferr(i),0
+c         else
+c            write(6,501) time(i)+54900.0d0-0.5d0,flux(i)-tmodel(i),
+c     .       ferr(i),1
+c         endif
+
 c         write(6,*) time(i),flux(i)-tmodel(i),tmodel2(i)-1.0
 c         write(6,500) time(i)+54900.0d0-0.5d0,phi,
 c     .      1.0d0+flux(i)-tmodel(i),tmodel2(i),ferr(i)

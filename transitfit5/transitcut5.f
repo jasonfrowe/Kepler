@@ -6,7 +6,7 @@ C     Cut out all data, except the transits!
       integer ntt(nplanetmax),tflag(nmax)
       double precision time(nmax),flux(nmax),ferr(nmax),sol(nfit),
      .   serr(nfit,2),err(nfit),tobs(nplanetmax,nmax),
-     .   omc(nplanetmax,nmax),phase(nmax)
+     .   omc(nplanetmax,nmax),phase(nmax),itime(nmax),Keplertime
       character*80 filename,inputsol,ttfile
 
       if(iargc().lt.2) goto 901
@@ -15,7 +15,9 @@ C     Cut out all data, except the transits!
 
       nunit=10
       open(unit=nunit,file=filename,status='old',err=902)
-      call readkeplc(nunit,nmax,npt,time,flux,ferr)
+      call readkeplc(nunit,nmax,npt,time,flux,ferr,itime)
+      call readkeplc(nunit,nmax,npt,time,flux,ferr,itime,
+     .  Keplertime)
       close(nunit)
       if(npt.eq.0) goto 999
 
@@ -56,9 +58,10 @@ c        write(0,*) "ntt",i,ntt(i)
 
  9    do 10 i=1,npt
 c         write(0,*) tflag(i)
-         if(tflag(i).eq.1) write(6,*) time(i)-0.5d0+54900.0d0,flux(i),
-     .      ferr(i)
+         if(tflag(i).eq.1) write(500,*) time(i)-0.5d0+54900.0d0,flux(i),
+     .      ferr(i),itime(i)
  10   continue
+ 500  format(4(F17.11,1X))
 
       goto 999
  901  write(0,*) "Usage: transitcut5 <filein> <n1.dat>"
@@ -71,35 +74,6 @@ c         write(0,*) tflag(i)
  905  write(0,*) "Error opening ",ttfile
       goto 999
  999  end
-
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine readkeplc(nunit,nmax,npt,dtime,flux,ferr)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      implicit none
-      integer nunit,nmax,npt,i
-      double precision dtime(nmax),flux(nmax),ferr(nmax),Keplertime
-
-      Keplertime=54900.0d0
-
-      i=1
-
-  9   continue
- 10   read(nunit,*,err=9,end=20) dtime(i),flux(i),ferr(i)
-         dtime(i)=dtime(i)+0.5d0-Keplertime
-c        mag(i)=-2.5*log10(mag(i)+1.0d0)
-c        ferr(i)=0.00005
-        i=i+1
-      goto 10
- 20   continue
-
-      npt=i-1
-      write(0,*)   "-------------------------"
-      write(0,500) "Observations read: ",npt
-      write(0,*)   "-------------------------"
- 500  format(1X,A19,I7)
-
-      return
-      end
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine marktransit(np,npt,phase,time,tflag,nfit,sol,ntt,tobs,

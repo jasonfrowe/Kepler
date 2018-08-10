@@ -65,9 +65,11 @@ c        write(0,*) "ntt",i,ntt(i)
       k=0
       do 14 i=1,npt
          if(abs(pcut(i)).lt.sigcut*std)then
-            write(6,*) time(i)-0.5d0+54900.0d0,flux(i)-1.0,ferr(i)
+            write(6,500) time(i)-0.5d0+54900.0d0,flux(i)-1.0,ferr(i),
+     .       itime(i)
          endif
  14   continue
+ 500  format(4(F17.11,1X))
         
       
       goto 999
