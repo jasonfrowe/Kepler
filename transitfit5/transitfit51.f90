@@ -3,7 +3,7 @@ program transitfit51
 use precision
 implicit none
 integer :: nfrho,iargc,nunit,nmax,npt,nptv,nfit,nplanet,npta,i,         &
- nplanetmax
+ nplanetmax,idump
 integer, allocatable, dimension(:) :: dtype,ntt
 real(double) :: ztime,chisq,rhoi,rhoierr(9)
 real(double), allocatable, dimension(:) :: time,flux,ferr,itime,vtime,  &
@@ -34,6 +34,8 @@ interface
 end interface
 
 nfrho=1 !flag for folding in rho-star priors
+
+idump=1 !idump = 0 ,regular fitting ; idump = 1, skip fitting and just dump the model
 
 if(iargc().lt.3)then
    write(6,*) "Usage: transitfit5 <photfile> <rvfile> <fitpars> [ttfiles]"
@@ -114,16 +116,29 @@ do i=1,nplanet
    endif
 enddo
 
-call fittransitmodel3(nfit,sol,serr,nplanet,npt,aT,aM,aE,aIT,     &
- dtype,ntt,tobs,omc,nfrho,rhoi,rhoierr)
+!Fit model and export fit.
+if(idump.eq.0)then 
+   call fittransitmodel3(nfit,sol,serr,nplanet,npt,aT,aM,aE,aIT,     &
+      dtype,ntt,tobs,omc,nfrho,rhoi,rhoierr)
 
-call exportfit(nfit,nplanet,sol,serr,err,titles)
+   call exportfit(nfit,nplanet,sol,serr,err,titles)
+endif
 
 nmax=npta
 nplanetmax=nplanet
 allocate(tmodel(npta))
 call transitmodel(nfit,nplanet,nplanetmax,sol,nmax,npta,aT,aIT,         &
  ntt,tobs,omc,tmodel,dtype)
+
+!dump model info the screen
+if(idump.eq.1)then
+   do i=1,npta
+      if(dtype(i).eq.0)then !only dump photometry
+         write(6,500) aT(i)-0.5d0+54900.0d0,aM(i),aE(i),aIT(i),tmodel(i)
+      endif
+   enddo
+endif
+500 format(5(F17.11,1X),I1)
 
 chisq=0.0d0
 !$OMP PARALLEL DO REDUCTION(+:chisq)
@@ -202,8 +217,11 @@ character(80) :: obsfile
 !local vars
 integer :: nunit,filestatus,i
 real(double) :: t,f,e,sec2day,it
+character(400) :: line
+character(20) :: zeros
 
 sec2day=86400.0d0
+write(zeros, '(*(I2))') (0, i=1, 4) !write a bunch of zeros  
 
 nunit=10
 open(unit=nunit,file=obsfile,iostat=filestatus,status='old')
@@ -219,20 +237,32 @@ do
       write(0,*) "nmax: ",nmax
       stop
    endif
-   read(nunit,*,iostat=filestatus) t,f,e,it
-   it=0.0 !Forces the use of Long Cadence
+   read(nunit,'(A)',iostat=filestatus) line
+   !write(0,*) t,f,e,it
+   !it=0.0 !Forces the use of Long Cadence
    if(filestatus == 0) then
-      i=i+1
-      time(i)=t-ztime+0.5d0
-      flux(i)=f+1.0
-      ferr(i)=e
-      if (it.lt.1.0d-7) then
-         itime(i)=1765.5/sec2day
-      elseif (it.lt.0.0) then
-         itime(i)=58.85/sec2day !short cadence
-      else
-         itime(i)=it
-      endif
+      line=trim(line) // zeros
+      read(line,*,iostat=filestatus) t,f,e,it
+      if(filestatus == 0) then
+         i=i+1
+         time(i)=t-ztime+0.5d0
+         flux(i)=f+1.0
+         ferr(i)=e
+         if (it.lt.1.0d-7) then
+            itime(i)=1765.5/sec2day
+         elseif (it.lt.0.0) then
+            itime(i)=58.85/sec2day !short cadence
+         else
+            itime(i)=it
+         endif
+         !write(0,500) i,time(i),flux(i),ferr(i),itime(i)
+         500 format(I6,1X,F10.5,1X,F8.6,1X,F8.6,1X,F8.6)
+         else
+            write(0,*) "File Error!! Line:",i+1
+            write(0,900) "iostat: ",filestatus
+            stop
+         endif
+      !read(5,*)
    elseif(filestatus == -1) then
       exit  !successively break from data read loop.
    else

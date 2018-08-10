@@ -149,7 +149,7 @@ def transitmodel (sol,time, itime=-1, ntt=0, tobs=0, omc=0, dtype=0 ):
     "read in transitmodel solution"  
     nplanet=int((len(sol)-8)/10) #number of planets
     
-    if type(itime) is int :
+    if type(itime) is float :
         if itime < 0 :
             itime=ones(len(time))*0.020434
         else:

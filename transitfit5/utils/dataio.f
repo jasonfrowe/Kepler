@@ -103,6 +103,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer nunit,nmax,npt,i
       double precision dtime(nmax),flux(nmax),ferr(nmax),itime(nmax),
      .  Keplertime,sec2day,mintime,it
+      character*400 line
+      character*20 zeros
+
+
+      write(zeros, '(*(I2))') (0, i=1, 4) !write a bunch of zeros
             
 C     if time=0, then time=MOSTtime (that does not mean drink up)
       Keplertime=54900.0
@@ -117,18 +122,10 @@ C     number of seconds in a day
 
       mintime=99.9d30
   9   continue
- 10   read(nunit,*,err=9,end=20) dtime(i),flux(i),ferr(i),it
-      !write(0,*) "itime: ",itime(i)
-cc  reset times form arbitrary start of 0.0 to HJD of field center
-cc  add 53.038152 to MJD center 1st exp
-c        dtime(i)=dtime(i)+53.038152
-cc  add HJD 5/2/09 adjustment for field center
-c        dtime(i)=dtime(i)+0.50020-Keplertime
-c  add time dependent change for field center
-c        dtime(i)=dtime(i)+4.1d-5*(dtime(i)-53.0)
+ 10   read(nunit,'(A)',end=20) line
+      line=trim(line) // zeros  !dump zeros to the end.. 
+      read(line,*,err=9,end=20) dtime(i),flux(i),ferr(i),it
         dtime(i)=dtime(i)-Keplertime
-c        dtime(i)=dtime(i)+sin(2.0d0*pi*dtime(i)/372.5d0-
-c     .      1.1208d0)*0.00280758d0
         dtime(i)=dtime(i)+0.5d0 !MJD half day offset
         mintime=min(mintime,dtime(i))
         flux(i)=flux(i)+1.0!-2.5*log10(mag(i)+1.0d0)
