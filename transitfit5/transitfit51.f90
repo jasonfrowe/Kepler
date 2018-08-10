@@ -226,10 +226,12 @@ do
       time(i)=t-ztime+0.5d0
       flux(i)=f+1.0
       ferr(i)=e
-      if (it.lt.0.5) then
+      if (it.lt.0.1) then
          itime(i)=1765.5/sec2day
-      else
+      elseif (it.lt.0.0) then
          itime(i)=58.85/sec2day !short cadence
+      else
+         itime(i)=it
       endif
    elseif(filestatus == -1) then
       exit  !successively break from data read loop.

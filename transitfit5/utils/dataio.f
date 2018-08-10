@@ -102,7 +102,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
       integer nunit,nmax,npt,i
       double precision dtime(nmax),flux(nmax),ferr(nmax),itime(nmax),
-     .  Keplertime,sec2day,mintime
+     .  Keplertime,sec2day,mintime,it
             
 C     if time=0, then time=MOSTtime (that does not mean drink up)
       Keplertime=54900.0
@@ -113,11 +113,11 @@ C     number of seconds in a day
       
       i=1
       
-      itime=1.0d0 !default, incase column is missing.
+      it=0.0d0 !default, incase column is missing.
 
       mintime=99.9d30
   9   continue
- 10   read(nunit,*,err=9,end=20) dtime(i),flux(i),ferr(i)!,itime(i)
+ 10   read(nunit,*,err=9,end=20) dtime(i),flux(i),ferr(i),it
       !write(0,*) "itime: ",itime(i)
 cc  reset times form arbitrary start of 0.0 to HJD of field center
 cc  add 53.038152 to MJD center 1st exp
@@ -137,6 +137,13 @@ c        ferr(i)=0.00005
          itime(i)=1765.5/sec2day !long cadence
         else
          itime(i)=58.85/sec2day !short cadence
+        endif
+        if (it.lt.0.1) then
+          itime(i)=1765.5/sec2day
+        elseif (it.lt.0.0) then
+          itime(i)=58.85/sec2day !short cadence
+        else
+          itime(i)=it
         endif
 c        itime(i)=0.1d0/sec2day
 c         itime(i)=itime(i)/sec2day
