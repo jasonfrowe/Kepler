@@ -1,7 +1,7 @@
 program combine
 implicit none
 integer nmax,nptSC,nptLC,nunit,filestatus,iargc,i,flag,j,npt
-integer, allocatable, dimension(:) :: itype
+integer, allocatable, dimension(:) :: itype,p
 real(8) :: dt,dtthres
 real(8), allocatable, dimension(:) :: timeSC,fluxSC,fluxerrSC,timeLC,fluxLC,fluxerrLC, &
     time,flux,fluxerr
@@ -91,7 +91,7 @@ do i=1,nptLC
     flag=0
 	do j=1,nptSC
 		if(abs(timeLC(i)-timeSC(j)).lt.dtthres)then
-            flag=-1
+            flag=1
 		endif
 	end do
 	if(flag.eq.0)then
@@ -107,15 +107,19 @@ write(0,*) "npt: ",npt
 time(npt+1:npt+nptSC)=timeSC(1:nptSC)
 flux(npt+1:npt+nptSC)=fluxSC(1:nptSC)
 fluxerr(npt+1:npt+nptSC)=fluxerrSC(1:nptSC)
-itype(npt+1:npt+nptSC)=1
+itype(npt+1:npt+nptSC)=-1
 
 npt=npt+nptSC
 
+
+allocate(p(npt))
+call rqsort(npt,time,p)
+
 do i=1,npt
-    write(6,500) time(i),flux(i),fluxerr(i),itype(i)
+    write(6,500) time(p(i)),flux(p(i)),fluxerr(p(i)),itype(p(i))
 end do
 
-500 format(3(F17.11,1X),I1)
+500 format(3(F17.11,1X),I2)
 
 
 end

@@ -4,7 +4,7 @@ CCMPL = gcc
 F77 = ifort
 F90 = ifort
 #compiling object file flags
-OPT1 = -O3 -parallel -ipo 
+OPT1 = -O3 
 OPT2 = 
 FFLAGS = -c $(OPT1) $(OPT2)
 #FFLAGS = -c -O0 -g -CB -warn $(OPT2)

@@ -130,12 +130,7 @@ C     number of seconds in a day
         mintime=min(mintime,dtime(i))
         flux(i)=flux(i)+1.0!-2.5*log10(mag(i)+1.0d0)
 c        ferr(i)=0.00005
-        if (itime(i).lt.1.0d-7) then
-         itime(i)=1765.5/sec2day !long cadence
-        else
-         itime(i)=58.85/sec2day !short cadence
-        endif
-        if (it.lt.0.1) then
+        if ((it.lt.1.0d-7).and.(it.gt.-1.0d-7)) then
           itime(i)=1765.5/sec2day
         elseif (it.lt.0.0) then
           itime(i)=58.85/sec2day !short cadence
@@ -144,8 +139,8 @@ c        ferr(i)=0.00005
         endif
 c        itime(i)=0.1d0/sec2day
 c         itime(i)=itime(i)/sec2day
-c        write(0,*) dtime(i),flux(i),ferr(i),itime(i)
-c        read(5,*)
+        !write(0,*) dtime(i),flux(i),ferr(i),itime(i),it
+        !read(5,*)
         i=i+1
       goto 10
  20   continue

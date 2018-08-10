@@ -20,6 +20,9 @@ C     Cut out all data, except the transits!
       close(nunit)
       if(npt.eq.0) goto 999
       flux=flux-1.0d0
+      !do i=1,npt
+      !  write(0,*) time(i),flux(i),itime(i)
+      !enddo
 
       call getarg(2,inputsol) !get filename for input solution
       nunit=10 !unit number used for file input
@@ -57,8 +60,8 @@ c        write(0,*) "ntt",i,ntt(i)
 
 
  9    do 10 i=1,npt
-c         write(0,*) tflag(i)
-         if(tflag(i).eq.1) write(500,*) time(i)-0.5d0+54900.0d0,flux(i),
+         !write(0,*) tflag(i)
+         if(tflag(i).eq.1) write(6,500) time(i)-0.5d0+54900.0d0,flux(i),
      .      ferr(i),itime(i)
  10   continue
  500  format(4(F17.11,1X))
