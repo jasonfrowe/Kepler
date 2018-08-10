@@ -226,7 +226,7 @@ do
       time(i)=t-ztime+0.5d0
       flux(i)=f+1.0
       ferr(i)=e
-      if (it.lt.0.1) then
+      if (it.lt.1.0d-7) then
          itime(i)=1765.5/sec2day
       elseif (it.lt.0.0) then
          itime(i)=58.85/sec2day !short cadence

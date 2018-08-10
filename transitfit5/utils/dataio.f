@@ -133,7 +133,7 @@ c     .      1.1208d0)*0.00280758d0
         mintime=min(mintime,dtime(i))
         flux(i)=flux(i)+1.0!-2.5*log10(mag(i)+1.0d0)
 c        ferr(i)=0.00005
-        if (itime(i).lt.0.5) then
+        if (itime(i).lt.1.0d-7) then
          itime(i)=1765.5/sec2day !long cadence
         else
          itime(i)=58.85/sec2day !short cadence
