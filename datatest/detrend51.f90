@@ -143,7 +143,7 @@ endif
 do i=1,npt
 	write(6,500) time(i)-0.5d0+54900.0d0,flux(i),ferr(i),itime(i)
 enddo
-500 format(3(F17.11,1X),I1)
+500 format(4(F17.11,1X))
 
 
 end
