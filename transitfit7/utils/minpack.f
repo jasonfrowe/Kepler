@@ -548,6 +548,7 @@ c
   280          continue
             xnorm = enorm(n,wa2)
             fnorm = fnorm1
+            write(0,'(A6,1X,I6,1PE17.10)') "Iter: ",iter,fnorm
             iter = iter + 1
   290       continue
 c

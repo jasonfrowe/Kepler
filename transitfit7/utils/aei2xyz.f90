@@ -247,7 +247,7 @@ do i=1,nbodies
    y(6*i-2)=y(6*i-2)*TU/LU
    y(6*i-1)=y(6*i-1)*TU/LU
    y(6*i)=y(6*i)*TU/LU
-   write(0,500) m(i)/K2*Msun/Mearth,(y(j),j=6*i-5,6*i),a(i)/LU
+   !write(0,500) m(i)/K2*Msun/Mearth,(y(j),j=6*i-5,6*i),a(i)/LU
    500  format(28(1PE10.3,1X))
 enddo
 

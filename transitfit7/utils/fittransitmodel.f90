@@ -42,13 +42,15 @@ call lmdif1(fcn,npt,n,solfit,fvec,tollm,info,iwa,wa,lwa)
 write(0,*) "info: ",info
 
 n=0
+!write(0,*) "out:"
 do i=1,7+nbodies*7
    if(serr(i,2).ne.0.0d0)then
       n=n+1
+      !write(0,501) sol(i),solfit(n),sol(i)-solfit(n)
       sol(i)=solfit(n)
-      write(0,*) "out:",sol(i),solfit(n)
    endif
 enddo
+501 format(5(1X,1PE17.10))
 
 return
 end subroutine fittransitmodel
@@ -106,7 +108,7 @@ do i=1,7+nbodies2*7
       j=j+1
       sol3(i)=x(j)
    endif
-   write(0,501) sol3(i),sol2(i),sol3(i)-sol2(i),serr2(i,2)
+   !write(0,501) sol3(i),sol2(i),sol3(i)-sol2(i),serr2(i,2)
 enddo
 
 !for percorcalc
@@ -131,10 +133,6 @@ itprint=1 !create output of timing measurements
 itmodel=1 !calculate a transit model
 call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,percor,fvec,itprint,itmodel)
 
-!!write(0,*) "lcmodel",nbodies,npt
-!call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,fvec)
-!!write(0,*) "lcmodel done"
-
 !nunit=10
 !open(unit=nunit,file="junk.dat")
 !do i=1,npt
@@ -142,12 +140,12 @@ call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,percor,fvec,itprint,itmodel)
 !enddo
 !close(nunit)
 501 format(5(1X,1PE17.10))
-write(0,*) "lcmodel in FCN done"
+!write(0,*) "lcmodel in FCN done"
 !read(5,*)
 
 yp=1.0d0
 do i=1,npt
-   fvec(i)=(fvec(i)-flux2(i))/ferr2(i)*yp  !nope.. this is wrong..
+   fvec(i)=(fvec(i)-flux2(i))/ferr2(i)*yp  !yp is not needed. 
 enddo
 
 return
