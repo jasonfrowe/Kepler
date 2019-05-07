@@ -1,11 +1,12 @@
-subroutine lcmodel(nbodies,npt,tol,sol,time,itime,percor,ans,itprint,itmodel)
+subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,itprint,itmodel)
 use precision
-use ocmod
 implicit none
 !import vars
 integer :: nbodies,npt,itprint,itmodel
 real(double) :: tol
-real(double), allocatable, dimension(:) :: sol,time,itime,percor,ans
+real(double), dimension(:) :: sol,time,itime,percor,ans
+integer, dimension(:) :: ntmid !used with octiming 
+real(double), dimension(:,:) :: tmid !used with octiming
 !local vars
 integer :: nintg,i,j,k,neq,itol,itask,iopt,jt,lrw,liw,istate,nbod
 integer, allocatable, dimension(:) :: iwork,tc
@@ -55,15 +56,17 @@ interface
       real(double), intent(out) :: tmodel
    end subroutine transitmodel
    subroutine octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,  &
-    told,bold)
+    told,bold,ntmid,tmid)
       use precision
       implicit none
       integer, intent(in) :: nbodies,nintg
       integer, dimension(:), intent(inout) :: tc
+      integer, dimension(:), intent(inout) :: ntmid
       real(double), dimension(:,:), intent(in) :: xpos,ypos,zpos
       real(double), dimension(:), intent(in) :: sol,tcalc
       real(double), dimension(:), intent(inout) :: opos
       real(double), dimension(:,:), intent(inout) :: told,bold
+      real(double), dimension(:,:), intent(inout) :: tmid
    end subroutine octiming
 end interface
 
@@ -276,7 +279,7 @@ do i=1,npt
    endif
 
    !if you want the model TTVs, this routine will calculate them.
-   call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold)
+   call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,ntmid,tmid)
 
    if(itmodel.eq.1)then
       call transitmodel(nbodies,nintg,xpos,ypos,zpos,sol,tmodel)

@@ -1,10 +1,11 @@
-subroutine percorcalc(nbodies,sol,percor)
+subroutine percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
 use precision
-use ocmod
 implicit none
 !import vars
-integer :: nbodies
+integer :: nbodies,ntmidmax
+integer, dimension(:) :: ntmid
 real(double), dimension(:) :: sol,percor
+real(double), dimension(:,:), intent(in) :: tmid
 !local vars
 integer :: i,j,k,np
 real(double) :: per,ptest,median

@@ -48,7 +48,7 @@ occultquad.o mandelagol.o exportfit.o mercury.o aei2xyz.o rqsort.o ran2.o
 mcmcsetup7: mcmcsetup7.f90 $(MCMCSETUPINCL)
 	$(F90) $(LFLAGS) -o $(BIN)$@ mcmcsetup7.f90 $(MCMCSETUPINCL)
 
-TRANSINCL7 = precision.o fittingmod.o ocmod.o readkeplc.o calcnbodies.o readinputsol.o lcmodel.o \
+TRANSINCL7 = precision.o fittingmod.o readkeplc.o calcnbodies.o readinputsol.o lcmodel.o \
 aei2xyz.o rqsort.o transitmodel.o occultquad.o mandelagol.o minpack.o exportfit.o keplerian.o \
 octiming.o ocmod.o percorcalc.o mercury.o median.o fittransitmodel.o
 #TRANSINCL7 = precision.o fittingmod.o ocmod.o readkeplc.o calcnbodies.o readinputsol.o lcmodel.bs_v1.o \

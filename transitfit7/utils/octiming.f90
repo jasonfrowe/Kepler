@@ -1,8 +1,9 @@
 subroutine octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,&
- bold)
+ bold,ntmid,tmid)
 use precision
-use ocmod
 implicit none
+integer, dimension(:) :: ntmid
+real(double), dimension(:,:) :: tmid
 integer nbodies,i,j,nintg,np,k
 integer, dimension(:) :: tc
 real(double) :: rstar,RpRs,LU2,b,rt1,rt2,s1,s2,b1,b2,bmin,t1,t2,fourpi,&

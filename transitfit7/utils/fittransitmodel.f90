@@ -1,12 +1,18 @@
-subroutine fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime)
+subroutine fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax,ntmid,tmid)
 use precision
 use fittingmod
 implicit none
-integer npt,n,i,info,lwa,j
-integer, target :: nbodies
-integer, allocatable, dimension(:) :: iwa
-real(double), target :: tol,tollm
+!import vars
+integer :: npt
+integer, target :: nbodies,ntmidmax
+integer, dimension(:), target :: ntmid
+real(double), target :: tol
 real(double), dimension(:), target :: sol,time,flux,ferr,itime
+real(double), dimension(:,:), target :: tmid
+!local vars
+integer n,i,info,lwa,j
+integer, allocatable, dimension(:) :: iwa
+real(double), target :: tollm
 real(double), dimension(:,:), target :: serr
 real(double), allocatable, dimension(:) :: solfit,wa,fvec
 external fcn
@@ -32,6 +38,10 @@ time2 => time
 flux2 => flux
 ferr2 => ferr
 itime2 => itime
+!pointers for octiming calculations
+ntmidmax2 => ntmidmax
+ntmid2 => ntmid
+tmid2 => tmid
 
 lwa=npt*n+5*npt*n
 allocate(fvec(npt),iwa(n),wa(lwa))
@@ -75,22 +85,24 @@ real(double) :: tsamp,ts,te
 real(double), allocatable, dimension(:) :: time3,itime3,ans3
 
 interface
-   subroutine lcmodel(nbodies,npt,tol,sol,time,itime,percor,ans,itprint,itmodel)
+   subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,itprint,itmodel)
       use precision
       implicit none
-      integer, intent(inout), target :: nbodies
+      integer, intent(inout) :: nbodies
       integer, intent(inout) :: npt,itprint,itmodel
+      integer, dimension(:), intent(inout) :: ntmid
       real(double), intent(inout) :: tol
       real(double), dimension(:), intent(inout) :: sol,time,itime,percor
       real(double), dimension(:), intent(inout) :: ans
+      real(double), dimension(:,:), intent(inout) :: tmid
    end subroutine lcmodel
-   subroutine percorcalc(nbodies,sol,percor)
+   subroutine percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
       use precision
-      use ocmod
       implicit none
-      !import vars
-      integer, intent(in) :: nbodies
+      integer, intent(in) :: nbodies,ntmidmax
+      integer, dimension(:), intent(in) :: ntmid
       real(double), dimension(:), intent(in) :: sol
+      real(double), dimension(:,:), intent(in) :: tmid
       real(double), dimension(:), intent(inout):: percor
    end subroutine percorcalc
 end interface
@@ -127,11 +139,11 @@ enddo
 itprint=0 !no output of timing measurements
 itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.
-call lcmodel(nbodies2,npt3,tol2,sol3,time3,itime3,percor,ans3,itprint,itmodel) !generate a LC model.
-call percorcalc(nbodies2,sol3,percor)
+call lcmodel(nbodies2,npt3,tol2,sol3,time3,itime3,ntmid2,tmid2,percor,ans3,itprint,itmodel) !generate a LC model.
+call percorcalc(nbodies2,sol3,ntmidmax2,ntmid2,tmid2,percor)
 itprint=1 !create output of timing measurements
 itmodel=1 !calculate a transit model
-call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,percor,fvec,itprint,itmodel)
+call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,ntmid2,tmid2,percor,fvec,itprint,itmodel)
 
 !nunit=10
 !open(unit=nunit,file="junk.dat")

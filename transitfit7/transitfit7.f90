@@ -1,6 +1,5 @@
 program transitfit7
 use precision
-use ocmod
 implicit none
 integer :: iargc,nmax,npt,nbodies,i,np,itprint,itmodel
 real(double) :: tol
@@ -12,6 +11,10 @@ character(80) :: inputsol,photfile
 integer :: npt2
 real(double) :: tsamp,ts,te
 real(double), allocatable, dimension(:) :: time2,itime2,ans2
+!ocmod vars
+integer :: ntmidmax
+integer, allocatable, dimension(:) :: ntmid
+real(double), allocatable, dimension(:,:) :: tmid
 
 !below are all the interfaces to allow dynamic arrays.
 interface
@@ -36,22 +39,25 @@ interface
       real(double), dimension(:), intent(inout) :: sol
       real(double), dimension(:,:), intent(inout) :: serr
    end subroutine readinputsol
-   subroutine lcmodel(nbodies,npt,tol,sol,time,itime,percor,ans,itprint,itmodel)
+   subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,itprint,itmodel)
       use precision
       implicit none
-      integer, intent(inout), target :: nbodies
+      integer, intent(inout) :: nbodies
       integer, intent(inout) :: npt,itprint,itmodel
+      integer, dimension(:), intent(inout) :: ntmid
       real(double), intent(inout) :: tol
       real(double), dimension(:), intent(inout) :: sol,time,itime,percor
       real(double), dimension(:), intent(inout) :: ans
+      real(double), dimension(:,:), intent(inout) :: tmid
    end subroutine lcmodel
-   subroutine fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime)
+   subroutine fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax,ntmid,tmid)
       use precision
       implicit none
-      integer, intent(inout) :: nbodies,npt
+      integer, intent(inout) :: nbodies,npt,ntmidmax
+      integer, dimension(:), intent(inout) :: ntmid
       real(double), intent(inout) :: tol
       real(double), dimension(:), intent(inout) :: sol,time,flux,ferr,itime
-      real(double), dimension(:,:), intent(inout) :: serr
+      real(double), dimension(:,:), intent(inout) :: serr,tmid
    end subroutine fittransitmodel
    subroutine exportfit(nbodies,sol,serr)
       use precision
@@ -60,13 +66,14 @@ interface
       real(double), dimension(:), intent(inout) :: sol
       real(double), dimension(:,:), intent(inout) :: serr
    end subroutine exportfit
-   subroutine percorcalc(nbodies,sol,percor)
+   subroutine percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
       use precision
-      use ocmod
       implicit none
       !import vars
-      integer, intent(in) :: nbodies
+      integer, intent(in) :: nbodies,ntmidmax
+      integer, dimension(:), intent(in) :: ntmid
       real(double), dimension(:), intent(in) :: sol
+      real(double), dimension(:,:), intent(in) :: tmid
       real(double), dimension(:), intent(inout):: percor
    end subroutine percorcalc
 end interface
@@ -104,7 +111,7 @@ allocate(ntmid(nbodies),tmid(nbodies,ntmidmax))
 ntmid=0
 deallocate(Pers)
 
-call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime)
+call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax,ntmid,tmid)
 write(0,*) "Exporting fit"
 call exportfit(nbodies,sol,serr)
 
@@ -126,11 +133,14 @@ enddo
 itprint=0 !no output of timing measurements
 itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.
-call lcmodel(nbodies,npt2,tol,sol,time2,itime2,percor,ans2,itprint,itmodel) !generate a LC model.
-call percorcalc(nbodies,sol,percor)
+call lcmodel(nbodies,npt2,tol,sol,time2,itime2,ntmid,tmid,percor,ans2,itprint,itmodel) !generate a LC model.
+call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
 itprint=1 !create output of timing measurements
+itmodel=0 !calculate a transit model
+call lcmodel(nbodies,npt2,tol,sol,time2,itime2,ntmid,tmid,percor,ans2,itprint,itmodel)
+itprint=0 !create output of timing measurements
 itmodel=1 !calculate a transit model
-call lcmodel(nbodies,npt,tol,sol,time,itime,percor,ans,itprint,itmodel)
+call lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,itprint,itmodel)
 !call percorcalc(nbodies,sol,percor)
 do i=1,npt
    write(6,501) time(i),flux(i),ans(i)
