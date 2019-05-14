@@ -4,15 +4,15 @@ module precision
       integer :: fittype
       integer :: fitparm
    end type fitlookuptable
-   integer, parameter :: double  = 8 !double precision
-   real(double), parameter :: Yr=31557600.0d0
+   integer, parameter :: double  = 8 
+   real(double), parameter :: Yr=31557600.0
    real(double), parameter :: Rsun=696265000.0
    real(double), parameter :: Mearth=5.97219e24
    real(double), parameter :: day=86400.0
-   real(double), parameter :: PI = 3.141592653589793d0 !define Pi
+   real(double), parameter :: PI = 3.141592653589793
    
    !Mercury
-   real(double), parameter :: Gr=6.6719842229637d-11 !this was the mercury value..
+   real(double), parameter :: Gr=6.6719842229637d-11 
    real(double), parameter :: K2=2.959122082855911d-04
    real(double), parameter :: Msun=1.9891e30
    real(double), parameter :: AU=1.4959787d11

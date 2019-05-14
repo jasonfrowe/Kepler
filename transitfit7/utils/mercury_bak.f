@@ -486,11 +486,11 @@ c
 c      subroutine mdt_hkce (time,tstart,h0,hrec,tol,rmax,elost,jcen,
 c     %  rcen,nbod,nbig,m,x,v,s,rphy,rcrit,rce,stat,id,ngf,algor,opt,
 c     %  ngflag,colflag,ce,nce,ice,jce,nclo,iclo,jclo,dclo,tclo,ixvclo,
-c     %  jxvclo,outfile,mem,lmem)
+c     %  jxvclo,outfile,mem,lmem,force)
       subroutine mdt_hkce (time,tstart,h0,hrec,tol,rmax,elost,jcen,
      %  rcen,nbod,nbig,m,x,v,s,rphy,rcrit,rce,stat,algor,opt,
      %  ngflag,colflag,ce,nce,ice,jce,nclo,iclo,jclo,dclo,tclo,ixvclo,
-     %  jxvclo)
+     %  jxvclo,force)
 c
       implicit none
       include 'mercury.inc'
@@ -505,7 +505,7 @@ c Input/Output
       real*8 tclo(CMAX),dclo(CMAX),ixvclo(6,CMAX),jxvclo(6,CMAX)
 C      character*80 outfile(3),mem(NMESS)
 C      character*8 id(nbod)
-
+      external force
 c
 c Local
       integer iback(NMAX),index(NMAX),ibs(NMAX),jbs(NMAX),nclo_old
@@ -573,7 +573,7 @@ C edit by JR to remove ngf,ngflag,opt to mco_iden
         call mco_iden (time,jcen,nbs,0,h0,mbs,xbs,vbs,x0,v0)
         call mdt_bs2 (time,hlocal,hdid,tol,jcen,nbs,nbsbig,mbs,xbs,vbs,
      %    sbs,rphybs,rcritbs,ngfbs,statbs,dtflag,ngflag,opt,nce,
-     %    ibs,jbs)
+     %    ibs,jbs,force)
         tlocal = tlocal + hdid
 c
 c Check for close-encounter minima
@@ -1191,7 +1191,7 @@ c
 c------------------------------------------------------------------------------
 c
       subroutine mdt_bs2 (time,h0,hdid,tol,jcen,nbod,nbig,mass,x0,v0,s,
-     %  rphys,rcrit,ngf,stat,dtflag,ngflag,opt,nce,ice,jce)
+     %  rphys,rcrit,ngf,stat,dtflag,ngflag,opt,nce,ice,jce,force)
 c
       implicit none
       include 'mercury.inc'
@@ -1204,6 +1204,7 @@ c Input/Output
       real*8 time,h0,hdid,tol,jcen(3),mass(nbod),x0(3,nbod),v0(3,nbod)
       real*8 s(3,nbod),ngf(4,nbod),rphys(nbod),rcrit(nbod)
       integer nce,ice(nce),jce(nce)
+      external force
 c
 c Local
       integer j,j1,k,n
@@ -1225,7 +1226,7 @@ c V^2 for velocity).
       end do
 c
 c Calculate accelerations at the start of the step
-      call mfo_hkce (time,jcen,nbod,nbig,mass,x0,v0,s,rcrit,a0,stat,ngf,
+      call force (time,jcen,nbod,nbig,mass,x0,v0,s,rcrit,a0,stat,ngf,
      %  ngflag,opt,nce,ice,jce)
 c
  100  continue
@@ -1250,8 +1251,8 @@ c
         end do
 c
         do j = 2, n
-          call mfo_hkce (time,jcen,nbod,nbig,mass,xend,v0,s,rcrit,a,
-     %      stat,ngf,ngflag,opt,nce,ice,jce)
+          call force (time,jcen,nbod,nbig,mass,xend,v0,s,rcrit,a,stat,
+     %      ngf,ngflag,opt,nce,ice,jce)
           tmp0 = h * dble(j)
           do k = 2, nbod
             b(1,k) = b(1,k) + a(1,k)
@@ -1269,8 +1270,8 @@ c
           end do
         end do
 c
-        call mfo_hkce (time,jcen,nbod,nbig,mass,xend,v0,s,rcrit,a,stat,
-     %    ngf,ngflag,opt,nce,ice,jce)
+        call force (time,jcen,nbod,nbig,mass,xend,v0,s,rcrit,a,stat,ngf,
+     %    ngflag,opt,nce,ice,jce)
 c
         do k = 2, nbod
           d(1,k,n) = xend(1,k)
