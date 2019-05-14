@@ -210,17 +210,17 @@ c heliocentric coordinates.
 c
 c------------------------------------------------------------------------------
 c
-!      subroutine mco_h2dh (time,jcen,nbod,nbig,h,m,xh,vh,x,v,ngf,ngflag,
-!     %  opt)
+C      subroutine mco_h2dh (time,jcen,nbod,nbig,h,m,xh,vh,x,v,ngf,ngflag,
+C     %  opt)
       subroutine mco_h2dh (time,jcen,nbod,nbig,h,m,xh,vh,x,v)
-      !JR remove ngf,ngflag and opt, because they are not used
+C      JR remove ngf,ngflag and opt, because they are not used
 c
       implicit none
 c
 c Input/Output
-      integer nbod,nbig!,ngflag,opt(8)
+      integer nbod,nbig
       real*8 time,jcen(3),h,m(nbod),xh(3,nbod),vh(3,nbod),x(3,nbod)
-      real*8 v(3,nbod)!,ngf(4,nbod)
+      real*8 v(3,nbod)
 c
 c Local
       integer j
@@ -294,12 +294,12 @@ c
 c
 c Input/Output
       integer nbod,nbig,stat(nbod),algor,opt(8),dtflag,ngflag,opflag
-      integer colflag,nclo,iclo(CMAX),jclo(CMAX)!,lmem(NMESS)
+      integer colflag,nclo,iclo(CMAX),jclo(CMAX)
       real*8 time,tstart,h0,tol,rmax,en(3),am(3),jcen(3),rcen
       real*8 m(nbod),x(3,nbod),v(3,nbod),s(3,nbod),rphys(nbod)
       real*8 rce(nbod),rcrit(nbod),tclo(CMAX),dclo(CMAX)
       real*8 ixvclo(6,CMAX),jxvclo(6,CMAX)
-!      character*80 outfile(3),mem(NMESS)
+C      character*80 outfile(3),mem(NMESS)
 c
 c Local
       integer j,nce,ice(NMAX),jce(NMAX),ce(NMAX),iflag
@@ -497,14 +497,14 @@ c
 c
 c Input/Output
       integer nbod,nbig,nce,ice(nce),jce(nce),stat(nbod),ngflag,ce(nbod)
-      integer algor,opt(8),colflag,nclo,iclo(CMAX)!,lmem(NMESS)
+      integer algor,opt(8),colflag,nclo,iclo(CMAX)
       integer jclo(CMAX)
       real*8 time,tstart,h0,hrec,tol,rmax,elost,jcen(3),rcen
       real*8 m(nbod),x(3,nbod),v(3,nbod),s(3,nbod)
-      real*8 rce(nbod),rphy(nbod),rcrit(nbod)!,ngf(4,nbod)
+      real*8 rce(nbod),rphy(nbod),rcrit(nbod)
       real*8 tclo(CMAX),dclo(CMAX),ixvclo(6,CMAX),jxvclo(6,CMAX)
-!      character*80 outfile(3),mem(NMESS)
-!      character*8 id(nbod)
+C      character*80 outfile(3),mem(NMESS)
+C      character*8 id(nbod)
       external force
 c
 c Local
@@ -581,7 +581,7 @@ c Check for close-encounter minima
         temp = time + tlocal
         call mce_stat (temp,hdid,rcen,nbs,nbsbig,mbs,x0,v0,xbs,vbs,
      %    rcebs,rphybs,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo,nhit,ihit,
-     %    jhit,chit,dhit,thit,thit1,nowflag,statbs)!,outfile(3),mem,lmem)
+     %    jhit,chit,dhit,thit,thit1,nowflag,statbs)
 c
 c If collisions occurred, resolve the collision and return a flag
         if (nhit.gt.0.and.opt(2).ne.0) then
@@ -590,8 +590,7 @@ c If collisions occurred, resolve the collision and return a flag
               i = ihit(k)
               j = jhit(k)
               call mce_coll (thit(k),tstart,elost,jcen,i,j,nbs,nbsbig,
-     %          mbs,xbs,vbs,sbs,rphybs,statbs)!,idbs,opt,mem,lmem,
-c     %          outfile(3))
+     %          mbs,xbs,vbs,sbs,rphybs,statbs)
               colflag = colflag + 1
             end if
           end do
@@ -644,13 +643,13 @@ c
 c------------------------------------------------------------------------------
 c
       subroutine mce_coll (time,tstart,elost,jcen,i,j,nbod,nbig,m,xh,
-     %  vh,s,rphys,stat)!,id,opt,mem,lmem,outfile)
+     %  vh,s,rphys,stat)
 c
       implicit none
       include 'mercury.inc'
 c
 c Input/Output
-      integer i,j,nbod,nbig,stat(nbod)!,opt(8),lmem(NMESS)
+      integer i,j,nbod,nbig,stat(nbod)
       real*8 time,tstart,elost,jcen(3)
       real*8 m(nbod),xh(3,nbod),vh(3,nbod),s(3,nbod),rphys(nbod)
 c      character*80 outfile,mem(NMESS)
@@ -749,7 +748,7 @@ c------------------------------------------------------------------------------
 c
       subroutine mce_stat (time,h,rcen,nbod,nbig,m,x0,v0,x1,v1,rce,
      %  rphys,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo,nhit,ihit,jhit,
-     %  chit,dhit,thit,thit1,nowflag,stat)!,outfile,mem,lmem)
+     %  chit,dhit,thit,thit1,nowflag,stat)
 c
       implicit none
       include 'mercury.inc'
@@ -757,7 +756,7 @@ c
 c Input/Output
       integer nbod,nbig,stat(nbod),nowflag
       integer nclo,iclo(CMAX),jclo(CMAX)
-      integer nhit,ihit(CMAX),jhit(CMAX),chit(CMAX)!,lmem(NMESS)
+      integer nhit,ihit(CMAX),jhit(CMAX),chit(CMAX)
       real*8 time,h,rcen,m(nbod),x0(3,nbod),v0(3,nbod)
       real*8 x1(3,nbod),v1(3,nbod),rce(nbod),rphys(nbod)
       real*8 dclo(CMAX),tclo(CMAX),thit(CMAX),dhit(CMAX),thit1
@@ -2047,9 +2046,9 @@ c
       implicit none
 c
 c Input/Output
-      integer nbod,nbig!,ngflag,opt(8)
+      integer nbod,nbig
       real*8 time,jcen(3),h,m(nbod),x(3,nbod),v(3,nbod),xh(3,nbod)
-      real*8 vh(3,nbod)!,ngf(4,nbod)
+      real*8 vh(3,nbod)
 c
 c Local
       integer j
@@ -2149,7 +2148,7 @@ c...  Executable code
       endif
 
         return
-        end    ! drift_one
+        end    
 c
 c*************************************************************************
 c                        DRIFT_DAN.F
@@ -2283,7 +2282,7 @@ c...  for new coords.
       endif
 
         return
-        end   ! drift_dan
+        end   
 
 c-----------------------------------------------------------------------------
 c
@@ -2344,7 +2343,7 @@ c..     laguerre's method, in case newton's method fails.
         endif
 
         return
-        end    ! drift_kepu
+        end    
 
 c
 c********************************************************************#
@@ -2501,7 +2500,7 @@ c...      Laguerre's method succeeded
 
         return
 
-        end    !    drift_kepu_leg
+        end    
 
 c-------------------------------------------------------------------
 c
@@ -2574,7 +2573,7 @@ c
        endif
 
        return
-       end     !   drift_kepu_stumpff
+       end     
 
 c----------------------------------------------------------------------
 c
@@ -2621,7 +2620,7 @@ c...  Executable code
         f = r0*c1 + u*c2 + mu*c3 - dt
 
         return
-        end     !   drift_kepu_fchk
+        end     
 
 c-----------------------------------------------------------------------
 c
@@ -2701,7 +2700,7 @@ c..     newton's method failed
         iflgn = 1
         return
 
-        end  ! drift_kepu_new
+        end  
 
 c-------------------------------------------------------------------
 c
@@ -2775,7 +2774,7 @@ c...       find initial guess for hyperbolic motion.
         endif
 
         return
-        end     !   drift_kepu_guess
+        end     
 
 c----------------------------------------------------------------------
 c
@@ -2848,5 +2847,5 @@ c...  Executable code
       endif
 
         return
-        end     !   drift_kepu_p3solve
+        end     
 
