@@ -106,25 +106,25 @@ epoch=time(1)
 call aei2xyz(nbodies,sol,y,m,epoch,percor)
 !read(5,*)
 
-!plotting stuff...
-if(iplot.eq.1)then 
-   call pgopen('/xserve') !open PGPlot device
-   call pgpap(8.0,1.0) !page size
-   call pgslw(3) !thicker lines
-   rasemi=0.0
-   do k=1,nbodies
-      rasemi=max(rasemi,real(y(6*k-5))) !X
-      rasemi=max(rasemi,real(y(6*k-4))) !Y
-      rasemi=max(rasemi,real(y(6*k-3))) !Z
-   enddo
-   bb(1)=-3.0*rasemi
-   bb(2)= 3.0*rasemi
-   bb(3)=-3.0*rasemi
-   bb(4)= 3.0*rasemi
-   call pgwindow(bb(1),bb(2),bb(3),bb(4))
-   CALL PGBOX('BCNTS1',0.0,0,'BCNTS1',0.0,0)
-   call pgslw(1) !thicker lines
-endif
+!!plotting stuff...
+!if(iplot.eq.1)then 
+!   call pgopen('/xserve') !open PGPlot device
+!   call pgpap(8.0,1.0) !page size
+!   call pgslw(3) !thicker lines
+!   rasemi=0.0
+!   do k=1,nbodies
+!      rasemi=max(rasemi,real(y(6*k-5))) !X
+!      rasemi=max(rasemi,real(y(6*k-4))) !Y
+!      rasemi=max(rasemi,real(y(6*k-3))) !Z
+!   enddo
+!   bb(1)=-3.0*rasemi
+!   bb(2)= 3.0*rasemi
+!   bb(3)=-3.0*rasemi
+!   bb(4)= 3.0*rasemi
+!   call pgwindow(bb(1),bb(2),bb(3),bb(4))
+!   CALL PGBOX('BCNTS1',0.0,0,'BCNTS1',0.0,0)
+!   call pgslw(1) !thicker lines
+!endif
 
 !arrays to contaim time stamps and x,y,z positions of the bodies
 allocate(xpos(nbodies,nintg),ypos(nbodies,nintg),zpos(nbodies,nintg))
@@ -269,14 +269,14 @@ do i=1,npt
    501  format(78(1PE13.6,1X))
 !   read(5,*)
 
-   !for generating plots
-   if(iplot.eq.1)then
-      do k=1,nbodies
-         rx=real(xpos(k,5)-xpos(1,5))
-         ry=real(ypos(k,5)-ypos(1,5))
-         call pgpt1(rx,ry,-1)
-      enddo
-   endif
+!   !for generating plots
+!   if(iplot.eq.1)then
+!      do k=1,nbodies
+!         rx=real(xpos(k,5)-xpos(1,5))
+!         ry=real(ypos(k,5)-ypos(1,5))
+!         call pgpt1(rx,ry,-1)
+!      enddo
+!   endif
 
    !if you want the model TTVs, this routine will calculate them.
    call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,ntmid,tmid)
@@ -310,7 +310,7 @@ if(itprint.eq.1)then
    enddo
 endif
 
-if(iplot.eq.1) call pgclos()
+!if(iplot.eq.1) call pgclos()
 
 return
 end
