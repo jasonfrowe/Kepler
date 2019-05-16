@@ -38,7 +38,7 @@ real(double) :: ttomc,t0,per
 character(80) :: filename
 !save vars for Mercury
 integer, parameter :: nmax=2000
-real(double) :: a(3,nmax),hrec,angf(3,nmax),ausr(nmax)
+real(double) :: a(3,nmax),hrec,angf(3,nmax),ausr(3,nmax)
 
 
 interface
@@ -245,7 +245,8 @@ do i=1,npt
          dtflag=2 !normal call.
          call mdt_hy (t,tstart,hdid,tol,rmax,en,am,jcen,rcen,nbod,           &
             nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
-            ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo)
+            ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
+            a,hrec,angf,ausr)
          t=t+hdid
          h0=h0-hdid
       enddo
