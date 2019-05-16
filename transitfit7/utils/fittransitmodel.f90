@@ -122,11 +122,11 @@ do i=1,7+nbodies2*7
    endif
 enddo
 
-!make sure masses are positive
-do i=1,nbodies2
-   np=7+7*(i-1)
-   sol3(np+5)=abs(sol3(np+5))
-enddo
+!!make sure masses are positive
+!do i=1,nbodies2
+!   np=7+7*(i-1)
+!   sol3(np+5)=abs(sol3(np+5))
+!enddo
 
 !do i=1,7+nbodies2*7
 !   write(0,501) sol3(i),sol2(i),sol3(i)-sol2(i),serr2(i,2)

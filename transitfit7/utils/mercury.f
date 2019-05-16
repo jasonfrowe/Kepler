@@ -287,7 +287,8 @@ c     %  ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo,
 c     %  outfile,mem,lmem)
       subroutine mdt_hy (time,tstart,h0,tol,rmax,en,am,jcen,rcen,nbod,
      %  nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,
-     %  ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo)
+     %  ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo,
+     %  a,hrec,angf,ausr)
 c
       implicit none
       include 'mercury.inc'
@@ -309,7 +310,7 @@ c Local
 c
 c------------------------------------------------------------------------------
 c
-      save a, hrec, angf, ausr
+c      save a, hrec, angf, ausr
       hby2 = h0 * .5d0
       nclo = 0
       colflag = 0
