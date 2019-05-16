@@ -1,23 +1,11 @@
 program n2nb
 use precision
 implicit none
-integer :: nfit,nplanet,iargc,npt,nmax,i,j
-real(double) :: tPi,T0,Per,EP,Psec,incl,th1,th2,vel,M1,M2,asemi
-real(double), allocatable, dimension(:) :: sol,time,flux,ferr,itime, &
-   solout,err,y,yerr
+integer :: nfit,nplanet,iargc,npt,nmax,i,j,npout,np,nbodies
+real(double), allocatable, dimension(:) :: sol,solout
 real(double), allocatable, dimension(:) :: m,merr
 real(double), allocatable, dimension(:,:) :: serr,yserr,mserr
 character(80) :: photfile,inputsol,charmass
-
-interface
-   subroutine readkeplc(photfile,npt,time,flux,ferr,itime)
-      use precision, only: double
-      implicit none
-      character(80), intent(in) :: photfile
-      integer, intent(out) :: npt
-      real(double), dimension(:), intent(inout) :: time,flux,ferr,itime
-   end subroutine readkeplc
-end interface
 
 interface
    subroutine calcnbodies(inputsol,nbodies)
@@ -26,133 +14,100 @@ interface
       character(80), intent(in) :: inputsol
       integer, intent(out) :: nbodies
    end subroutine calcnbodies
-end interface
-
-interface
    subroutine getfitpars(inputsol,sol)
       use precision, only: double
       implicit none
       character(80), intent(in) :: inputsol
       real(double), dimension(:) :: sol
    end subroutine getfitpars
-end interface
-
-interface
-   subroutine exportfit(nplanet,solout,serr,err,y,yerr,yserr)
-      use precision, only: double
+   subroutine exportfit(nbodies,sol,serr)
+      use precision
       implicit none
-      integer, intent(in) :: nplanet
-      real(double), dimension(:), intent(in) :: solout,err,y,yerr
-      real(double), dimension(:,:), intent(in) :: serr,yserr
+      integer nbodies
+      real(double), dimension(:), intent(inout) :: sol
+      real(double), dimension(:,:), intent(inout) :: serr
    end subroutine exportfit
 end interface
 
-if(iargc().lt.4) then
-   write(0,*) "Usage: n2nb <photometry> <n.dat> <mstar> <mi>"
+if(iargc().lt.3) then
+   write(0,*) "Usage: n2nb <n.dat> <mstar> <mi>"
    write(0,*) " <mstar> Mass of star [Msun]"
    write(0,*) " <Mi> Mass of each planet i [Mearth]"
    stop
 endif
 
-call getarg(1,photfile)
-nmax=100000
-allocate(time(nmax),flux(nmax),ferr(nmax),itime(nmax))
-call readkeplc(photfile,npt,time,flux,ferr,itime)
-write(0,*) "Number of observations read: ",npt
 
-call getarg(2,inputsol)
+call getarg(1,inputsol)
 call calcnbodies(inputsol,nplanet)
+nbodies=nplanet+1
 write(0,*) "Number of planets", nplanet
 
 nfit=8+nplanet*10
-allocate(sol(nfit),solout(8+nplanet+1),serr(8+nplanet+1,2), &
-   err(8+nplanet+1),m(nplanet+1),mserr(nplanet+1,2),merr(nplanet+1), &
-   y((nplanet+1)*6),yserr((nplanet+1)*6,2),yerr((nplanet+1)*6))
+allocate(sol(nfit),m(nplanet+1))
 
 !get masses
-if(iargc().lt.3+nplanet) then
+if(iargc().lt.2+nplanet) then
    write(0,*) "Usage: n2nb <photometry> <n.dat> <mstar> <mi>"
    write(0,*) " <mstar> Mass of star [Msun]"
    write(0,*) " <Mi> Mass of each planet i [Mearth]"
    write(0,*) "**Must list mass for all planets: ",nplanet
    stop
 endif
-call getarg(3,charmass)
+call getarg(2,charmass)
 read(charmass,*) m(1)
 m(1)=m(1)*Msun/Mearth !convert to Earth-masses
-mserr(1,1)=0.0d0
-mserr(1,2)=-1.0d0
-merr(1)=0.0d0
 do i=1,nplanet
-   call getarg(3+i,charmass)
+   call getarg(2+i,charmass)
    read(charmass,*) m(i+1)
-   mserr(i+1,1)=0.0d0
-   mserr(i+1,2)=-1.0d0
-   merr(i+1)=0.0d0
 enddo
 
 call getfitpars(inputsol,sol)
 
-do i=1,8
+allocate(solout(7+nbodies*7),serr(7+nbodies*7,2)) !use nbodies to allocate
+
+!mean stellar density
+solout(1)=sol(1)
+serr(1,1)=0.0
+serr(1,2)=-1.0d0
+
+!limb-darkening, dilution
+do i=2,6
    solout(i)=sol(i)
-   serr(i,1)=0.0d0
-   serr(i,2)=0.0d0
-   err(i)=0.0d0
-enddo
-serr(1,2)=-1.0d0 !fit for rhostar
-serr(8,2)=-1.0d0 !fit for ZPT
-
-solout(8+1)=0.0d0 !RDR for central star is not used.
-serr(8+1,1)=0.0d0
-serr(8+1,2)=0.0d0
-err(8+1)=0.0d0
-do i=1,nplanet
-   solout(8+i+1)=sol(10*(i-1)+8+4)
-   serr(8+i+1,2)=-1.0d0 !fit for R/R*
-   serr(8+i+1,1)=0.0d0
-   err(8+i+1)=0.0d0
-!   write(6,*) 8+i+1,solout(8+i+1),sol(10*(i-1)+8+4)
+   serr(i,1)=0.0
+   serr(i,2)=0.0
 enddo
 
-!central star is stationary
-do i=1,6
-   y(i)=0.0d0
-   yserr(i,1)=0.0d0
-   yserr(i,2)=-1.0d0
-   yerr(i)=0.0d0
+!photometric zero point
+solout(7)=sol(8)
+serr(7,1)=0.0
+serr(7,2)=-1.0d0
+
+!star
+do i=8,14
+   solout(i)=0.0
+   serr(i,1)=0.0
+   serr(i,2)=0.0
+enddo
+solout(12)=sol(8) !mass of star
+serr(12,1)=m(1)
+serr(12,2)=0.0d0 !do not initially fit for mass of star 
+
+!individual planets
+do i=2,nbodies
+   npout=7+7*(i-1) !nb.dat
+   np=10*(i-2)+8  !n0.dat
+   solout(npout+1)=sol(np+1)  !epoch
+   solout(npout+2)=sol(np+2)  !period
+   solout(npout+3)=sol(np+3)  !bb
+   solout(npout+4)=sol(np+4)  !r/r*
+   solout(npout+5)=m(i)       !mass
+   solout(npout+6)=sol(np+5)  !ecosw
+   solout(npout+7)=sol(np+6)  !esinw
 enddo
 
-tPi=2.0d0*Pi
-
-T0=time(1)
-M1=m(1)*MEarth
-do i=1,nplanet
-   Ep =sol(10*(i-1)+8+1)
-   Per=sol(10*(i-1)+8+2)
-   M2=M(i+1)*Mearth !convert to kg
-   Psec=Per*24.0*60.0*60.0
-   asemi=(Psec*Psec*Gr*(M1+M2)/(4.0*Pi*Pi))**(1.0/3.0)
-   vel=tPi*asemi/Psec
-   incl=0.0d0
-   th1=(Ep-T0)/Per-int((Ep-T0)/Per)
-   th1=tPi-th1*tPi
-   th2=th1+Pi/2.0d0
-   y(6*i+1)=asemi*cos(th1)/AU
-   y(6*i+2)=asemi*sin(th1)*cos(incl)/AU
-   y(6*i+3)=asemi*sin(th1)*sin(incl)/AU
-   y(6*i+4)=vel*cos(th2)
-   y(6*i+5)=vel*sin(th2)*cos(incl)
-   y(6*i+6)=vel*sin(th2)*sin(incl)
-   do j=1,6
-      yserr(6*i+j,1)=0.0d0
-      yserr(6*i+j,2)=-1.0d0
-      yerr(6*i+j)=0.0d0
-   enddo
-!   write(0,500) m(i+1),(y(j),j=6*(i+1)-5,6*(i+1))
-enddo
 500  format(28(1PE10.3,1X))
 
-call exportfit(nplanet,solout,serr,err,y,yerr,yserr)
+call exportfit(nbodies,solout,serr)
 
 end program n2nb
 
