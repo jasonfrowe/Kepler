@@ -107,7 +107,7 @@ interface
    end subroutine percorcalc
 end interface
 
-!write(0,*) "FCN1"
+write(0,*) "FCN1"
 
 allocate(sol3(7+nbodies2*7))
 
@@ -171,6 +171,8 @@ do i=1,npt
 enddo
 !$OMP END PARALLEL DO
 
+
+write(0,*) "FCN1.. done"
 
 return
 end

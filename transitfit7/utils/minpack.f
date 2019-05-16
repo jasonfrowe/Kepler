@@ -966,7 +966,7 @@ c
       epsmch = dpmpar(1)
 c
       eps = dsqrt(dmax1(epsfcn,epsmch))
-!$OMP PARALLEL DO PRIVATE(temp,h,j,i)
+!$OMP PARALLEL DO PRIVATE(temp,h,j,i,wa)
 !$OMP& FIRSTPRIVATE(x)
       do 20 j = 1, n
          temp = x(j)
