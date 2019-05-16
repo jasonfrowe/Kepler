@@ -64,33 +64,29 @@ enddo
 call getfitpars(inputsol,sol)
 
 allocate(solout(7+nbodies*7),serr(7+nbodies*7,2)) !use nbodies to allocate
+serr=0.0d0 !set default to zero.
+solout=0.0d0
 
 !mean stellar density
 solout(1)=sol(1)
-serr(1,1)=0.0
 serr(1,2)=-1.0d0
 
 !limb-darkening, dilution
 do i=2,6
    solout(i)=sol(i)
-   serr(i,1)=0.0
-   serr(i,2)=0.0
 enddo
 
 !photometric zero point
 solout(7)=sol(8)
-serr(7,1)=0.0
 serr(7,2)=-1.0d0
 
 !star
-do i=8,14
-   solout(i)=0.0
-   serr(i,1)=0.0
-   serr(i,2)=0.0
-enddo
+!do i=8,14
+!   solout(i)=0.0
+!   serr(i,1)=0.0
+!   serr(i,2)=0.0
+!enddo
 solout(12)=m(1) !mass of star
-serr(12,1)=0.0d0
-serr(12,2)=0.0d0 !do not initially fit for mass of star 
 
 !individual planets
 do i=2,nbodies
@@ -101,8 +97,19 @@ do i=2,nbodies
    solout(npout+3)=sol(np+3)  !bb
    solout(npout+4)=sol(np+4)  !r/r*
    solout(npout+5)=m(i)       !mass
-   solout(npout+6)=sol(np+5)  !ecosw
-   solout(npout+7)=sol(np+6)  !esinw
+   if(sol(np+5).ne.0.0d0)then
+      solout(npout+6)=sol(np+5)  !ecosw
+   else
+      solout(npout+6)=1.0d-3
+   endif
+   if(sol(np+6).ne.0.0d0)then
+      solout(npout+7)=sol(np+6)  !esinw
+   else
+      solout(npout+7)=1.0d-3
+   endif
+   do j=1,7
+      serr(npout+j,2)=-1.0d0
+   enddo
 enddo
 
 500  format(28(1PE10.3,1X))
