@@ -88,8 +88,8 @@ do i=8,14
    serr(i,1)=0.0
    serr(i,2)=0.0
 enddo
-solout(12)=sol(8) !mass of star
-serr(12,1)=m(1)
+solout(12)=m(1) !mass of star
+serr(12,1)=0.0d0
 serr(12,2)=0.0d0 !do not initially fit for mass of star 
 
 !individual planets
