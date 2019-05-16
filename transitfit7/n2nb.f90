@@ -2,10 +2,10 @@ program n2nb
 use precision
 implicit none
 integer :: nfit,nplanet,iargc,npt,nmax,i,j
-real(double) :: Gc,Pi,tPi,T0,Per,EP,Psec,incl,th1,th2,vel,M1,M2,asemi
+real(double) :: tPi,T0,Per,EP,Psec,incl,th1,th2,vel,M1,M2,asemi
 real(double), allocatable, dimension(:) :: sol,time,flux,ferr,itime, &
    solout,err,y,yerr
-real(double), allocatable, dimension(:) :: merr
+real(double), allocatable, dimension(:) :: m,merr
 real(double), allocatable, dimension(:,:) :: serr,yserr,mserr
 character(80) :: photfile,inputsol,charmass
 
@@ -122,9 +122,7 @@ do i=1,6
    yerr(i)=0.0d0
 enddo
 
-Pi=acos(-1.d0)   !Pi
 tPi=2.0d0*Pi
-Gc=6.674d-11 !N m^2 kg^-2  Gravitation constamt
 
 T0=time(1)
 M1=m(1)*MEarth
@@ -133,7 +131,7 @@ do i=1,nplanet
    Per=sol(10*(i-1)+8+2)
    M2=M(i+1)*Mearth !convert to kg
    Psec=Per*24.0*60.0*60.0
-   asemi=(Psec*Psec*Gc*(M1+M2)/(4.0*Pi*Pi))**(1.0/3.0)
+   asemi=(Psec*Psec*Gr*(M1+M2)/(4.0*Pi*Pi))**(1.0/3.0)
    vel=tPi*asemi/Psec
    incl=0.0d0
    th1=(Ep-T0)/Per-int((Ep-T0)/Per)

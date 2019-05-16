@@ -136,9 +136,9 @@ percor=0.0d0 !initialize percor to zero.
 call lcmodel(nbodies,npt2,tol,sol,time2,itime2,ntmid,tmid,percor,ans2,itprint,itmodel) !generate a LC model.
 call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
 itprint=1 !create output of timing measurements
-itmodel=0 !calculate a transit model
+itmodel=0 !do not calculate a transit model
 call lcmodel(nbodies,npt2,tol,sol,time2,itime2,ntmid,tmid,percor,ans2,itprint,itmodel)
-itprint=0 !create output of timing measurements
+itprint=0 !do not create output of timing measurements
 itmodel=1 !calculate a transit model
 call lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,itprint,itmodel)
 !call percorcalc(nbodies,sol,percor)
