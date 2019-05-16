@@ -165,7 +165,7 @@ stat=0 !0-alive,1-to be removed
 opflag=0 !integration mode
 colflag=0 !collision flag? probably doesn't need to be set
 
-maxint=60.0/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
+maxint=300.0/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
 
 first=.true.
 do i=1,npt
@@ -301,7 +301,7 @@ if(itprint.eq.1)then
          do i=1,ntmid(ip)
             ttomc=(tmid(ip,i)-t0)/per-int((tmid(ip,i)-t0)/per)
             if (ttomc.gt.0.5) ttomc=ttomc-1.0
-            ttomc=Per*ttomc !covert from phase to days
+            ttomc=Per*ttomc !convert from phase to days
             write(nunit,502) tmid(ip,i),ttomc
          enddo
    502   format(78(1PE13.6,1X))

@@ -76,7 +76,7 @@ integer :: npt,n,iflag
 real(double), dimension(n) :: x
 real(double), dimension(npt) :: fvec
 !local vars
-integer :: i,j,nunit,itprint,itmodel
+integer :: i,j,nunit,itprint,itmodel,np
 real(double) :: yp
 real(double), allocatable, dimension(:) :: sol3,m3,y3,percor
 !percorcalc
@@ -107,7 +107,7 @@ interface
    end subroutine percorcalc
 end interface
 
-!write(0,*) "FCN1"
+write(0,*) "FCN1"
 
 allocate(sol3(7+nbodies2*7))
 
@@ -120,7 +120,16 @@ do i=1,7+nbodies2*7
       j=j+1
       sol3(i)=x(j)
    endif
-   !write(0,501) sol3(i),sol2(i),sol3(i)-sol2(i),serr2(i,2)
+enddo
+
+!make sure masses are positive
+do i=1,nbodies2
+   np=7+7*(i-1)
+   sol3(np+5)=abs(sol3(np+5))
+enddo
+
+do i=1,7+nbodies2*7
+   write(0,501) sol3(i),sol2(i),sol3(i)-sol2(i),serr2(i,2)
 enddo
 
 !for percorcalc
@@ -156,9 +165,12 @@ call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,ntmid2,tmid2,percor,fvec,itprin
 !read(5,*)
 
 yp=1.0d0
+!$OMP PARALLEL DO
 do i=1,npt
    fvec(i)=(fvec(i)-flux2(i))/ferr2(i)*yp  !yp is not needed. 
 enddo
+!$OMP END PARALLEL DO
+
 
 return
 end
