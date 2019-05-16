@@ -310,7 +310,8 @@ c Local
 c
 c------------------------------------------------------------------------------
 c
-c      save a, hrec, angf, ausr
+C     Save vars removed by JR for MPI safety
+c      save a, hrec, angf, ausr 
       hby2 = h0 * .5d0
       nclo = 0
       colflag = 0

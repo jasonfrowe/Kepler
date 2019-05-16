@@ -168,7 +168,7 @@ stat=0 !0-alive,1-to be removed
 opflag=0 !integration mode
 colflag=0 !collision flag? probably doesn't need to be set
 
-maxint=300.0/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
+maxint=60.0/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
 
 first=.true.
 do i=1,npt
