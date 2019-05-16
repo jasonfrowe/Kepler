@@ -966,18 +966,21 @@ c
       epsmch = dpmpar(1)
 c
       eps = dsqrt(dmax1(epsfcn,epsmch))
+!$OMP PARALLEL DO PRIVATE(temp,h,j,i)
+!$OMP& FIRSTPRIVATE(x)
       do 20 j = 1, n
          temp = x(j)
          h = eps*dabs(temp)
          if (h .eq. zero) h = eps
          x(j) = temp + h
          call fcn(m,n,x,wa,iflag)
-         if (iflag .lt. 0) go to 30
+c         if (iflag .lt. 0) go to 30
          x(j) = temp
          do 10 i = 1, m
             fjac(i,j) = (wa(i) - fvec(i))/h
    10       continue
    20    continue
+!$OMP END PARALLEL DO
    30 continue
       return
 c
