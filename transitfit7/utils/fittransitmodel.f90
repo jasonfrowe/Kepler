@@ -107,7 +107,7 @@ interface
    end subroutine percorcalc
 end interface
 
-write(0,*) "FCN1"
+!write(0,*) "FCN1"
 
 allocate(sol3(7+nbodies2*7))
 
@@ -128,9 +128,9 @@ do i=1,nbodies2
    sol3(np+5)=abs(sol3(np+5))
 enddo
 
-do i=1,7+nbodies2*7
-   write(0,501) sol3(i),sol2(i),sol3(i)-sol2(i),serr2(i,2)
-enddo
+!do i=1,7+nbodies2*7
+!   write(0,501) sol3(i),sol2(i),sol3(i)-sol2(i),serr2(i,2)
+!enddo
 
 !for percorcalc
 allocate(percor(nbodies2))
