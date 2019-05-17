@@ -50,14 +50,13 @@ interface
       real(double), dimension(:), intent(inout) :: ans
       real(double), dimension(:,:), intent(inout) :: tmid
    end subroutine lcmodel
-   subroutine fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax,ntmid,tmid)
+   subroutine fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
       use precision
       implicit none
       integer, intent(inout) :: nbodies,npt,ntmidmax
-      integer, dimension(:), intent(inout) :: ntmid
       real(double), intent(inout) :: tol
       real(double), dimension(:), intent(inout) :: sol,time,flux,ferr,itime
-      real(double), dimension(:,:), intent(inout) :: serr,tmid
+      real(double), dimension(:,:), intent(inout) :: serr
    end subroutine fittransitmodel
    subroutine exportfit(nbodies,sol,serr)
       use precision
@@ -111,7 +110,7 @@ allocate(ntmid(nbodies),tmid(nbodies,ntmidmax))
 ntmid=0
 deallocate(Pers)
 
-call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax,ntmid,tmid)
+call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
 write(0,*) "Exporting fit"
 call exportfit(nbodies,sol,serr)
 
@@ -121,7 +120,7 @@ allocate(percor(nbodies))
 allocate(ans(npt)) !ans contains the model to match the data.
 
 !setting up percorcalc
-tsamp=300.0/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
+tsamp=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
 ts=minval(time(1:npt))
 te=maxval(time(1:npt))
 npt2=int((te-ts)/tsamp)+1

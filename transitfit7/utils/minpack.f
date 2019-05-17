@@ -981,7 +981,7 @@ c         if (iflag .lt. 0) go to 30
    10       continue
    20    continue
 !$OMP END PARALLEL DO
-      write(0,*) "finished building jacobian"
+C      write(0,*) "finished building jacobian"
    30 continue
       return
 c

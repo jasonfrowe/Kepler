@@ -1,14 +1,12 @@
-subroutine fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax,ntmid,tmid)
+subroutine fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
 use precision
 use fittingmod
 implicit none
 !import vars
 integer :: npt
 integer, target :: nbodies,ntmidmax
-integer, dimension(:), target :: ntmid
 real(double), target :: tol
 real(double), dimension(:), target :: sol,time,flux,ferr,itime
-real(double), dimension(:,:), target :: tmid
 !local vars
 integer n,i,info,lwa,j
 integer, allocatable, dimension(:) :: iwa
@@ -40,13 +38,10 @@ ferr2 => ferr
 itime2 => itime
 !pointers for octiming calculations
 ntmidmax2 => ntmidmax
-ntmid2 => ntmid
-tmid2 => tmid
 
 lwa=npt*n+5*npt*n
 allocate(fvec(npt),iwa(n),wa(lwa))
 tollm=1.0d-12
-!!call lmdif1(fcn,m,n,x,fvec,tollm,info,iwa,wa,lwa)
 write(0,*) "Calling lmdif1"
 call lmdif1(fcn,npt,n,solfit,fvec,tollm,info,iwa,wa,lwa)
 write(0,*) "info: ",info
@@ -81,8 +76,10 @@ real(double) :: yp
 real(double), allocatable, dimension(:) :: sol3,m3,y3,percor
 !percorcalc
 integer :: npt3
+integer, allocatable, dimension(:) :: ntmid2
 real(double) :: tsamp,ts,te
 real(double), allocatable, dimension(:) :: time3,itime3,ans3
+real(double), allocatable, dimension(:,:) :: tmid2
 
 interface
    subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,itprint,itmodel)
@@ -107,7 +104,10 @@ interface
    end subroutine percorcalc
 end interface
 
-write(0,*) "FCN1"
+!write(0,*) "FCN1"
+
+!allocate for percorcal
+allocate(ntmid2(nbodies2),tmid2(nbodies2,ntmidmax2))
 
 allocate(sol3(7+nbodies2*7))
 
@@ -136,7 +136,7 @@ enddo
 allocate(percor(nbodies2))
 
 !setting up percorcalc
-tsamp=300.0/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
+tsamp=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
 ts=minval(time2(1:npt))
 te=maxval(time2(1:npt))
 npt3=int((te-ts)/tsamp)+1
@@ -148,10 +148,13 @@ enddo
 itprint=0 !no output of timing measurements
 itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.
+!write(0,*) "Calling lcmodel1",npt3
 call lcmodel(nbodies2,npt3,tol2,sol3,time3,itime3,ntmid2,tmid2,percor,ans3,itprint,itmodel) !generate a LC model.
+!write(0,*) "Calling percorcal.."
 call percorcalc(nbodies2,sol3,ntmidmax2,ntmid2,tmid2,percor)
-itprint=1 !create output of timing measurements
+itprint=0 !create output of timing measurements
 itmodel=1 !calculate a transit model
+!write(0,*) "Calling lcmodel2"
 call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,ntmid2,tmid2,percor,fvec,itprint,itmodel)
 
 !nunit=10
@@ -172,7 +175,7 @@ enddo
 !$OMP END PARALLEL DO
 
 
-write(0,*) "FCN1.. done"
+!write(0,*) "FCN1.. done"
 
 return
 end

@@ -168,8 +168,9 @@ stat=0 !0-alive,1-to be removed
 opflag=0 !integration mode
 colflag=0 !collision flag? probably doesn't need to be set
 
-maxint=60.0/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
+maxint=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
 
+!write(0,*) "Starting mercury.."
 first=.true.
 do i=1,npt
 
@@ -292,7 +293,7 @@ do i=1,npt
    endif
 
 enddo
-
+!write(0,*) "Finished mercury"
 
 !update this to output timing for all nbodies with per>0
 if(itprint.eq.1)then

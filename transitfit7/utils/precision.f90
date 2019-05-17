@@ -10,6 +10,8 @@ module precision
    real(double), parameter :: Mearth=5.97219e24
    real(double), parameter :: day=86400.0
    real(double), parameter :: PI = 3.141592653589793
+   !max integration time for n-body steps (seconds)
+   real(double), parameter :: maxintg = 60.0
    
    !Mercury
    real(double), parameter :: Gr=6.6719842229637d-11 
