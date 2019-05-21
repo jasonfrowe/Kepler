@@ -6,7 +6,7 @@ integer :: nbodies
 real(double) :: epoch
 real(double), dimension(:) :: sol,y,m,percor
 !local vars
-integer :: i,j,np,ii,jj
+integer :: i,j,np,ii,jj,maxiter,iter
 integer, allocatable, dimension(:) :: iPer
 real(double) :: adrs,Per,b,Pid2,esinw,ecosw,Psec,varpi,bige,      &
  Meanlong,Meananom,T0,eccanom,lame,bigm,de,eps,bigen,fourpisq,fourpi,    &
@@ -95,12 +95,18 @@ do ii=1,nbodies
       bigm = lame-varpi
       bige = bigm
 
+      !write(0,*) 'kepler'
       de=1.0d30
-      do while(de.gt.eps) !iterate until we reach numerical precision
+      maxiter=250
+      iter=0
+      do while((de.gt.eps).and.(iter.lt.maxiter)) !iterate until we reach numerical precision
+         !write(0,*) 'iter',iter
          bigen = bigm+ecc(i)*sin(bige) !Murray and Dermott eqn 2.54, iterative solution
          de=abs(bigen-bige)
          bige=bigen
+         iter=iter+1
       enddo
+      !write(0,*) 'kepler done..'
 !     do j=1,25
 !         bige = bigm+ecc(i)*sin(bige) !Murray and Dermott eqn 2.54, iterative solution
 !      enddo

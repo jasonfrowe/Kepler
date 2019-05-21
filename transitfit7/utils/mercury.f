@@ -377,6 +377,8 @@ c
 c If objects had close encounters, advance H_K using Bulirsch-Stoer instead
       if (nce.gt.0) then
 c         write(0,*) "close: mdt_hy"
+         colflag=1
+         return
         do j = 2, nbod
           if (ce(j).ne.0) then
             x(1,j) = x0(1,j)

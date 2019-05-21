@@ -1,7 +1,7 @@
 program transitfit7
 use precision
 implicit none
-integer :: iargc,nmax,npt,nbodies,i,np,itprint,itmodel
+integer :: iargc,nmax,npt,nbodies,i,np,itprint,itmodel,colflag
 real(double) :: tol
 real(double), allocatable, dimension(:) :: time,flux,ferr,itime,sol,ans, &
  Pers,percor
@@ -39,11 +39,11 @@ interface
       real(double), dimension(:), intent(inout) :: sol
       real(double), dimension(:,:), intent(inout) :: serr
    end subroutine readinputsol
-   subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,itprint,itmodel)
+   subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
       use precision
       implicit none
       integer, intent(inout) :: nbodies
-      integer, intent(inout) :: npt,itprint,itmodel
+      integer, intent(inout) :: npt,itprint,itmodel,colflag
       integer, dimension(:), intent(inout) :: ntmid
       real(double), intent(inout) :: tol
       real(double), dimension(:), intent(inout) :: sol,time,itime,percor
@@ -132,15 +132,14 @@ enddo
 itprint=0 !no output of timing measurements
 itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.
-call lcmodel(nbodies,npt2,tol,sol,time2,itime2,ntmid,tmid,percor,ans2,itprint,itmodel) !generate a LC model.
-call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
+call lcmodel(nbodies,npt2,tol,sol,time2,itime2,ntmid,tmid,percor,ans2,colflag,itprint,itmodel) !generate a LC model.
+if (colflag.eq.0) call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
 itprint=1 !create output of timing measurements
 itmodel=0 !do not calculate a transit model
-call lcmodel(nbodies,npt2,tol,sol,time2,itime2,ntmid,tmid,percor,ans2,itprint,itmodel)
+call lcmodel(nbodies,npt2,tol,sol,time2,itime2,ntmid,tmid,percor,ans2,colflag,itprint,itmodel)
 itprint=0 !do not create output of timing measurements
 itmodel=1 !calculate a transit model
-call lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,itprint,itmodel)
-!call percorcalc(nbodies,sol,percor)
+call lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
 do i=1,npt
    write(6,501) time(i),flux(i),ans(i)
 enddo

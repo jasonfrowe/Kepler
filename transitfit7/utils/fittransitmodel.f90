@@ -71,7 +71,7 @@ integer :: npt,n,iflag
 real(double), dimension(n) :: x
 real(double), dimension(npt) :: fvec
 !local vars
-integer :: i,j,nunit,itprint,itmodel,np
+integer :: i,j,nunit,itprint,itmodel,np,colflag
 real(double) :: yp
 real(double), allocatable, dimension(:) :: sol3,m3,y3,percor
 !percorcalc
@@ -82,11 +82,11 @@ real(double), allocatable, dimension(:) :: time3,itime3,ans3
 real(double), allocatable, dimension(:,:) :: tmid2
 
 interface
-   subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,itprint,itmodel)
+   subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
       use precision
       implicit none
       integer, intent(inout) :: nbodies
-      integer, intent(inout) :: npt,itprint,itmodel
+      integer, intent(inout) :: npt,itprint,itmodel,colflag
       integer, dimension(:), intent(inout) :: ntmid
       real(double), intent(inout) :: tol
       real(double), dimension(:), intent(inout) :: sol,time,itime,percor
@@ -149,13 +149,13 @@ itprint=0 !no output of timing measurements
 itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.
 !write(0,*) "Calling lcmodel1",npt3
-call lcmodel(nbodies2,npt3,tol2,sol3,time3,itime3,ntmid2,tmid2,percor,ans3,itprint,itmodel) !generate a LC model.
+call lcmodel(nbodies2,npt3,tol2,sol3,time3,itime3,ntmid2,tmid2,percor,ans3,colflag,itprint,itmodel) !generate a LC model.
 !write(0,*) "Calling percorcal.."
-call percorcalc(nbodies2,sol3,ntmidmax2,ntmid2,tmid2,percor)
+if (colflag.eq.0) call percorcalc(nbodies2,sol3,ntmidmax2,ntmid2,tmid2,percor)
 itprint=0 !create output of timing measurements
 itmodel=1 !calculate a transit model
-!write(0,*) "Calling lcmodel2"
-call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,ntmid2,tmid2,percor,fvec,itprint,itmodel)
+write(0,*) "Calling lcmodel2"
+call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,ntmid2,tmid2,percor,fvec,colflag,itprint,itmodel)
 
 !nunit=10
 !open(unit=nunit,file="junk.dat")

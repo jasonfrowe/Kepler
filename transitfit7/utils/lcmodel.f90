@@ -1,8 +1,8 @@
-subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,itprint,itmodel)
+subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
 use precision
 implicit none
 !import vars
-integer :: nbodies,npt,itprint,itmodel
+integer :: nbodies,npt,itprint,itmodel,colflag
 real(double) :: tol
 real(double), dimension(:) :: sol,time,itime,percor,ans
 integer, dimension(:) :: ntmid !used with octiming 
@@ -20,7 +20,7 @@ integer, parameter :: cmax=50
 integer, dimension(cmax) :: iclo,jclo
 real(double), dimension(cmax) :: dclo,tclo
 real(double), dimension(6,cmax) :: ixvclo,jxvclo
-integer :: algor,nbig,ngflag,opflag,colflag,dtflag
+integer :: algor,nbig,ngflag,opflag,dtflag
 integer, dimension(8) :: opt
 integer, allocatable, dimension(:) :: stat
 real(double) :: h0,rcen,rmax,cefac,tstart,hdid,eps,maxint
@@ -101,9 +101,11 @@ tc=0 !initializtion of transit conidition flag to zero.
 
 !allocate array to contain masses and position,velocity for each body.
 allocate(y(nbodies*6),m(nbodies)) !need an extra space to avoid segs (?!)
-do i=1,nbodies*6
-   y(i)=0.0d0
-enddo
+!do i=1,nbodies*6
+!   y(i)=0.0d0
+!enddo
+y=0.0d0
+m=0.0d0
 epoch=time(1)
 !convert from Keplerian to Cartesian coords 
 call aei2xyz(nbodies,sol,y,m,epoch,percor)
@@ -159,17 +161,19 @@ rho(1)=sol(1) !density of central star (might as well use fit value)
 do i=1,nbod
    rho(i)=rho(i)*1.4959787e13**3.0d0*2.959122082855911d-4/1.9891e33
 enddo
-rceh=0.0d0 !close-encounter limit (Hill radii)
+rceh=1.0d0 !close-encounter limit (Hill radii)
 ngflag=0 !non-grav forces is turned off.
 opt=0 !options
 en=0 !energies
 am=0 !angular momentums
 stat=0 !0-alive,1-to be removed
 opflag=0 !integration mode
-colflag=0 !collision flag? probably doesn't need to be set
+colflag=0 !collision flag.  0 means no collision
 
 maxint=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
 
+
+ans=0.0 !default, set answer array to 0 flux.
 !write(0,*) "Starting mercury.."
 first=.true.
 do i=1,npt
@@ -211,6 +215,11 @@ do i=1,npt
          nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
          ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
          a,hrec,angf,ausr)
+      if(colflag.ne.0)then
+         write(0,*) "Close encounter, stopping integration"
+!         if(iplot.eq.1) call pgclos()
+         return
+      endif
       t=t+hdid
       h0=h0-hdid
    enddo
@@ -248,6 +257,11 @@ do i=1,npt
             nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
             ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
             a,hrec,angf,ausr)
+         if(colflag.ne.0)then
+            write(0,*) "Close encounter, stopping integration"
+!            if(iplot.eq.1) call pgclos()
+            return
+         endif
          t=t+hdid
          h0=h0-hdid
       enddo
