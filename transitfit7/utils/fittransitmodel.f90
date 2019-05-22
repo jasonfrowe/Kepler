@@ -154,7 +154,7 @@ call lcmodel(nbodies2,npt3,tol2,sol3,time3,itime3,ntmid2,tmid2,percor,ans3,colfl
 if (colflag.eq.0) call percorcalc(nbodies2,sol3,ntmidmax2,ntmid2,tmid2,percor)
 itprint=0 !create output of timing measurements
 itmodel=1 !calculate a transit model
-write(0,*) "Calling lcmodel2"
+!write(0,*) "Calling lcmodel2"
 call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,ntmid2,tmid2,percor,fvec,colflag,itprint,itmodel)
 
 !nunit=10

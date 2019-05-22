@@ -2,3 +2,4 @@
 Makefile
 *.mod
 *.o
+*.so
