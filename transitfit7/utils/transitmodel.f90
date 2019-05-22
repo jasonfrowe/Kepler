@@ -2,7 +2,7 @@ subroutine transitmodel(nbodies,nintg,xpos,ypos,zpos,sol,tmodel)
 use precision
 implicit none
 integer nbodies,nintg,i,j,caltran,np
-real(double) :: RpRs,rstar,LU2,tmodel,c1,c2,c3,c4,zpt,fourpi,Mstar,rhostar
+real(double) :: RpRs,rstar,LU2,tmodel,c1,c2,c3,c4,zpt,fourpid3,Mstar,rhostar
 real(double), allocatable, dimension(:) :: b,tflux,mum
 real(double), dimension(:,:) :: xpos,ypos,zpos
 real(double), dimension(:) :: sol
@@ -12,10 +12,10 @@ LU2=LU*LU
 allocate(b(nintg),tflux(nintg),mum(nintg))
 
 !rstar=(sol(12)/(4.0d0/3.0d0*Pi*sol(1)*1000.0d0)*Mearth)**(1.0d0/3.0d0)
-fourpi=4.0d0*Pi
+fourpid3=4.0d0*Pi/3.0d0
 rhostar=abs(sol(1)*1000.0) !mean stellar density (kg/m^3)
 Mstar=abs(sol(12)) !mass of central object (MEarth)
-rstar=(Mearth*Mstar/(fourpi*rhostar))**(1.0d0/3.0d0)
+rstar=(Mearth*Mstar/(fourpid3*rhostar))**(1.0d0/3.0d0)
 
 !write(0,*) "Rstar: ",rstar/Rsun,sol(12),sol(12)*MU/Msun
 c1=sol(2)!limb-darkening
