@@ -79,11 +79,11 @@ do
             sol(np+5)=rsol
             serr(np+5,1)=eread(1)
             serr(np+5,2)=eread(2)
-         elseif(command(1:2).eq.'EC')then
+         elseif(command(1:2).eq.'EC')then !this is sqrt(e)cosw
             sol(np+6)=rsol
             serr(np+6,1)=eread(1)
             serr(np+6,2)=eread(2)
-         elseif(command(1:2).eq.'ES')then
+         elseif(command(1:2).eq.'ES')then !this is sqrt(e)sinw
             sol(np+7)=rsol
             serr(np+7,1)=eread(1)
             serr(np+7,2)=eread(2)

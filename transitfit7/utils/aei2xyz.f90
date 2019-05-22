@@ -10,7 +10,7 @@ integer :: i,j,np,ii,jj,maxiter,iter
 integer, allocatable, dimension(:) :: iPer
 real(double) :: adrs,Per,b,Pid2,esinw,ecosw,Psec,varpi,bige,      &
  Meanlong,Meananom,T0,eccanom,lame,bigm,de,eps,bigen,fourpisq,fourpi,    &
- Rstar,Mstar,rhostar
+ Rstar,Mstar,rhostar,sqecosw,sqesinw
 real(double), allocatable, dimension(:) :: mtot,f,a,ecc,irad,w,Omrad,r, &
  x0,y0,z0,vx0,vy0,vz0,x1,y1,z1,vx1,vy1,vz1,x2,y2,z2,vx2,vy2,vz2,x3,y3,  &
  z3,vx3,vy3,vz3,Pers,x4,y4,z4,vx4,vy4,vz4
@@ -41,9 +41,11 @@ do ii=1,nbodies
    Per=sol(np+2)-percor(i) !orbital period in days
    Psec=Per*86400.0d0 !orbital period in sec
    b=sol(np+3) !impact parameter (does not need to be positive)
-   ecosw=sol(np+6)  !e cos(w)
-   esinw=sol(np+7)  !e sin(w)
-   ecc(i)=sqrt(ecosw*ecosw+esinw*esinw) !eccentricity
+   sqecosw=sol(np+6)  !e^1/2 cos(w)
+   sqesinw=sol(np+7)  !e^1/2 sin(w)
+   ecc(i)=(sqecosw*sqecosw+sqesinw*sqesinw) !eccentricity
+   ecosw=sqrt(ecc(i))*sqecosw
+   esinw=sqrt(ecc(i))*sqesinw
    a(i)=0.0d0 !initalization of semi-major axis
 
    Omrad(i)=0.0d0 !should this matter?
