@@ -1,0 +1,620 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module lcmodel ! in 
+    interface  ! in :lcmodel
+        subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel) ! in :lcmodel:lcmodel.f90
+            use precision
+            integer :: nbodies
+            integer :: npt
+            real(kind=8) :: tol
+            real(kind=8) dimension(:) :: sol
+            real(kind=8) dimension(:) :: time
+            real(kind=8) dimension(:) :: itime
+            integer dimension(:) :: ntmid
+            real(kind=8) dimension(:,:),intent(inout) :: tmid
+            real(kind=8) dimension(:) :: percor
+            real(kind=8) dimension(:) :: ans
+            integer,intent(inout) :: colflag
+            integer :: itprint
+            integer :: itmodel
+        end subroutine lcmodel
+        subroutine aei2xyz(nbodies,sol,y,m,epoch,percor) ! in :lcmodel:aei2xyz.f90
+            use precision
+            integer :: nbodies
+            real(kind=8) dimension(:) :: sol
+            real(kind=8) dimension(:) :: y
+            real(kind=8) dimension(:) :: m
+            real(kind=8) :: epoch
+            real(kind=8) dimension(:) :: percor
+        end subroutine aei2xyz
+        subroutine transitmodel(nbodies,nintg,xpos,ypos,zpos,sol,tmodel) ! in :lcmodel:transitmodel.f90
+            use precision
+            integer :: nbodies
+            integer :: nintg
+            real(kind=8) dimension(:,:) :: xpos
+            real(kind=8) dimension(:,:) :: ypos
+            real(kind=8) dimension(:,:) :: zpos
+            real(kind=8) dimension(:) :: sol
+            real(kind=8) :: tmodel
+        end subroutine transitmodel
+        subroutine occultquad(z0,u1,u2,p,muo1,mu0,nz) ! in :lcmodel:occultquad.f
+            double precision dimension(nz) :: z0
+            double precision :: u1
+            double precision :: u2
+            double precision :: p
+            double precision dimension(nz),depend(nz) :: muo1
+            double precision dimension(nz),depend(nz) :: mu0
+            integer, optional,check(len(z0)>=nz),depend(z0) :: nz=len(z0)
+        end subroutine occultquad
+        function rc(x,y) ! in :lcmodel:occultquad.f
+            real*8 :: x
+            real*8 :: y
+            real*8 :: rc
+        end function rc
+        function rj(x,y,z,p) ! in :lcmodel:occultquad.f
+            real*8 :: x
+            real*8 :: y
+            real*8 :: z
+            real*8 :: p
+            real*8 :: rj
+        end function rj
+        function ellec(k) ! in :lcmodel:occultquad.f
+            double precision :: k
+            double precision :: ellec
+        end function ellec
+        function ellk(k) ! in :lcmodel:occultquad.f
+            double precision :: k
+            double precision :: ellk
+        end function ellk
+        function rf(x,y,z) ! in :lcmodel:occultquad.f
+            real*8 :: x
+            real*8 :: y
+            real*8 :: z
+            real*8 :: rf
+        end function rf
+        function mandelagol(nintg,r1,r2,x1,x2,y1,y2,c,b0,mu,mulimb0,mulimbf,dist) ! in :lcmodel:mandelagol.f
+            integer, optional,check(len(x2)>=nintg),depend(x2) :: nintg=len(x2)
+            double precision :: r1
+            double precision :: r2
+            double precision :: x1
+            double precision dimension(nintg) :: x2
+            double precision :: y1
+            double precision dimension(nintg),depend(nintg) :: y2
+            double precision dimension(4) :: c
+            double precision dimension(nintg),depend(nintg) :: b0
+            double precision dimension(nintg),depend(nintg) :: mu
+            double precision dimension(nintg),depend(nintg) :: mulimb0
+            double precision dimension(nintg,5),depend(nintg) :: mulimbf
+            double precision dimension(nintg),depend(nintg) :: dist
+            double precision :: mandelagol
+        end function mandelagol
+        subroutine occultsmall(p,c1,c2,c3,c4,nz,z,mu) ! in :lcmodel:mandelagol.f
+            real*8 :: p
+            real*8 :: c1
+            real*8 :: c2
+            real*8 :: c3
+            real*8 :: c4
+            integer, optional,check(len(z)>=nz),depend(z) :: nz=len(z)
+            real*8 dimension(nz) :: z
+            real*8 dimension(nz),depend(nz) :: mu
+        end subroutine occultsmall
+        function iofr(c1,c2,c3,c4,r,p) ! in :lcmodel:mandelagol.f
+            real*8 :: c1
+            real*8 :: c2
+            real*8 :: c3
+            real*8 :: c4
+            real*8 :: r
+            real*8 :: p
+            real*8 :: iofr
+        end function iofr
+        subroutine occultnl(rl,c1,c2,c3,c4,b0,mulimb0,mulimbf,nb) ! in :lcmodel:mandelagol.f
+            real*8 :: rl
+            real*8 :: c1
+            real*8 :: c2
+            real*8 :: c3
+            real*8 :: c4
+            real*8 dimension(nb) :: b0
+            real*8 dimension(nb),depend(nb) :: mulimb0
+            real*8 dimension(nb,5),depend(nb) :: mulimbf
+            integer, optional,check(len(b0)>=nb),depend(b0) :: nb=len(b0)
+        end subroutine occultnl
+        subroutine occultuniform(b0,w,muo1,nb) ! in :lcmodel:mandelagol.f
+            real*8 dimension(nb) :: b0
+            real*8 :: w
+            real*8 dimension(nb),depend(nb) :: muo1
+            integer, optional,check(len(b0)>=nb),depend(b0) :: nb=len(b0)
+        end subroutine occultuniform
+        subroutine octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,ntmid,tmid) ! in :lcmodel:octiming.f90
+            use precision
+            integer :: nbodies
+            integer :: nintg
+            real(kind=8) dimension(:,:) :: xpos
+            real(kind=8) dimension(:,:) :: ypos
+            real(kind=8) dimension(:,:) :: zpos
+            real(kind=8) dimension(:) :: sol
+            real(kind=8) dimension(:) :: opos
+            integer dimension(:) :: tc
+            real(kind=8) dimension(:) :: tcalc
+            real(kind=8) dimension(:,:) :: told
+            real(kind=8) dimension(:,:) :: bold
+            integer dimension(:) :: ntmid
+            real(kind=8) dimension(:,:) :: tmid
+        end subroutine octiming
+        subroutine mce_init(tstart,algor,h,jcen,rcen,rmax,cefac,nbod,nbig,m,x,v,s,rho,rceh,rphys,rce,rcrit,rcritflag) ! in :lcmodel:mercury.f
+            real*8 :: tstart
+            integer :: algor
+            real*8 :: h
+            real*8 dimension(3) :: jcen
+            real*8 :: rcen
+            real*8 :: rmax
+            real*8 :: cefac
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(3,nbod),depend(nbod) :: v
+            real*8 dimension(3,nbod),depend(nbod) :: s
+            real*8 dimension(nbod),depend(nbod) :: rho
+            real*8 dimension(nbod),depend(nbod) :: rceh
+            real*8 dimension(nbod),depend(nbod) :: rphys
+            real*8 dimension(nbod),depend(nbod) :: rce
+            real*8 dimension(nbod),depend(nbod) :: rcrit
+            integer :: rcritflag
+        end subroutine mce_init
+        subroutine mce_hill(nbod,m,x,v,hill,a) ! in :lcmodel:mercury.f
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(3,nbod),depend(nbod) :: v
+            real*8 dimension(nbod),depend(nbod) :: hill
+            real*8 dimension(nbod),depend(nbod) :: a
+        end subroutine mce_hill
+        subroutine mco_x2a(gm,x,y,z,u,v,w,a,r,v2) ! in :lcmodel:mercury.f
+            real*8 :: gm
+            real*8 :: x
+            real*8 :: y
+            real*8 :: z
+            real*8 :: u
+            real*8 :: v
+            real*8 :: w
+            real*8 :: a
+            real*8 :: r
+            real*8 :: v2
+        end subroutine mco_x2a
+        subroutine mco_h2dh(time,jcen,nbod,nbig,h,m,xh,vh,x,v) ! in :lcmodel:mercury.f
+            real*8 :: time
+            real*8 dimension(3) :: jcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 :: h
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: xh
+            real*8 dimension(3,nbod),depend(nbod) :: vh
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(3,nbod),depend(nbod) :: v
+        end subroutine mco_h2dh
+        subroutine mdt_hy(time,tstart,h0,tol,rmax,en,am,jcen,rcen,nbod,nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo,a,hrec,angf,ausr) ! in :lcmodel:mercury.f
+            real*8 :: time
+            real*8 :: tstart
+            real*8 :: h0
+            real*8 :: tol
+            real*8 :: rmax
+            real*8 dimension(3) :: en
+            real*8 dimension(3) :: am
+            real*8 dimension(3) :: jcen
+            real*8 :: rcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(3,nbod),depend(nbod) :: v
+            real*8 dimension(3,nbod),depend(nbod) :: s
+            real*8 dimension(nbod),depend(nbod) :: rphys
+            real*8 dimension(nbod),depend(nbod) :: rcrit
+            real*8 dimension(nbod),depend(nbod) :: rce
+            integer dimension(nbod),depend(nbod) :: stat
+            integer :: algor
+            integer dimension(8) :: opt
+            integer :: dtflag
+            integer :: ngflag
+            integer :: opflag
+            integer :: colflag
+            integer :: nclo
+            integer dimension(50) :: iclo
+            integer dimension(50) :: jclo
+            real*8 dimension(50) :: dclo
+            real*8 dimension(50) :: tclo
+            real*8 dimension(6,50) :: ixvclo
+            real*8 dimension(6,50) :: jxvclo
+            real*8 dimension(3,2000) :: a
+            real*8 :: hrec
+            real*8 dimension(3,2000) :: angf
+            real*8 dimension(3,2000) :: ausr
+        end subroutine mdt_hy
+        subroutine mco_iden(time,jcen,nbod,nbig,h,m,xh,vh,x,v) ! in :lcmodel:mercury.f
+            real*8 :: time
+            real*8 dimension(3) :: jcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 :: h
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: xh
+            real*8 dimension(3,nbod),depend(nbod) :: vh
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(3,nbod),depend(nbod) :: v
+        end subroutine mco_iden
+        subroutine mdt_hkce(time,tstart,h0,hrec,tol,rmax,elost,jcen,rcen,nbod,nbig,m,x,v,s,rphy,rcrit,rce,stat,algor,opt,ngflag,colflag,ce,nce,ice,jce,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo) ! in :lcmodel:mercury.f
+            real*8 :: time
+            real*8 :: tstart
+            real*8 :: h0
+            real*8 :: hrec
+            real*8 :: tol
+            real*8 :: rmax
+            real*8 :: elost
+            real*8 dimension(3) :: jcen
+            real*8 :: rcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(3,nbod),depend(nbod) :: v
+            real*8 dimension(3,nbod),depend(nbod) :: s
+            real*8 dimension(nbod),depend(nbod) :: rphy
+            real*8 dimension(nbod),depend(nbod) :: rcrit
+            real*8 dimension(nbod),depend(nbod) :: rce
+            integer dimension(nbod),depend(nbod) :: stat
+            integer :: algor
+            integer dimension(8) :: opt
+            integer :: ngflag
+            integer :: colflag
+            integer dimension(nbod),depend(nbod) :: ce
+            integer, optional,check(len(ice)>=nce),depend(ice) :: nce=len(ice)
+            integer dimension(nce) :: ice
+            integer dimension(nce),depend(nce) :: jce
+            integer :: nclo
+            integer dimension(50) :: iclo
+            integer dimension(50) :: jclo
+            real*8 dimension(50) :: dclo
+            real*8 dimension(50) :: tclo
+            real*8 dimension(6,50) :: ixvclo
+            real*8 dimension(6,50) :: jxvclo
+        end subroutine mdt_hkce
+        subroutine mce_coll(time,tstart,elost,jcen,i,j,nbod,nbig,m,xh,vh,s,rphys,stat) ! in :lcmodel:mercury.f
+            real*8 :: time
+            real*8 :: tstart
+            real*8 :: elost
+            real*8 dimension(3) :: jcen
+            integer :: i
+            integer :: j
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: xh
+            real*8 dimension(3,nbod),depend(nbod) :: vh
+            real*8 dimension(3,nbod),depend(nbod) :: s
+            real*8 dimension(nbod),depend(nbod) :: rphys
+            integer dimension(nbod),depend(nbod) :: stat
+        end subroutine mce_coll
+        subroutine mce_stat(time,h,rcen,nbod,nbig,m,x0,v0,x1,v1,rce,rphys,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo,nhit,ihit,jhit,chit,dhit,thit,thit1,nowflag,stat) ! in :lcmodel:mercury.f
+            real*8 :: time
+            real*8 :: h
+            real*8 :: rcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: x0
+            real*8 dimension(3,nbod),depend(nbod) :: v0
+            real*8 dimension(3,nbod),depend(nbod) :: x1
+            real*8 dimension(3,nbod),depend(nbod) :: v1
+            real*8 dimension(nbod),depend(nbod) :: rce
+            real*8 dimension(nbod),depend(nbod) :: rphys
+            integer :: nclo
+            integer dimension(50) :: iclo
+            integer dimension(50) :: jclo
+            real*8 dimension(50) :: dclo
+            real*8 dimension(50) :: tclo
+            real*8 dimension(6,50) :: ixvclo
+            real*8 dimension(6,50) :: jxvclo
+            integer :: nhit
+            integer dimension(50) :: ihit
+            integer dimension(50) :: jhit
+            integer dimension(50) :: chit
+            real*8 dimension(50) :: dhit
+            real*8 dimension(50) :: thit
+            real*8 :: thit1
+            integer :: nowflag
+            integer dimension(nbod),depend(nbod) :: stat
+        end subroutine mce_stat
+        subroutine mce_min(d0,d1,d0t,d1t,h,d2min,tmin) ! in :lcmodel:mercury.f
+            real*8 :: d0
+            real*8 :: d1
+            real*8 :: d0t
+            real*8 :: d1t
+            real*8 :: h
+            real*8 :: d2min
+            real*8 :: tmin
+        end subroutine mce_min
+        subroutine mce_box(nbod,h,x0,v0,x1,v1,xmin,xmax,ymin,ymax) ! in :lcmodel:mercury.f
+            integer, optional,check(shape(x0,1)==nbod),depend(x0) :: nbod=shape(x0,1)
+            real*8 :: h
+            real*8 dimension(3,nbod) :: x0
+            real*8 dimension(3,nbod),depend(nbod) :: v0
+            real*8 dimension(3,nbod),depend(nbod) :: x1
+            real*8 dimension(3,nbod),depend(nbod) :: v1
+            real*8 dimension(nbod),depend(nbod) :: xmin
+            real*8 dimension(nbod),depend(nbod) :: xmax
+            real*8 dimension(nbod),depend(nbod) :: ymin
+            real*8 dimension(nbod),depend(nbod) :: ymax
+        end subroutine mce_box
+        subroutine mce_merg(jcen,i,j,nbod,nbig,m,xh,vh,s,stat,elost) ! in :lcmodel:mercury.f
+            real*8 dimension(3) :: jcen
+            integer :: i
+            integer :: j
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: xh
+            real*8 dimension(3,nbod),depend(nbod) :: vh
+            real*8 dimension(3,nbod),depend(nbod) :: s
+            integer dimension(nbod),depend(nbod) :: stat
+            real*8 :: elost
+        end subroutine mce_merg
+        subroutine mdt_bs2(time,h0,hdid,tol,jcen,nbod,nbig,mass,x0,v0,s,rphys,rcrit,ngf,stat,dtflag,ngflag,opt,nce,ice,jce) ! in :lcmodel:mercury.f
+            real*8 :: time
+            real*8 :: h0
+            real*8 :: hdid
+            real*8 :: tol
+            real*8 dimension(3) :: jcen
+            integer, optional,check(len(mass)>=nbod),depend(mass) :: nbod=len(mass)
+            integer :: nbig
+            real*8 dimension(nbod) :: mass
+            real*8 dimension(3,nbod),depend(nbod) :: x0
+            real*8 dimension(3,nbod),depend(nbod) :: v0
+            real*8 dimension(3,nbod),depend(nbod) :: s
+            real*8 dimension(nbod),depend(nbod) :: rphys
+            real*8 dimension(nbod),depend(nbod) :: rcrit
+            real*8 dimension(4,nbod),depend(nbod) :: ngf
+            integer dimension(nbod),depend(nbod) :: stat
+            integer :: dtflag
+            integer :: ngflag
+            integer dimension(8) :: opt
+            integer, optional,check(len(ice)>=nce),depend(ice) :: nce=len(ice)
+            integer dimension(nce) :: ice
+            integer dimension(nce),depend(nce) :: jce
+        end subroutine mdt_bs2
+        subroutine mfo_user(time,jcen,nbod,nbig,m,x,v,a) ! in :lcmodel:mercury.f
+            real*8 :: time
+            real*8 dimension(3) :: jcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(3,nbod),depend(nbod) :: v
+            real*8 dimension(3,nbod),depend(nbod) :: a
+        end subroutine mfo_user
+        subroutine mxx_en(jcen,nbod,nbig,m,xh,vh,s,e,l2) ! in :lcmodel:mercury.f
+            real*8 dimension(3) :: jcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: xh
+            real*8 dimension(3,nbod),depend(nbod) :: vh
+            real*8 dimension(3,nbod),depend(nbod) :: s
+            real*8 :: e
+            real*8 :: l2
+        end subroutine mxx_en
+        subroutine mfo_hy(jcen,nbod,nbig,m,x,rcrit,a,stat) ! in :lcmodel:mercury.f
+            real*8 dimension(3) :: jcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(nbod),depend(nbod) :: rcrit
+            real*8 dimension(3,nbod),depend(nbod) :: a
+            integer dimension(nbod),depend(nbod) :: stat
+        end subroutine mfo_hy
+        subroutine mfo_hkce(time,jcen,nbod,nbig,m,x,v,spin,rcrit,a,stat,ngf,ngflag,opt,nce,ice,jce) ! in :lcmodel:mercury.f
+            real*8 :: time
+            real*8 dimension(3) :: jcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(3,nbod),depend(nbod) :: v
+            real*8 dimension(3,nbod),depend(nbod) :: spin
+            real*8 dimension(nbod),depend(nbod) :: rcrit
+            real*8 dimension(3,nbod),depend(nbod) :: a
+            integer dimension(nbod),depend(nbod) :: stat
+            real*8 dimension(4,nbod),depend(nbod) :: ngf
+            integer :: ngflag
+            integer dimension(8) :: opt
+            integer, optional,check(len(ice)>=nce),depend(ice) :: nce=len(ice)
+            integer dimension(nce) :: ice
+            integer dimension(nce),depend(nce) :: jce
+        end subroutine mfo_hkce
+        subroutine mce_snif(h,i0,nbod,nbig,x0,v0,x1,v1,rcrit,ce,nce,ice,jce) ! in :lcmodel:mercury.f
+            real*8 :: h
+            integer :: i0
+            integer, optional,check(shape(x0,1)==nbod),depend(x0) :: nbod=shape(x0,1)
+            integer :: nbig
+            real*8 dimension(3,nbod) :: x0
+            real*8 dimension(3,nbod),depend(nbod) :: v0
+            real*8 dimension(3,nbod),depend(nbod) :: x1
+            real*8 dimension(3,nbod),depend(nbod) :: v1
+            real*8 dimension(nbod),depend(nbod) :: rcrit
+            integer dimension(nbod),depend(nbod) :: ce
+            integer :: nce
+            integer dimension(2000) :: ice
+            integer dimension(2000) :: jce
+        end subroutine mce_snif
+        subroutine mco_sine(x,sx,cx) ! in :lcmodel:mercury.f
+            real*8 :: x
+            real*8 :: sx
+            real*8 :: cx
+        end subroutine mco_sine
+        subroutine mfo_obl(jcen,nbod,m,x,a,acen) ! in :lcmodel:mercury.f
+            real*8 dimension(3) :: jcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(3,nbod),depend(nbod) :: a
+            real*8 dimension(3) :: acen
+        end subroutine mfo_obl
+        subroutine mfo_drct(i0,nbod,nbig,m,x,rcrit,a,stat) ! in :lcmodel:mercury.f
+            integer :: i0
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(nbod),depend(nbod) :: rcrit
+            real*8 dimension(3,nbod),depend(nbod) :: a
+            integer dimension(nbod),depend(nbod) :: stat
+        end subroutine mfo_drct
+        subroutine mco_h2b(time,jcen,nbod,nbig,h,m,xh,vh,x,v,ngf,ngflag,opt) ! in :lcmodel:mercury.f
+            real*8 :: time
+            real*8 dimension(3) :: jcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 :: h
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: xh
+            real*8 dimension(3,nbod),depend(nbod) :: vh
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(3,nbod),depend(nbod) :: v
+            real*8 dimension(4,nbod),depend(nbod) :: ngf
+            integer :: ngflag
+            integer dimension(8) :: opt
+        end subroutine mco_h2b
+        subroutine mco_dh2h(time,jcen,nbod,nbig,h,m,x,v,xh,vh) ! in :lcmodel:mercury.f
+            real*8 :: time
+            real*8 dimension(3) :: jcen
+            integer, optional,check(len(m)>=nbod),depend(m) :: nbod=len(m)
+            integer :: nbig
+            real*8 :: h
+            real*8 dimension(nbod) :: m
+            real*8 dimension(3,nbod),depend(nbod) :: x
+            real*8 dimension(3,nbod),depend(nbod) :: v
+            real*8 dimension(3,nbod),depend(nbod) :: xh
+            real*8 dimension(3,nbod),depend(nbod) :: vh
+        end subroutine mco_dh2h
+        subroutine drift_one(mu,x,y,z,vx,vy,vz,dt,iflg) ! in :lcmodel:mercury.f
+            real*8 :: mu
+            real*8 :: x
+            real*8 :: y
+            real*8 :: z
+            real*8 :: vx
+            real*8 :: vy
+            real*8 :: vz
+            real*8 :: dt
+            integer :: iflg
+        end subroutine drift_one
+        subroutine drift_dan(mu,x0,y0,z0,vx0,vy0,vz0,dt0,iflg) ! in :lcmodel:mercury.f
+            real*8 :: mu
+            real*8 :: x0
+            real*8 :: y0
+            real*8 :: z0
+            real*8 :: vx0
+            real*8 :: vy0
+            real*8 :: vz0
+            real*8 :: dt0
+            integer :: iflg
+        end subroutine drift_dan
+        subroutine drift_kepu(dt,r0,mu,alpha,u,fp,c1,c2,c3,iflg) ! in :lcmodel:mercury.f
+            real*8 :: dt
+            real*8 :: r0
+            real*8 :: mu
+            real*8 :: alpha
+            real*8 :: u
+            real*8 :: fp
+            real*8 :: c1
+            real*8 :: c2
+            real*8 :: c3
+            integer :: iflg
+        end subroutine drift_kepu
+        subroutine drift_kepmd(dm,es,ec,x,s,c) ! in :lcmodel:mercury.f
+            real*8 :: dm
+            real*8 :: es
+            real*8 :: ec
+            real*8 :: x
+            real*8 :: s
+            real*8 :: c
+        end subroutine drift_kepmd
+        subroutine drift_kepu_lag(s,dt,r0,mu,alpha,u,fp,c1,c2,c3,iflg) ! in :lcmodel:mercury.f
+            real*8 :: s
+            real*8 :: dt
+            real*8 :: r0
+            real*8 :: mu
+            real*8 :: alpha
+            real*8 :: u
+            real*8 :: fp
+            real*8 :: c1
+            real*8 :: c2
+            real*8 :: c3
+            integer :: iflg
+        end subroutine drift_kepu_lag
+        subroutine drift_kepu_stumpff(x,c0,c1,c2,c3) ! in :lcmodel:mercury.f
+            real*8 :: x
+            real*8 :: c0
+            real*8 :: c1
+            real*8 :: c2
+            real*8 :: c3
+        end subroutine drift_kepu_stumpff
+        subroutine drift_kepu_fchk(dt,r0,mu,alpha,u,s,f) ! in :lcmodel:mercury.f
+            real*8 :: dt
+            real*8 :: r0
+            real*8 :: mu
+            real*8 :: alpha
+            real*8 :: u
+            real*8 :: s
+            real*8 :: f
+        end subroutine drift_kepu_fchk
+        subroutine drift_kepu_new(s,dt,r0,mu,alpha,u,fp,c1,c2,c3,iflgn) ! in :lcmodel:mercury.f
+            real*8 :: s
+            real*8 :: dt
+            real*8 :: r0
+            real*8 :: mu
+            real*8 :: alpha
+            real*8 :: u
+            real*8 :: fp
+            real*8 :: c1
+            real*8 :: c2
+            real*8 :: c3
+            integer :: iflgn
+        end subroutine drift_kepu_new
+        subroutine drift_kepu_guess(dt,r0,mu,alpha,u,s) ! in :lcmodel:mercury.f
+            real*8 :: dt
+            real*8 :: r0
+            real*8 :: mu
+            real*8 :: alpha
+            real*8 :: u
+            real*8 :: s
+        end subroutine drift_kepu_guess
+        subroutine drift_kepu_p3solve(dt,r0,mu,alpha,u,s,iflg) ! in :lcmodel:mercury.f
+            real*8 :: dt
+            real*8 :: r0
+            real*8 :: mu
+            real*8 :: alpha
+            real*8 :: u
+            real*8 :: s
+            integer :: iflg
+        end subroutine drift_kepu_p3solve
+        subroutine rqsort(n,a,p) ! in :lcmodel:rqsort.f
+            integer, optional,check(len(a)>=n),depend(a) :: n=len(a)
+            real*8 dimension(n) :: a
+            integer dimension(n),depend(n) :: p
+        end subroutine rqsort
+        subroutine percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor) ! in :lcmodel:percorcalc.f90
+            use precision
+            integer :: nbodies
+            real(kind=8) dimension(:) :: sol
+            integer :: ntmidmax
+            integer dimension(:) :: ntmid
+            real(kind=8) dimension(:,:),intent(in) :: tmid
+            real(kind=8) dimension(:) :: percor
+        end subroutine percorcalc
+    end interface 
+end python module lcmodel
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/
