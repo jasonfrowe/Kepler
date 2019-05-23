@@ -9,7 +9,7 @@ real(double), dimension(:) :: sol,y,m,percor
 integer :: i,j,np,ii,jj,maxiter,iter
 integer, allocatable, dimension(:) :: iPer
 real(double) :: adrs,Per,b,Pid2,esinw,ecosw,Psec,varpi,bige,      &
- Meanlong,Meananom,T0,eccanom,lame,bigm,de,eps,bigen,fourpisq,fourpi,    &
+ Meanlong,Meananom,T0,eccanom,lame,bigm,de,eps,bigen,fourpisq,fourpid3,    &
  Rstar,Mstar,rhostar,sqecosw,sqesinw
 real(double), allocatable, dimension(:) :: mtot,f,a,ecc,irad,w,Omrad,r, &
  x0,y0,z0,vx0,vy0,vz0,x1,y1,z1,vx1,vy1,vz1,x2,y2,z2,vx2,vy2,vz2,x3,y3,  &
@@ -19,7 +19,7 @@ eps=EPSILON(1.0d0)
 
 Pid2=Pi/2.0d0
 fourpisq=4.0d0*Pi*Pi
-fourpi=4.0d0*Pi
+fourpid3=4.0d0*Pi/3.0d0
 
 !need to sort by Period...
 allocate(Pers(nbodies),iPer(nbodies))
@@ -31,7 +31,7 @@ call rqsort(nbodies,Pers,iPer)
 np=7+7*(iPer(1)-1)
 rhostar=abs(sol(1)*1000.0) !mean stellar density (kg/m^3)
 Mstar=abs(sol(np+5)) !mass of central object (MEarth)
-Rstar=(Mearth*Mstar/(fourpi*rhostar))**(1.0d0/3.0d0)
+Rstar=(Mearth*Mstar/(fourpid3*rhostar))**(1.0d0/3.0d0)
 
 allocate(mtot(nbodies),a(nbodies),ecc(nbodies),f(nbodies),irad(nbodies),&
  w(nbodies),Omrad(nbodies))
