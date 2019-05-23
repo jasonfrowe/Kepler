@@ -2,6 +2,7 @@ program n2nb
 use precision
 implicit none
 integer :: nfit,nplanet,iargc,npt,nmax,i,j,npout,np,nbodies
+real(double) :: c1,c2,c3,c4,q1,q2
 real(double), allocatable, dimension(:) :: sol,solout
 real(double), allocatable, dimension(:) :: m,merr
 real(double), allocatable, dimension(:,:) :: serr,yserr,mserr
@@ -72,9 +73,29 @@ solout(1)=sol(1)
 serr(1,2)=-1.0d0
 
 !limb-darkening, dilution
-do i=2,6
-   solout(i)=sol(i)
-enddo
+
+c1=sol(2)
+c2=sol(3)
+c3=sol(4)
+c4=sol(5)
+
+if((c3.eq.0.0).and.(c4.eq.0.0))then
+   q1=(c1+c2)*(c1+c2)
+   q2=c1/(2*(c1+c2))
+   solout(2)=0.0
+   solout(3)=0.0
+   solout(4)=q1
+   solout(5)=q2
+elseif((c1.eq.0.0).and.(c2.eq.0.0))then
+   solout(2)=0.0
+   solout(3)=0.0
+   solout(4)=c3
+   solout(5)=c4
+else
+   do i=2,6
+      solout(i)=sol(i)
+   enddo
+endif
 
 !photometric zero point
 solout(7)=sol(8)
@@ -100,12 +121,12 @@ do i=2,nbodies
    if(sol(np+5).ne.0.0d0)then
       solout(npout+6)=sol(np+5)  !ecosw
    else
-      solout(npout+6)=1.0d-3
+      solout(npout+6)=1.0d-2
    endif
    if(sol(np+6).ne.0.0d0)then
       solout(npout+7)=sol(np+6)  !esinw
    else
-      solout(npout+7)=1.0d-3
+      solout(npout+7)=1.0d-2
    endif
    do j=1,7
       serr(npout+j,2)=-1.0d0
