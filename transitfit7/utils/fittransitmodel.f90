@@ -13,7 +13,22 @@ integer, allocatable, dimension(:) :: iwa
 real(double), target :: tollm
 real(double), dimension(:,:), target :: serr
 real(double), allocatable, dimension(:) :: solfit,wa,fvec
+!ecosw,esinw convertion vars
+integer :: np
+real(double) :: ecosw,esinw,sqecosw,sqesinw,ecc
 external fcn
+
+!convert sqecosw, sqesinw to ecosw, esinw for LSQ
+do i=1,nbodies
+   np=7+7*(i-1)
+   sqecosw=sol(np+6)  !e^1/2 cos(w)
+   sqesinw=sol(np+7)  !e^1/2 sin(w)
+   ecc=(sqecosw*sqecosw+sqesinw*sqesinw) !eccentricity
+   sol(np+6)=sqrt(ecc)*sqecosw
+   sol(np+7)=sqrt(ecc)*sqesinw
+!   write(0,*) "sqecosw,sqesinw: ",sqecosw,sqesinw
+!   write(0,*) "ecosw,esinw: ",sol(np+6),sol(np+7)
+enddo
 
 allocate(solfit(7+nbodies*7))
 
@@ -41,7 +56,7 @@ ntmidmax2 => ntmidmax
 
 lwa=npt*n+5*npt*n
 allocate(fvec(npt),iwa(n),wa(lwa))
-tollm=1.0d-12
+tollm=1.0d-8
 write(0,*) "Calling lmdif1"
 call lmdif1(fcn,npt,n,solfit,fvec,tollm,info,iwa,wa,lwa)
 write(0,*) "info: ",info
@@ -56,6 +71,21 @@ do i=1,7+nbodies*7
    endif
 enddo
 501 format(5(1X,1PE17.10))
+
+!convert ecosw, esinw to sqecosw, sqesinw for storage
+do i=1,nbodies
+   np=7+7*(i-1)
+   ecosw=sol(np+6)  !ecos(w)
+   esinw=sol(np+7)  !esin(w)
+   ecc=sqrt(ecosw*ecosw+esinw*esinw) !eccentricity
+   if(ecc.gt.0.0)then
+      sol(np+6)=ecosw/sqrt(ecc)
+      sol(np+7)=esinw/sqrt(ecc)
+   else
+      sol(np+6)=0.0d0
+      sol(np+7)=0.0d0
+   endif
+enddo
 
 return
 end subroutine fittransitmodel
@@ -72,7 +102,7 @@ real(double), dimension(n) :: x
 real(double), dimension(npt) :: fvec
 !local vars
 integer :: i,j,nunit,itprint,itmodel,np,colflag
-real(double) :: yp
+real(double) :: yp,ecosw,esinw,sqecosw,sqesinw,ecc
 real(double), allocatable, dimension(:) :: sol3,m3,y3,percor
 !percorcalc
 integer :: npt3
@@ -120,6 +150,24 @@ do i=1,7+nbodies2*7
       j=j+1
       sol3(i)=x(j)
    endif
+enddo
+
+
+!convert ecosw, esinw to sqecosw, sqesinw for model
+do i=1,nbodies2
+   np=7+7*(i-1)
+   ecosw=sol3(np+6)  !ecos(w)
+   esinw=sol3(np+7)  !esin(w)
+   ecc=sqrt(ecosw*ecosw+esinw*esinw) !eccentricity
+   if(ecc.gt.0.0)then
+      sol3(np+6)=ecosw/sqrt(ecc)
+      sol3(np+7)=esinw/sqrt(ecc)
+   else
+      sol3(np+6)=0.0d0
+      sol3(np+7)=0.0d0
+   endif
+!   write(0,*) "ecosw,esinw: ",ecosw,esinw
+!   write(0,*) "sqecosw,sqesinw: ",sol3(np+6),sol3(np+7)
 enddo
 
 !!make sure masses are positive

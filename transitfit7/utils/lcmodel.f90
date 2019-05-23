@@ -118,9 +118,9 @@ call aei2xyz(nbodies,sol,y,m,epoch,percor)
 !   call pgslw(3) !thicker lines
 !   rasemi=0.0
 !   do k=1,nbodies
-!      rasemi=max(rasemi,real(y(6*k-5))) !X
-!      rasemi=max(rasemi,real(y(6*k-4))) !Y
-!      rasemi=max(rasemi,real(y(6*k-3))) !Z
+!      rasemi=max(rasemi,real(abs(y(6*k-5)))) !X
+!      rasemi=max(rasemi,real(abs(y(6*k-4)))) !Y
+!      rasemi=max(rasemi,real(abs(y(6*k-3)))) !Z
 !   enddo
 !   bb(1)=-3.0*rasemi
 !   bb(2)= 3.0*rasemi
