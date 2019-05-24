@@ -11,7 +11,8 @@ module precision
    real(double), parameter :: day=86400.0
    real(double), parameter :: PI = 3.141592653589793
    !max integration time for n-body steps (seconds)
-   real(double), parameter :: maxintg = 60.0
+   real(double), parameter :: maxintg = 2000.0
+   real(double), parameter :: maxintg_nt = 10.0
    
    !Mercury
    real(double), parameter :: Gr=6.6719842229637d-11 

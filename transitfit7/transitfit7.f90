@@ -1,7 +1,7 @@
 program transitfit7
 use precision
 implicit none
-integer :: iargc,nmax,npt,nbodies,i,np,itprint,itmodel,colflag
+integer :: iargc,nmax,npt,nbodies,i,np,itprint,itmodel,colflag,itiming
 real(double) :: tol
 real(double), allocatable, dimension(:) :: time,flux,ferr,itime,sol,ans, &
  Pers,percor
@@ -50,6 +50,15 @@ interface
       real(double), dimension(:), intent(inout) :: ans
       real(double), dimension(:,:), intent(inout) :: tmid
    end subroutine lcmodel
+   subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint)
+      use precision
+      implicit none
+      integer :: nbodies,colflag,itprint,npt
+      real(double) :: tol
+      real(double), dimension(:) :: sol,time,percor
+      integer, dimension(:) :: ntmid !used with octiming 
+      real(double), dimension(:,:) :: tmid !used with octiming
+   end subroutine lcmodel_pc
    subroutine fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
       use precision
       implicit none
@@ -120,23 +129,23 @@ allocate(percor(nbodies))
 allocate(ans(npt)) !ans contains the model to match the data.
 
 !setting up percorcalc
-tsamp=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
-ts=minval(time(1:npt))
-te=maxval(time(1:npt))
-npt2=int((te-ts)/tsamp)+1
-allocate(time2(npt2),itime2(npt2),ans2(npt2))
-do i=1,npt2
-   time2(i)=ts+dble(i)*tsamp
-   itime2(i)=tsamp
-enddo
-itprint=0 !no output of timing measurements
+!tsamp=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
+!ts=minval(time(1:npt))
+!te=maxval(time(1:npt))
+!npt2=int((te-ts)/tsamp)+1
+!allocate(time2(npt2),itime2(npt2),ans2(npt2))
+!do i=1,npt2
+!   time2(i)=ts+dble(i)*tsamp
+!   itime2(i)=tsamp
+!enddo
+itprint=1 !no output of timing measurements
 itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.
-call lcmodel(nbodies,npt2,tol,sol,time2,itime2,ntmid,tmid,percor,ans2,colflag,itprint,itmodel) !generate a LC model.
+call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
 if (colflag.eq.0) call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
 itprint=1 !create output of timing measurements
 itmodel=0 !do not calculate a transit model
-call lcmodel(nbodies,npt2,tol,sol,time2,itime2,ntmid,tmid,percor,ans2,colflag,itprint,itmodel)
+call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
 itprint=0 !do not create output of timing measurements
 itmodel=1 !calculate a transit model
 call lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)

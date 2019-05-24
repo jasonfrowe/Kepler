@@ -123,6 +123,15 @@ interface
       real(double), dimension(:), intent(inout) :: ans
       real(double), dimension(:,:), intent(inout) :: tmid
    end subroutine lcmodel
+   subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint)
+      use precision
+      implicit none
+      integer :: nbodies,colflag,itprint,npt
+      real(double) :: tol
+      real(double), dimension(:) :: sol,time,percor
+      integer, dimension(:) :: ntmid !used with octiming 
+      real(double), dimension(:,:) :: tmid !used with octiming
+   end subroutine lcmodel_pc
    subroutine percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
       use precision
       implicit none
@@ -183,24 +192,25 @@ enddo
 !for percorcalc
 allocate(percor(nbodies2))
 
-!setting up percorcalc
-tsamp=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
-ts=minval(time2(1:npt))
-te=maxval(time2(1:npt))
-npt3=int((te-ts)/tsamp)+1
-allocate(time3(npt3),itime3(npt3),ans3(npt3))
-do i=1,npt3
-   time3(i)=ts+dble(i)*tsamp
-   itime3(i)=tsamp
-enddo
+!!setting up percorcalc
+!tsamp=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
+!ts=minval(time2(1:npt))
+!te=maxval(time2(1:npt))
+!npt3=int((te-ts)/tsamp)+1
+!allocate(time3(npt3),itime3(npt3),ans3(npt3))
+!do i=1,npt3
+!   time3(i)=ts+dble(i)*tsamp
+!   itime3(i)=tsamp
+!enddo
 itprint=0 !no output of timing measurements
 itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.
 !write(0,*) "Calling lcmodel1",npt3
-call lcmodel(nbodies2,npt3,tol2,sol3,time3,itime3,ntmid2,tmid2,percor,ans3,colflag,itprint,itmodel) !generate a LC model.
+call lcmodel_pc(nbodies2,npt,tol2,sol3,time2,ntmid2,tmid2,percor,colflag,itprint) !generate a LC model.
+!call lcmodel(nbodies2,npt3,tol2,sol3,time3,itime3,ntmid2,tmid2,percor,ans3,colflag,itprint,itmodel) !generate a LC model.
 !write(0,*) "Calling percorcal.."
 if (colflag.eq.0) call percorcalc(nbodies2,sol3,ntmidmax2,ntmid2,tmid2,percor)
-itprint=0 !create output of timing measurements
+itprint=0 !no output of timing measurements
 itmodel=1 !calculate a transit model
 !write(0,*) "Calling lcmodel2"
 call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,ntmid2,tmid2,percor,fvec,colflag,itprint,itmodel)

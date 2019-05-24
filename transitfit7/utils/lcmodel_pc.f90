@@ -1,19 +1,18 @@
-subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
+subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint)
 use precision
 implicit none
 !import vars
-integer :: nbodies,npt,itprint,itmodel,colflag
+integer :: nbodies,colflag,itprint,npt
 real(double) :: tol
-real(double), dimension(:) :: sol,time,itime,percor,ans
+real(double), dimension(:) :: sol,time,percor
 integer, dimension(:) :: ntmid !used with octiming 
 real(double), dimension(:,:) :: tmid !used with octiming
 !local vars
-integer :: nintg,i,j,k,neq,lrw,liw,istate,nbod
-integer, allocatable, dimension(:) :: iwork,tc
-real(double) :: dnintg,tdnintg,t,tout,tout2,jm1,tmodel,   &
- epoch
-real(double), allocatable, dimension(:) :: y,m,rwork,tcalc,opos
-real(double), allocatable, dimension(:,:) :: xpos,ypos,zpos,told,bold
+integer :: nintg,nbod,neq,i,j
+real(double) :: eps,epoch,t,te,tout
+integer, allocatable, dimension(:) :: tc
+real(double), allocatable, dimension(:) :: tcalc,opos,y,m
+real(double), allocatable, dimension(:,:) :: told,bold,xpos,ypos,zpos
 !mercury vars
 integer :: nclo
 integer, parameter :: cmax=50
@@ -23,7 +22,7 @@ real(double), dimension(6,cmax) :: ixvclo,jxvclo
 integer :: algor,nbig,ngflag,opflag,dtflag
 integer, dimension(8) :: opt
 integer, allocatable, dimension(:) :: stat
-real(double) :: h0,rcen,rmax,cefac,tstart,hdid,eps,maxint
+real(double) :: h0,rcen,rmax,cefac,tstart,hdid,maxint
 real(double), dimension(3) :: jcen,en,am
 real(double), allocatable, dimension(:) :: rho,rceh,rphys,rce,rcrit
 real(double), allocatable, dimension(:,:) :: xh,vh,s,x,v
@@ -31,14 +30,16 @@ logical :: first
 !plotting stuff
 integer :: iplot
 real :: bb(4),rasemi,rx,ry
-external f,jac
+!vars to control integration steps
+real(double) :: RpRs
+real(double), allocatable, dimension(:) :: b_thres,b_old,b_cur
+!save vars for Mercury
+integer, parameter :: nmax=2000
+real(double) :: a(3,nmax),hrec,angf(3,nmax),ausr(3,nmax)
 !timing output
 integer :: nunit,ip,np
 real(double) :: ttomc,t0,per
 character(80) :: filename
-!save vars for Mercury
-integer, parameter :: nmax=2000
-real(double) :: a(3,nmax),hrec,angf(3,nmax),ausr(3,nmax)
 
 
 interface
@@ -71,13 +72,15 @@ interface
       real(double), dimension(:,:), intent(inout) :: told,bold
       real(double), dimension(:,:), intent(inout) :: tmid
    end subroutine octiming
+   subroutine calcimpact(nbodies,y,sol,b_cur)
+      use precision
+      integer :: nbodies
+      real(double), dimension(:) :: y,sol,b_cur
+   end subroutine calcimpact
 end interface
 
 !plotting
 iplot=0 !set iplot=1 for plotting 
-
-!for outputting timing measurements
-!itprint=1  !0 - do not output to file, 1 - output to 'tmeas.dat'
 
 !definition of small number
 eps=EPSILON(1.0d0)
@@ -86,9 +89,9 @@ eps=EPSILON(1.0d0)
 ntmid=0
 
 !oversampling
-nintg=11
-dnintg=dble(nintg)
-tdnintg=2.0d0*dnintg
+nintg=1 !no oversampling needed 
+!dnintg=dble(nintg)
+!tdnintg=2.0d0*dnintg
 
 allocate(opos(nbodies),tc(nbodies)) !used by octiming for previous position
 allocate(tcalc(nintg)) !storing model times for octiming
@@ -97,16 +100,13 @@ opos=0.0d0 !initilization to zero
 tc=0 !initializtion of transit conidition flag to zero.
 
 !allocate array to contain masses and position,velocity for each body.
-allocate(y(nbodies*6),m(nbodies)) !need an extra space to avoid segs (?!)
-!do i=1,nbodies*6
-!   y(i)=0.0d0
-!enddo
+allocate(y(nbodies*6),m(nbodies))
 y=0.0d0
 m=0.0d0
+
 epoch=time(1)
 !convert from Keplerian to Cartesian coords 
 call aei2xyz(nbodies,sol,y,m,epoch,percor)
-!read(5,*)
 
 !!plotting stuff...
 !if(iplot.eq.1)then 
@@ -161,124 +161,80 @@ stat=0 !0-alive,1-to be removed
 opflag=0 !integration mode
 colflag=0 !collision flag.  0 means no collision
 
-maxint=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
+maxint=maxintg/86400.0 !default for out of transit sampling [days] 
+!check for transit condition and if so, adjust integration time for timing precision
+!calculate thresholds for a transit to occur
+allocate(b_thres(nbodies),b_old(nbodies),b_cur(nbodies))
+do i=2,nbodies
+   np=7+7*(i-1)
+   RpRs=abs(sol(np+4))
+   b_thres(i)=1.0+RpRs
+enddo
+call calcimpact(nbodies,y,sol,b_cur)
+
+b_old=b_cur !initalize b_old
+do i=2,nbodies
+   if(b_cur(i).lt.b_thres(i)) maxint=maxintg_nt/86400.0
+enddo
+!write(0,*) (b_cur(i),i=2,nbodies)
+!write(0,*) maxint*86400.0 
+!read(5,*)
 
 
-ans=0.0 !default, set answer array to 0 flux.
-!write(0,*) "Starting mercury.."
+te=maxval(time(1:npt))
+
 first=.true.
-do i=1,npt
+do while(t.le.te)
 
-   !target integration time.. (first step is negative!)
-   tout=(time(i)-itime(i)*(0.5d0-1.0d0/tdnintg))!/365.25!/TU*86400.0d0
+	tout=t+maxint !target integration time
+	h0=tout-t     !target integration step
 
-!   write(0,*) 'tout:',t,tout
-!   write(6,501) t,(y(6*k-5),y(6*k-4),y(6*k-3),k=1,nbodies)
+	if(first) then !setting up co-ordinates and close encounters
+    	first=.false.
+      	do j=1,nbodies
+         	xh(1,j)=y(6*j-5)
+         	xh(2,j)=y(6*j-4)
+         	xh(3,j)=y(6*j-3)
+         	vh(1,j)=y(6*j-2)
+         	vh(2,j)=y(6*j-1)
+         	vh(3,j)=y(6*j)
+      	enddo
+      	call mce_init (t,algor,h0,jcen,rcen,rmax,cefac,nbod,nbig,       &
+       	m,xh,vh,s,rho,rceh,rphys,rce,rcrit,1)
+      	call mco_h2dh (t,jcen,nbod,nbig,h0,m,xh,vh,x,v)
+      	dtflag=0 !first time calling mdt_hy
+      	tstart=t !the value of tstart does not matter.. 
+	else
+      	dtflag=2 !normal call.
+   	endif
 
-   h0=tout-t
+  	call mdt_hy (t,tstart,h0,tol,rmax,en,am,jcen,rcen,nbod,           &
+		nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
+        ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
+        a,hrec,angf,ausr)
+    if(colflag.ne.0)then
+        write(0,*) "Close encounter, stopping integration"
+!        if(iplot.eq.1) call pgclos()
+        return
+    endif
+  	t=t+h0
 
-   if(first) then !setting up co-ordinates and close encounters
-      first=.false.
-      do j=1,nbodies
-         xh(1,j)=y(6*j-5)
-         xh(2,j)=y(6*j-4)
-         xh(3,j)=y(6*j-3)
-         vh(1,j)=y(6*j-2)
-         vh(2,j)=y(6*j-1)
-         vh(3,j)=y(6*j)
-!         write(0,501) vh(1,j),vh(2,j),vh(3,j)
-      enddo
-!      read(5,*)
-      call mce_init (t,algor,h0,jcen,rcen,rmax,cefac,nbod,nbig,       &
-       m,xh,vh,s,rho,rceh,rphys,rce,rcrit,1)
-      call mco_h2dh (t,jcen,nbod,nbig,h0,m,xh,vh,x,v)
-      dtflag=0 !first time calling mdt_hy
-      tstart=t !the value of tstart does not matter.. 
-   else
-      dtflag=2 !normal call.
-   endif
+   	call mco_dh2h (t,jcen,nbod,nbig,h0,m,x,v,xh,vh)
+    do j=1,nbodies
+    	y(6*j-5)=xh(1,j)
+      	y(6*j-4)=xh(2,j)
+      	y(6*j-3)=xh(3,j)
+      	y(6*j-2)=vh(1,j)
+      	y(6*j-1)=vh(2,j)
+      	y(6*j)=vh(3,j)
+    enddo
 
-
-   hdid=0.0d0
-   do while(abs(h0-hdid).gt.2.0*eps)
-      hdid=min(maxint,h0)
-      call mdt_hy (t,tstart,hdid,tol,rmax,en,am,jcen,rcen,nbod,           &
-         nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
-         ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
-         a,hrec,angf,ausr)
-      if(colflag.ne.0)then
-         write(0,*) "Close encounter, stopping integration"
-!         if(iplot.eq.1) call pgclos()
-         return
-      endif
-      t=t+hdid
-      h0=h0-hdid
-   enddo
-
-   call mco_dh2h (t,jcen,nbod,nbig,h0,m,x,v,xh,vh)
-   do j=1,nbodies
-      y(6*j-5)=xh(1,j)
-      y(6*j-4)=xh(2,j)
-      y(6*j-3)=xh(3,j)
-      y(6*j-2)=vh(1,j)
-      y(6*j-1)=vh(2,j)
-      y(6*j)=vh(3,j)
-   enddo
-
-   tcalc(1)=t
-   do j=1,nbodies
-      xpos(j,1)=y(6*j-5) !X
-      ypos(j,1)=y(6*j-4) !Y
-      zpos(j,1)=y(6*j-3) !Z
-   enddo
-!   t=tout
-
-   do j=2,nintg
-      jm1=dble(j-1)
-      istate=1
-      tout=(time(i)-itime(i)*(0.5d0-1.0d0/tdnintg-jm1/dnintg))!/365.25!/TU*86400.0d0
-
-      h0=tout-t
-
-      hdid=0.0d0
-      do while(abs(h0-hdid).gt.2.0*eps)
-         hdid=min(maxint,h0)
-         dtflag=2 !normal call.
-         call mdt_hy (t,tstart,hdid,tol,rmax,en,am,jcen,rcen,nbod,           &
-            nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
-            ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
-            a,hrec,angf,ausr)
-         if(colflag.ne.0)then
-            write(0,*) "Close encounter, stopping integration"
-!            if(iplot.eq.1) call pgclos()
-            return
-         endif
-         t=t+hdid
-         h0=h0-hdid
-      enddo
-
-      call mco_dh2h (t,jcen,nbod,nbig,h0,m,x,v,xh,vh) !t value is not needed 
-      do k=1,nbodies
-         y(6*k-5)=xh(1,k)
-         y(6*k-4)=xh(2,k)
-         y(6*k-3)=xh(3,k)
-         y(6*k-2)=vh(1,k)
-         y(6*k-1)=vh(2,k)
-         y(6*k)=vh(3,k)
-      enddo
-
-      tcalc(j)=t
-      do k=1,nbodies
-         xpos(k,j)=y(6*k-5) !X
-         ypos(k,j)=y(6*k-4) !Y
-         zpos(k,j)=y(6*k-3) !Z
-      enddo
-   enddo
-!   write(0,*) time(i),t,tout,h0
-!   write(0,*)
-!   write(6,501) time(i),(xpos(k,2),ypos(k,2),zpos(k,2),k=1,nbodies)
-   501  format(78(1PE13.6,1X))
-!   read(5,*)
+    tcalc(1)=t
+    do j=1,nbodies
+      	xpos(j,1)=y(6*j-5) !X
+      	ypos(j,1)=y(6*j-4) !Y
+      	zpos(j,1)=y(6*j-3) !Z
+   	enddo
 
 !   !for generating plots
 !   if(iplot.eq.1)then
@@ -289,16 +245,26 @@ do i=1,npt
 !      enddo
 !   endif
 
-   !if you want the model TTVs, this routine will calculate them.
-   call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,ntmid,tmid)
+   	call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,ntmid,tmid)
 
-   if(itmodel.eq.1)then
-      call transitmodel(nbodies,nintg,xpos,ypos,zpos,sol,tmodel)
-      ans(i)=tmodel
-   endif
+
+	maxint=maxintg/86400.0 !default for out of transit sampling [days] 
+    !check for transit condition and if so, adjust integration time for timing precision
+    !calculate thresholds for a transit to occur
+    call calcimpact(nbodies,y,sol,b_cur)
+
+    do j=2,nbodies
+        !if(b_cur(j).lt.2.0d0)then 
+        if(abs(2.0*b_cur(j)-b_old(j)).lt.b_thres(j))then
+          	maxint=maxintg_nt/86400.0
+            !write(0,*) b_cur(j),maxint*86400.0 
+            !read(5,*)
+        endif
+    enddo
+    b_old=b_cur !update b_old
 
 enddo
-!write(0,*) "Finished mercury"
+
 
 !update this to output timing for all nbodies with per>0
 if(itprint.eq.1)then
@@ -324,5 +290,5 @@ endif
 
 !if(iplot.eq.1) call pgclos()
 
-return
-end
+return 
+end subroutine
