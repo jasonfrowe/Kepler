@@ -128,16 +128,6 @@ allocate(percor(nbodies))
 
 allocate(ans(npt)) !ans contains the model to match the data.
 
-!setting up percorcalc
-!tsamp=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
-!ts=minval(time(1:npt))
-!te=maxval(time(1:npt))
-!npt2=int((te-ts)/tsamp)+1
-!allocate(time2(npt2),itime2(npt2),ans2(npt2))
-!do i=1,npt2
-!   time2(i)=ts+dble(i)*tsamp
-!   itime2(i)=tsamp
-!enddo
 itprint=1 !no output of timing measurements
 itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.

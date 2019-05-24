@@ -8,7 +8,7 @@ real(double), dimension(:) :: sol,y
 !local vars
 integer :: i,j,k,np,ii,jj
 integer, allocatable, dimension(:) :: iPer
-real(double) :: eps,Pi,Pid2,tPi,fourpisq,fourpi,Per,Psec,b,ecosw,esinw,t0,Eanom,phi0,eccn,w,t,phi,Manom,Tanom, &
+real(double) :: eps,Pi,Pid2,tPi,fourpisq,fourpid3,Per,Psec,b,ecosw,esinw,t0,Eanom,phi0,eccn,w,t,phi,Manom,Tanom, &
  trueanomaly,Mtotal,Mp,u,at,Ms,ap,as,rhostar,Mstar,Rstar,distance,rp,rs,astar,drs,incl,dumr,Gr,vel
 real(double), allocatable, dimension(:) :: Pers
 real(double), allocatable, dimension(:,:) :: pcart,scart,pcart2,scart2
@@ -19,7 +19,7 @@ Pi=3.141592653589793d0!define Pi
 tPi=2.0d0*Pi
 Pid2=Pi/2.0d0
 fourpisq=4.0d0*Pi*Pi
-fourpi=4.0d0*Pi
+fourpid3=4.0d0*Pi/3.0d0
 Gr=6.6719842229637d-11
 
 !need to sort by Period...
@@ -34,7 +34,7 @@ call rqsort(nbodies,Pers,iPer)
 np=7+7*(iPer(1)-1)
 rhostar=abs(sol(1)*1000.0) !mean stellar density (kg/m^3)
 Mstar=abs(sol(np+5)) !mass of central object (MEarth)
-Rstar=(Mearth*Mstar/(fourpi*rhostar))**(1.0d0/3.0d0)
+Rstar=(Mearth*Mstar/(fourpid3*rhostar))**(1.0d0/3.0d0)
 Mtotal=abs(sol(np+5)) !initiate sum of masses [Mearth]
 
 allocate(pcart(6,nbodies),scart(6,nbodies))

@@ -8,7 +8,7 @@ real(double), dimension(:) :: sol,time,percor
 integer, dimension(:) :: ntmid !used with octiming 
 real(double), dimension(:,:) :: tmid !used with octiming
 !local vars
-integer :: nintg,nbod,neq,i,j
+integer :: nintg,nbod,neq,i,j,k
 real(double) :: eps,epoch,t,te,tout
 integer, allocatable, dimension(:) :: tc
 real(double), allocatable, dimension(:) :: tcalc,opos,y,m
@@ -108,25 +108,25 @@ epoch=time(1)
 !convert from Keplerian to Cartesian coords 
 call aei2xyz(nbodies,sol,y,m,epoch,percor)
 
-!!plotting stuff...
-!if(iplot.eq.1)then 
-!   call pgopen('/xserve') !open PGPlot device
-!   call pgpap(8.0,1.0) !page size
-!   call pgslw(3) !thicker lines
-!   rasemi=0.0
-!   do k=1,nbodies
-!      rasemi=max(rasemi,real(abs(y(6*k-5)))) !X
-!      rasemi=max(rasemi,real(abs(y(6*k-4)))) !Y
-!      rasemi=max(rasemi,real(abs(y(6*k-3)))) !Z
-!   enddo
-!   bb(1)=-3.0*rasemi
-!   bb(2)= 3.0*rasemi
-!   bb(3)=-3.0*rasemi
-!   bb(4)= 3.0*rasemi
-!   call pgwindow(bb(1),bb(2),bb(3),bb(4))
-!   CALL PGBOX('BCNTS1',0.0,0,'BCNTS1',0.0,0)
-!   call pgslw(1) !thicker lines
-!endif
+!plotting stuff...
+if(iplot.eq.1)then 
+   call pgopen('/xserve') !open PGPlot device
+   call pgpap(8.0,1.0) !page size
+   call pgslw(3) !thicker lines
+   rasemi=0.0
+   do k=1,nbodies
+      rasemi=max(rasemi,real(abs(y(6*k-5)))) !X
+      rasemi=max(rasemi,real(abs(y(6*k-4)))) !Y
+      rasemi=max(rasemi,real(abs(y(6*k-3)))) !Z
+   enddo
+   bb(1)=-3.0*rasemi
+   bb(2)= 3.0*rasemi
+   bb(3)=-3.0*rasemi
+   bb(4)= 3.0*rasemi
+   call pgwindow(bb(1),bb(2),bb(3),bb(4))
+   CALL PGBOX('BCNTS1',0.0,0,'BCNTS1',0.0,0)
+   call pgslw(1) !thicker lines
+endif
 
 !arrays to contaim time stamps and x,y,z positions of the bodies
 allocate(xpos(nbodies,nintg),ypos(nbodies,nintg),zpos(nbodies,nintg))
@@ -214,7 +214,7 @@ do while(t.le.te)
         a,hrec,angf,ausr)
     if(colflag.ne.0)then
         write(0,*) "Close encounter, stopping integration"
-!        if(iplot.eq.1) call pgclos()
+        if(iplot.eq.1) call pgclos()
         return
     endif
   	t=t+h0
@@ -236,14 +236,14 @@ do while(t.le.te)
       	zpos(j,1)=y(6*j-3) !Z
    	enddo
 
-!   !for generating plots
-!   if(iplot.eq.1)then
-!      do k=1,nbodies
-!         rx=real(xpos(k,5)-xpos(1,5))
-!         ry=real(ypos(k,5)-ypos(1,5))
-!         call pgpt1(rx,ry,-1)
-!      enddo
-!   endif
+   !for generating plots
+   if(iplot.eq.1)then
+      do k=1,nbodies
+         rx=real(xpos(k,1)-xpos(1,1))
+         ry=real(ypos(k,1)-ypos(1,1))
+         call pgpt1(rx,ry,-1)
+      enddo
+   endif
 
    	call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,ntmid,tmid)
 
@@ -262,6 +262,10 @@ do while(t.le.te)
         endif
     enddo
     b_old=b_cur !update b_old
+
+!    write(6,503) 't: ',t,maxint,xpos(1,1),ypos(1,1),zpos(1,1)
+! 503   format(A3,1X,78(1PE13.6,1X))
+!    !read(5,*)
 
 enddo
 
@@ -288,7 +292,7 @@ if(itprint.eq.1)then
    enddo
 endif
 
-!if(iplot.eq.1) call pgclos()
+if(iplot.eq.1) call pgclos()
 
 return 
 end subroutine

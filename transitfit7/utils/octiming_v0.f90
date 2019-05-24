@@ -5,17 +5,17 @@ use ocmod
 implicit none
 integer nbodies,i,j,nintg,np,k
 integer, dimension(:) :: tc
-real(double) :: rstar,RpRs,LU2,b,rt1,rt2,s1,s2,b1,b2,bmin,t1,t2,fourpi,&
+real(double) :: rstar,RpRs,LU2,b,rt1,rt2,s1,s2,b1,b2,bmin,t1,t2,fourpid3,&
   rhostar,Mstar
 real(double), dimension(:,:) :: xpos,ypos,zpos,told,bold
 real(double), dimension(:) :: sol,opos,tcalc
 
 LU2=LU*LU
 !rstar=(sol(12)/(4.0d0/3.0d0*Pi*sol(1)*1000.0d0)*Mearth)**(1.0d0/3.0d0)
-fourpi=4.0d0*Pi
+fourpid3=4.0d0*Pi/3.0d0
 rhostar=abs(sol(1)*1000.0) !mean stellar density (kg/m^3)
 Mstar=abs(sol(12)) !mass of central object (MEarth)
-rstar=(Mearth*Mstar/(fourpi*rhostar))**(1.0d0/3.0d0)
+rstar=(Mearth*Mstar/(fourpid3*rhostar))**(1.0d0/3.0d0)
 
 do i=2,nbodies
    np=7+7*(i-1)
