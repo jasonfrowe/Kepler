@@ -130,7 +130,7 @@ call aei2xyz(nbodies,sol,y,m,epoch,percor)
 !endif
 
 !arrays to contaim time stamps and x,y,z positions of the bodies
-allocate(xpos(nbodies,nintg+1),ypos(nbodies,nintg+1),zpos(nbodies,nintg+1))
+allocate(xpos(nbodies,nintg),ypos(nbodies,nintg),zpos(nbodies,nintg))
 
 nbod=nbodies
 neq=6*nbodies !number of equations 6 times number of particles
