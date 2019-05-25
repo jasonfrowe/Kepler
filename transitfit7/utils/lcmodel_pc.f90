@@ -27,9 +27,9 @@ real(double), dimension(3) :: jcen,en,am
 real(double), allocatable, dimension(:) :: rho,rceh,rphys,rce,rcrit
 real(double), allocatable, dimension(:,:) :: xh,vh,s,x,v
 logical :: first
-!plotting stuff
+!!plotting stuff
 integer :: iplot
-real :: bb(4),rasemi,rx,ry
+!real :: bb(4),rasemi,rx,ry
 !vars to control integration steps
 real(double) :: RpRs
 real(double), allocatable, dimension(:) :: b_thres,b_old,b_cur

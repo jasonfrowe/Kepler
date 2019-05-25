@@ -119,9 +119,9 @@ allocate(ntmid(nbodies),tmid(nbodies,ntmidmax))
 ntmid=0
 deallocate(Pers)
 
-call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
-write(0,*) "Exporting fit"
-call exportfit(nbodies,sol,serr)
+!call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
+!write(0,*) "Exporting fit"
+!call exportfit(nbodies,sol,serr)
 
 !for percorcalc
 allocate(percor(nbodies))
@@ -132,16 +132,16 @@ itprint=1 !no output of timing measurements
 itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.
 call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
-if (colflag.eq.0) call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
-itprint=1 !create output of timing measurements
-itmodel=0 !do not calculate a transit model
-call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
-itprint=0 !do not create output of timing measurements
-itmodel=1 !calculate a transit model
-call lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
-do i=1,npt
-   write(6,501) time(i),flux(i),ans(i)
-enddo
+!if (colflag.eq.0) call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
+!itprint=1 !create output of timing measurements
+!itmodel=0 !do not calculate a transit model
+!call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
+!itprint=0 !do not create output of timing measurements
+!itmodel=1 !calculate a transit model
+!call lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
+!do i=1,npt
+!   write(6,501) time(i),flux(i),ans(i)
+!enddo
 
 !itprint=0
 !call lcmodel(nbodies,npt,tol,sol,time,itime,percor,ans,itprint) !generate a LC model.
