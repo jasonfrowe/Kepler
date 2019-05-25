@@ -74,8 +74,9 @@ interface
    end subroutine octiming
    subroutine calcimpact(nbodies,y,sol,b_cur)
       use precision
-      integer :: nbodies
-      real(double), dimension(:) :: y,sol,b_cur
+      integer, intent(in) :: nbodies
+      real(double), dimension(:), intent(in) :: y,sol
+      real(double), dimension(:), intent(inout) ::b_cur
    end subroutine calcimpact
 end interface
 
@@ -129,7 +130,7 @@ call aei2xyz(nbodies,sol,y,m,epoch,percor)
 !endif
 
 !arrays to contaim time stamps and x,y,z positions of the bodies
-allocate(xpos(nbodies,nintg),ypos(nbodies,nintg),zpos(nbodies,nintg))
+allocate(xpos(nbodies,nintg+1),ypos(nbodies,nintg+1),zpos(nbodies,nintg+1))
 
 nbod=nbodies
 neq=6*nbodies !number of equations 6 times number of particles
@@ -245,7 +246,8 @@ do while(t.le.te)
 !      enddo
 !   endif
 
-   	call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,ntmid,tmid)
+   	call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,&
+   		ntmid,tmid)
 
 
 	maxint=maxintg/86400.0 !default for out of transit sampling [days] 
@@ -263,7 +265,7 @@ do while(t.le.te)
     enddo
     b_old=b_cur !update b_old
 
-!    write(6,503) 't: ',t,maxint,xpos(1,1),ypos(1,1),zpos(1,1)
+!    write(6,503) 't: ',t,maxint,xpos(2,1),ypos(2,1),zpos(2,1)
 ! 503   format(A3,1X,78(1PE13.6,1X))
 !    !read(5,*)
 
