@@ -6,7 +6,7 @@ integer, dimension(:) :: ntmid
 real(double), dimension(:,:) :: tmid
 integer nbodies,i,j,nintg,np,k
 integer, dimension(:) :: tc
-real(double) :: rstar,RpRs,LU2,b,rt1,rt2,s1,s2,b1,b2,bmin,t1,t2,fourpid3,&
+real(double) :: rstar,RpRs,LU2,b,rt1,rt2,s1,s2,b1,b2,bmin,fourpid3,&
   rhostar,Mstar
 real(double), dimension(:,:) :: xpos,ypos,zpos,told,bold
 real(double), dimension(:) :: sol,opos,tcalc
@@ -63,11 +63,6 @@ do i=2,nbodies
                ntmid(i)=ntmid(i)+1
                tmid(i,ntmid(i))=(b2-b1)/(s1-s2) !estimate of mid transit time.
 !               if(i.eq.2) write(0,*) "tmid:",ntmid(i),tmid(i,ntmid(i))
-               
-!               t1=(bmin-bold(i,1))/s1
-!               t2=(bmin-bold(i,5))/s2
-!               ntmid(i)=ntmid(i)+1
-!               tmid(i,ntmid(i))=(told(i,1)+t1+told(i,5)+t2)/2.0d0
                
                if(itprint.eq.1)then
                   if (i.eq.4) then

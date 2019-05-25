@@ -8,7 +8,7 @@ real(double), dimension(:) :: sol,time,percor
 integer, dimension(:) :: ntmid !used with octiming 
 real(double), dimension(:,:) :: tmid !used with octiming
 !local vars
-integer :: nintg,nbod,neq,i,j,k
+integer :: nintg,nbod,neq,i,j
 real(double) :: eps,epoch,t,te,tout
 integer, allocatable, dimension(:) :: tc
 real(double), allocatable, dimension(:) :: tcalc,opos,y,m
@@ -22,13 +22,14 @@ real(double), dimension(6,cmax) :: ixvclo,jxvclo
 integer :: algor,nbig,ngflag,opflag,dtflag
 integer, dimension(8) :: opt
 integer, allocatable, dimension(:) :: stat
-real(double) :: h0,rcen,rmax,cefac,tstart,hdid,maxint
+real(double) :: h0,rcen,rmax,cefac,tstart,maxint
 real(double), dimension(3) :: jcen,en,am
 real(double), allocatable, dimension(:) :: rho,rceh,rphys,rce,rcrit
 real(double), allocatable, dimension(:,:) :: xh,vh,s,x,v
 logical :: first
 !!plotting stuff
 integer :: iplot
+!integer :: k
 !real :: bb(4),rasemi,rx,ry
 !vars to control integration steps
 real(double) :: RpRs
@@ -40,6 +41,7 @@ real(double) :: a(3,nmax),hrec,angf(3,nmax),ausr(3,nmax)
 integer :: nunit,ip,np
 real(double) :: ttomc,t0,per
 character(80) :: filename
+character(200) :: dumc
 
 
 interface
@@ -123,6 +125,9 @@ call aei2xyz(nbodies,sol,y,m,epoch,percor)
 
 !arrays to contaim time stamps and x,y,z positions of the bodies
 allocate(xpos(nbodies,nintg),ypos(nbodies,nintg),zpos(nbodies,nintg))
+xpos=0.0d0
+ypos=0.0d0
+zpos=0.0d0
 
 nbod=nbodies
 neq=6*nbodies !number of equations 6 times number of particles
@@ -179,30 +184,30 @@ te=maxval(time(1:npt))
 first=.true.
 do while(t.le.te)
 
-	tout=t+maxint !target integration time
-	h0=tout-t     !target integration step
+   tout=t+maxint !target integration time
+   h0=tout-t     !target integration step
 
-	if(first) then !setting up co-ordinates and close encounters
-    	first=.false.
-      	do j=1,nbodies
-         	xh(1,j)=y(6*j-5)
-         	xh(2,j)=y(6*j-4)
-         	xh(3,j)=y(6*j-3)
-         	vh(1,j)=y(6*j-2)
-         	vh(2,j)=y(6*j-1)
-         	vh(3,j)=y(6*j)
-      	enddo
-      	call mce_init (t,algor,h0,jcen,rcen,rmax,cefac,nbod,nbig,       &
-       	m,xh,vh,s,rho,rceh,rphys,rce,rcrit,1)
-      	call mco_h2dh (t,jcen,nbod,nbig,h0,m,xh,vh,x,v)
-      	dtflag=0 !first time calling mdt_hy
-      	tstart=t !the value of tstart does not matter.. 
-	else
-      	dtflag=2 !normal call.
-   	endif
+   if(first) then !setting up co-ordinates and close encounters
+       first=.false.
+         do j=1,nbodies
+            xh(1,j)=y(6*j-5)
+            xh(2,j)=y(6*j-4)
+            xh(3,j)=y(6*j-3)
+            vh(1,j)=y(6*j-2)
+            vh(2,j)=y(6*j-1)
+            vh(3,j)=y(6*j)
+         enddo
+         call mce_init (t,algor,h0,jcen,rcen,rmax,cefac,nbod,nbig,       &
+          m,xh,vh,s,rho,rceh,rphys,rce,rcrit,1)
+         call mco_h2dh (t,jcen,nbod,nbig,h0,m,xh,vh,x,v)
+         dtflag=0 !first time calling mdt_hy
+         tstart=t !the value of tstart does not matter.. 
+      else
+         dtflag=2 !normal call.
+      endif
 
-  	call mdt_hy (t,tstart,h0,tol,rmax,en,am,jcen,rcen,nbod,           &
-		nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
+       call mdt_hy (t,tstart,h0,tol,rmax,en,am,jcen,rcen,nbod,           &
+        nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
         ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
         a,hrec,angf,ausr)
     if(colflag.ne.0)then
@@ -210,24 +215,24 @@ do while(t.le.te)
 !        if(iplot.eq.1) call pgclos()
         return
     endif
-  	t=t+h0
+  t=t+h0
 
-   	call mco_dh2h (t,jcen,nbod,nbig,h0,m,x,v,xh,vh)
+   call mco_dh2h (t,jcen,nbod,nbig,h0,m,x,v,xh,vh)
     do j=1,nbodies
-    	y(6*j-5)=xh(1,j)
-      	y(6*j-4)=xh(2,j)
-      	y(6*j-3)=xh(3,j)
-      	y(6*j-2)=vh(1,j)
-      	y(6*j-1)=vh(2,j)
-      	y(6*j)=vh(3,j)
+      y(6*j-5)=xh(1,j)
+      y(6*j-4)=xh(2,j)
+      y(6*j-3)=xh(3,j)
+      y(6*j-2)=vh(1,j)
+      y(6*j-1)=vh(2,j)
+      y(6*j)=vh(3,j)
     enddo
 
     tcalc(1)=t
     do j=1,nbodies
-      	xpos(j,1)=y(6*j-5) !X
-      	ypos(j,1)=y(6*j-4) !Y
-      	zpos(j,1)=y(6*j-3) !Z
-   	enddo
+      xpos(j,1)=y(6*j-5) !X
+      ypos(j,1)=y(6*j-4) !Y
+      zpos(j,1)=y(6*j-3) !Z
+   enddo
 
 !   !for generating plots
 !   if(iplot.eq.1)then
@@ -238,11 +243,11 @@ do while(t.le.te)
 !      enddo
 !   endif
 
-   	call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,&
-   		ntmid,tmid)
+   call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,&
+    ntmid,tmid)
 
 
-	maxint=maxintg/86400.0 !default for out of transit sampling [days] 
+    maxint=maxintg/86400.0 !default for out of transit sampling [days] 
     !check for transit condition and if so, adjust integration time for timing precision
     !calculate thresholds for a transit to occur
     call calcimpact(nbodies,y,sol,b_cur)
@@ -250,15 +255,15 @@ do while(t.le.te)
     do j=2,nbodies
         !if(b_cur(j).lt.2.0d0)then 
         if(abs(2.0*b_cur(j)-b_old(j)).lt.b_thres(j))then
-          	maxint=maxintg_nt/86400.0
+            maxint=maxintg_nt/86400.0
             !write(0,*) b_cur(j),maxint*86400.0 
             !read(5,*)
         endif
     enddo
     b_old=b_cur !update b_old
 
-!    write(6,503) 't: ',t,maxint,xpos(2,1),ypos(2,1),zpos(2,1)
-! 503   format(A3,1X,78(1PE13.6,1X))
+    write(dumc,503) 't: ',t,maxint,xpos(2,1),ypos(2,1),zpos(2,1)
+ 503   format(A3,1X,78(1PE13.6,1X))
 !    !read(5,*)
 
 enddo
