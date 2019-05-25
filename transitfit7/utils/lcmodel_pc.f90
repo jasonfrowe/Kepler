@@ -51,14 +51,6 @@ interface
       real(double), dimension(:), intent(inout) :: y,m
       real(double), intent(inout) :: epoch
    end subroutine aei2xyz
-   subroutine transitmodel(nbodies,nintg,xpos,ypos,zpos,sol,tmodel)
-      use precision
-      implicit none
-      integer, intent(in) :: nbodies,nintg
-      real(double), dimension(:,:), intent(in) :: xpos,ypos,zpos
-      real(double), dimension(:), intent(in) :: sol
-      real(double), intent(out) :: tmodel
-   end subroutine transitmodel
    subroutine octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,  &
     told,bold,ntmid,tmid)
       use precision
