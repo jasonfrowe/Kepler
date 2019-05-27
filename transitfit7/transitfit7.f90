@@ -95,10 +95,14 @@ if(iargc().lt.2) then  !check that we have sufficient commandline arguments
 endif
 
 call getarg(1,photfile)  !get filename for photometry
-nmax=100000  !hard-coded maximum number of points to read -- will update
+nmax=200000  !hard-coded maximum number of points to read -- will update
 allocate(time(nmax),flux(nmax),ferr(nmax),itime(nmax)) !allocate photometry
 call readkeplc(photfile,npt,time,flux,ferr,itime) !read in the Kepler phot
 write(0,*) "Number of observations read: ",npt !report number of obs
+if(npt.gt.nmax)then
+   write(0,*) "Increase nmax to at least: ",npt
+   stop
+endif
 
 call getarg(2,inputsol) !get name of input solution
 call calcnbodies(inputsol,nbodies) !first pass to get number of bodies
@@ -114,34 +118,35 @@ do i=2,nbodies
    Pers(i-1)=sol(np+2)
 enddo
 ntmidmax=(maxval(time)-minval(time))/minval(Pers)*2 !need to add checks for overflows
-!write(0,*) "ntmidmax:",ntmidmax
+!write(0,*) "ntmidmax:",ntmidmax,nbodies
 allocate(ntmid(nbodies),tmid(nbodies,ntmidmax))
 ntmid=0
 deallocate(Pers)
 
-!call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
-!write(0,*) "Exporting fit"
-!call exportfit(nbodies,sol,serr)
+write(0,*) "Fitting data"
+call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
+write(0,*) "Exporting fit"
+call exportfit(nbodies,sol,serr)
 
 !for percorcalc
 allocate(percor(nbodies))
 
 allocate(ans(npt)) !ans contains the model to match the data.
 
-itprint=1 !no output of timing measurements
+itprint=0 !no output of timing measurements
 itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.
 call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
-!if (colflag.eq.0) call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
-!itprint=1 !create output of timing measurements
-!itmodel=0 !do not calculate a transit model
-!call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
-!itprint=0 !do not create output of timing measurements
-!itmodel=1 !calculate a transit model
-!call lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
-!do i=1,npt
-!   write(6,501) time(i),flux(i),ans(i)
-!enddo
+if (colflag.eq.0) call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
+itprint=1 !create output of timing measurements
+itmodel=0 !do not calculate a transit model
+call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
+itprint=0 !do not create output of timing measurements
+itmodel=1 !calculate a transit model
+call lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
+do i=1,npt
+   write(6,501) time(i),flux(i),ans(i)
+enddo
 
 !itprint=0
 !call lcmodel(nbodies,npt,tol,sol,time,itime,percor,ans,itprint) !generate a LC model.

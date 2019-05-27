@@ -43,6 +43,9 @@ do ii=1,nbodies
    b=sol(np+3) !impact parameter (does not need to be positive)
    sqecosw=sol(np+6)  !e^1/2 cos(w)
    sqesinw=sol(np+7)  !e^1/2 sin(w)
+   !make sure eccentricity results in a bounded orbit
+   sqecosw=min(0.999,max(-0.999,sqecosw))
+   sqesinw=min(0.999,max(-0.999,sqesinw)) 
    ecc(i)=(sqecosw*sqecosw+sqesinw*sqesinw) !eccentricity
    ecosw=sqrt(ecc(i))*sqecosw
    esinw=sqrt(ecc(i))*sqesinw

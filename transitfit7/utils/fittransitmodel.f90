@@ -40,7 +40,7 @@ do i=1,7+nbodies*7
       solfit(n)=sol(i)
    endif
 enddo
-write(0,*) "n:",n
+!write(0,*) "n:",n
 
 !assign pointers from module that is shared with FCN
 tol2 => tol
