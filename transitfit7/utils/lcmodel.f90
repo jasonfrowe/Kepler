@@ -200,7 +200,7 @@ do i=1,npt
 
 
    hdid=0.0d0
-   do while(abs(h0-hdid).gt.2.0*eps)
+   do while(abs(h0).gt.2.0*eps)
       hdid=min(maxint,h0)
       call mdt_hy (t,tstart,hdid,tol,rmax,en,am,jcen,rcen,nbod,           &
          nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
@@ -241,7 +241,7 @@ do i=1,npt
       h0=tout-t
 
       hdid=0.0d0
-      do while(abs(h0-hdid).gt.2.0*eps)
+      do while(abs(h0).gt.2.0*eps)
          hdid=min(maxint,h0)
          dtflag=2 !normal call.
          call mdt_hy (t,tstart,hdid,tol,rmax,en,am,jcen,rcen,nbod,           &
