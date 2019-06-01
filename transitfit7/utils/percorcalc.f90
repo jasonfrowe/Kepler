@@ -37,7 +37,7 @@ do i=2,nbodies
      !percor(i)=median(k,p)-Per
     endif
   endif
-  !write(0,501) "percor",i,ntmid(i),percor(i),Per,percor(i)+Per
+  write(0,501) "percor",i,ntmid(i),percor(i),Per,percor(i)+Per
   !read(5,*)
   501 format(A6,1X,I3,1X,I3,1X,28(1PE15.8,1X))
 enddo

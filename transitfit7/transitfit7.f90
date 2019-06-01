@@ -133,13 +133,12 @@ allocate(percor(nbodies))
 
 allocate(ans(npt)) !ans contains the model to match the data.
 
-itprint=0 !no output of timing measurements
+itprint=0 !no output of timing measurements, create percor
 itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.
 call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
-if (colflag.eq.0) call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
-itprint=1 !create output of timing measurements
-itmodel=0 !do not calculate a transit model
+!if (colflag.eq.0) call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
+itprint=2 !create output of timing measurements, no percor
 call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
 itprint=0 !do not create output of timing measurements
 itmodel=1 !calculate a transit model

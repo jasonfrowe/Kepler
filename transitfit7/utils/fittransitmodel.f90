@@ -209,7 +209,7 @@ percor=0.0d0 !initialize percor to zero.
 call lcmodel_pc(nbodies2,npt,tol2,sol3,time2,ntmid2,tmid2,percor,colflag,itprint) !generate a LC model.
 !call lcmodel(nbodies2,npt3,tol2,sol3,time3,itime3,ntmid2,tmid2,percor,ans3,colflag,itprint,itmodel) !generate a LC model.
 !write(0,*) "Calling percorcal.."
-if (colflag.eq.0) call percorcalc(nbodies2,sol3,ntmidmax2,ntmid2,tmid2,percor)
+!if (colflag.eq.0) call percorcalc(nbodies2,sol3,ntmidmax2,ntmid2,tmid2,percor)
 itprint=0 !no output of timing measurements
 itmodel=1 !calculate a transit model
 !write(0,*) "Calling lcmodel2"

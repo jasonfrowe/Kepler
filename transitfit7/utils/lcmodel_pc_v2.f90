@@ -42,10 +42,7 @@ integer :: nunit,ip,np
 real(double) :: ttomc,t0,per
 character(80) :: filename
 character(200) :: dumc
-!atemp
-integer :: nsteps
-real(double) :: rtemp,vtemp,mutemp,atemp
-real(double), allocatable, dimension(:) :: ptemp
+
 
 interface
    subroutine aei2xyz(nbodies,sol,y,m,epoch,percor)
@@ -76,11 +73,6 @@ interface
       real(double), dimension(:), intent(inout) ::b_cur
    end subroutine calcimpact
 end interface
-
-!atemp
-allocate(ptemp(nbodies))
-ptemp=0.0d0
-nsteps=0.0d0
 
 !plotting
 iplot=0 !set iplot=1 for plotting 
@@ -191,8 +183,7 @@ te=maxval(time(1:npt))
 
 first=.true.
 do while(t.le.te)
-   nsteps=nsteps+1
-   
+
    tout=t+maxint !target integration time
    h0=tout-t     !target integration step
 
@@ -252,60 +243,33 @@ do while(t.le.te)
 !      enddo
 !   endif
 
-    call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,&
-     ntmid,tmid)
+!    call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,&
+!     ntmid,tmid)
+
 
     maxint=maxintg/86400.0 !default for out of transit sampling [days] 
     !check for transit condition and if so, adjust integration time for timing precision
     !calculate thresholds for a transit to occur
- 
- 	if (itprint.gt.0) then
+    call calcimpact(nbodies,y,sol,b_cur)
 
-    	call calcimpact(nbodies,y,sol,b_cur)
-
-    	do j=2,nbodies
-        	!if(b_cur(j).lt.2.0d0)then 
-        	if(abs(2.0*b_cur(j)-b_old(j)).lt.b_thres(j))then
-            	maxint=maxintg_nt/86400.0
-            	!write(0,*) b_cur(j),maxint*86400.0 
-            	!read(5,*)
-        	endif
-    	enddo
-    	b_old=b_cur !update b_old
-    endif
+    do j=2,nbodies
+        !if(b_cur(j).lt.2.0d0)then 
+        if(abs(2.0*b_cur(j)-b_old(j)).lt.b_thres(j))then
+            !we are close to transit, so call b-min code
+            call calcbmin()
+        endif
+    enddo
+    b_old=b_cur !update b_old
 
     write(dumc,503) 't: ',t,maxint,xpos(2,1),ypos(2,1),zpos(2,1)
  503   format(A3,1X,78(1PE13.6,1X))
 !    !read(5,*)
 
-
-	if (itprint.eq.0) then
-		do j=2,nbodies
-			rtemp=sqrt( (y(6*j-5)*LU)**2.0 + (y(6*j-4)*LU)**2.0 + (y(6*j-3)*LU)**2.0) !position 
-			vtemp=sqrt( (y(6*j-2)*LU/TU)**2.0 + (y(6*j-1)*LU/TU)**2.0 + (y(6*j)*LU/TU)**2.0)   !speed
-			mutemp=Gr*( sum(m(1:j)) )*MU/K2
-			atemp=-mutemp*rtemp/(rtemp*vtemp*vtemp-2.0*mutemp)
-			ptemp(j)=ptemp(j)+sqrt(4.0*Pi*Pi*atemp**3.0d0/mutemp)/86400.0d0
-		enddo
-	endif
-!	write(6,502) (ptemp(j)/86400.0,j=2,nbodies)  
-
-
 enddo
-
-if (itprint.eq.0) then
-	do j=2,nbodies
-		np=7+7*(j-1)
-  		Per=sol(np+2)
-  		percor(j)=ptemp(j)/dble(nsteps)-per
-!  		 write(0,501) "percor",j,nsteps,percor(j),Per,percor(j)+Per
- 501 format(A6,1X,I9,1X,I3,1X,28(1PE15.8,1X))
-	enddo
-endif
 
 
 !update this to output timing for all nbodies with per>0
-if(itprint.eq.2)then
+if(itprint.eq.1)then
    nunit=12
    do ip=1,nbodies
       np=7+7*(ip-1)
