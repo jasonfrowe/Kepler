@@ -31,15 +31,17 @@ if(filestatus>0)then
 endif
 
 do i=1,7
-   write(nunit,500) titles(i),sol(i),serr(i,1),serr(i,2),0.0d0
+    if(i.eq.1) sol(i)=abs(sol(i)) !mean stellar density must be positive
+    write(nunit,500) titles(i),sol(i),serr(i,1),serr(i,2),0.0d0
 enddo
 500 format(A3,5(1X,1PE17.10))
 
 do j=1,nbodies
-   do i=1,7
-      np=7+7*(j-1)
-      write(nunit,501) titles(7+i),j,sol(np+i),serr(np+i,1),serr(np+i,2),0.0d0
-   enddo
+    do i=1,7
+        np=7+7*(j-1)
+        if((i.eq.2).or.(i.eq.3).or.(i.eq.4).or.(i.eq.5)) sol(np+i)=abs(sol(np+i))
+        write(nunit,501) titles(7+i),j,sol(np+i),serr(np+i,1),serr(np+i,2),0.0d0
+    enddo
 enddo
 
 501 format(A2,I1,5(1X,1PE17.10))

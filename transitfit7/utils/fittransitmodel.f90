@@ -16,6 +16,9 @@ real(double), allocatable, dimension(:) :: solfit,wa,fvec
 !ecosw,esinw convertion vars
 integer :: np
 real(double) :: ecosw,esinw,sqecosw,sqesinw,ecc
+!lmdif call
+integer :: maxfev,mode,nprint,mp5n,nfev
+real(double) :: ftol,xtol,gtol,zero,factor,epsfcn
 external fcn2
 
 !convert sqecosw, sqesinw to ecosw, esinw for LSQ
@@ -58,9 +61,25 @@ ntmidmax2f => ntmidmax
 lwa=npt*n+5*npt+n
 allocate(fvec(npt),iwa(n),wa(lwa))
 tollm=1.0d-8
-write(0,*) "Calling lmdif1"
-call lmdif1(fcn2,npt,n,solfit,fvec,tollm,info,iwa,wa,lwa)
-write(0,*) "info: ",info
+
+!write(0,*) "Calling lmdif1"
+!call lmdif1(fcn2,npt,n,solfit,fvec,tollm,info,iwa,wa,lwa)
+!write(0,*) "info: ",info
+
+zero=0.0d0
+factor=1.0d2
+maxfev = 200*(n + 1)
+ftol = tollm
+xtol = tollm
+gtol = zero
+epsfcn = 1.0e-10
+mode = 1
+nprint = 0
+mp5n = npt + 5*n
+call lmdif(fcn2,npt,n,solfit,fvec,ftol,xtol,gtol,maxfev,epsfcn,wa(1), &
+   mode,factor,nprint,info,nfev,wa(mp5n+1),npt,iwa,  &
+   wa(n+1),wa(2*n+1),wa(3*n+1),wa(4*n+1),wa(5*n+1))
+if (info .eq. 8) info = 4
 
 n=0
 !write(0,*) "out:"
@@ -88,7 +107,6 @@ do i=1,nbodies
    endif
 enddo
    
-
 deallocate(solfit,fvec,iwa,wa)
 nullify(tol2f,nbodies2f,sol2f,serr2f,time2f,flux2f,ferr2f,itime2f,ntmidmax2f)
 
