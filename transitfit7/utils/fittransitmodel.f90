@@ -78,7 +78,7 @@ real(double), dimension(n) :: x
 real(double), dimension(npt) :: fvec
 !local vars
 integer :: i,j,itprint,itmodel,np,colflag
-!real(double) :: yp
+real(double) :: chisq
 !real(double) :: ecosw,esinw,sqecosw,sqesinw,ecc
 real(double), allocatable, dimension(:) :: sol3,percor
 !percorcalc
@@ -153,16 +153,23 @@ call lcmodel(nbodies2f,npt,tol2f,sol3,time2f,itime2f,ntmid2f,tmid2f,percor,fvec,
 
 write(0,*) "done with lcmodel"
 
+chisq=0.0d0
+do i=1,npt
+   chisq=chisq+(fvec(i)-flux2f(i))*(fvec(i)-flux2f(i))/(ferr2f(i)*ferr2f(i))
+enddo
+
 !$OMP PARALLEL DO
 do i=1,npt
-   fvec(i)=(fvec(i)-flux2f(i))/ferr2f(i) 
+   fvec(i)=(fvec(i)-flux2f(i))/ferr2f(i)   
 enddo
 !$OMP END PARALLEL DO
 
 
+
+
 deallocate(ntmid2f,tmid2f,sol3,percor)
 
-write(0,*) "FCN2.. done"
+write(0,*) "FCN2.. done",chisq/dble(npt)
 
 return
 end
