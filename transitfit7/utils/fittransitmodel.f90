@@ -120,7 +120,7 @@ interface
    end subroutine percorcalc
 end interface
 
-write(0,*) "FCN2"
+!write(0,*) "FCN2"
 
 !allocate for percorcal
 allocate(ntmid2f(nbodies2f),tmid2f(nbodies2f,ntmidmax2f))
@@ -151,12 +151,12 @@ itmodel=1 !calculate a transit model
 !write(0,*) "Calling lcmodel2"
 call lcmodel(nbodies2f,npt,tol2f,sol3,time2f,itime2f,ntmid2f,tmid2f,percor,fvec,colflag,itprint,itmodel)
 
-write(0,*) "done with lcmodel"
+!write(0,*) "done with lcmodel"
 
 chisq=0.0d0
-do i=1,npt
-   chisq=chisq+(fvec(i)-flux2f(i))*(fvec(i)-flux2f(i))/(ferr2f(i)*ferr2f(i))
-enddo
+!do i=1,npt
+!   chisq=chisq+(fvec(i)-flux2f(i))*(fvec(i)-flux2f(i))/(ferr2f(i)*ferr2f(i))
+!enddo
 
 !$OMP PARALLEL DO
 do i=1,npt
@@ -164,12 +164,9 @@ do i=1,npt
 enddo
 !$OMP END PARALLEL DO
 
-
-
-
 deallocate(ntmid2f,tmid2f,sol3,percor)
 
-write(0,*) "FCN2.. done",chisq/dble(npt)
+!write(0,*) "FCN2.. done",chisq/dble(npt)
 
 return
 end
