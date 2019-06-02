@@ -17,6 +17,7 @@ real(double), dimension(3), target :: jcen,en,am
 real(double), dimension(:), target :: rphys,rce,rcrit,m
 real(double), dimension(:,:), target :: s,x,v
 !import mercury save vars
+integer, parameter :: nmermax=2000
 real(double), target :: a(3,nmermax),hrec,angf(3,nmermax),ausr(3,nmermax)
 !local vars
 
@@ -25,7 +26,7 @@ integer :: lwa,info,n,npt1
 integer, allocatable, dimension(:) :: iwa
 real(double) :: tollm
 real(double), allocatable, dimension(:) :: fvec,wa,bsol
-external fcnb
+external fcn
 
 
 n=1 !number of variables we are fitting 
@@ -69,7 +70,7 @@ lwa=npt1*n+5*npt1+n
 allocate(fvec(npt1),iwa(n),wa(lwa))
 tollm=1.0d-8
 !write(0,*) "Calling lmdif1"  !we want to minimize 'b' which is contained in fvec
-call lmdif1(fcnb,npt1,n,bsol,fvec,tollm,info,iwa,wa,lwa)
+call lmdif1(fcn,npt1,n,bsol,fvec,tollm,info,iwa,wa,lwa)
 !write(0,*) "info: ",info,bsol(1),fvec(1)
 
 ttran=bsol(1)+t
@@ -83,7 +84,7 @@ return
 end
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-subroutine fcnb(npt,n,x,fvec,iflag)
+subroutine fcn(npt,n,x,fvec,iflag)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 use precision
 use bfittingmod
@@ -106,6 +107,7 @@ real(double), dimension(6,cmax) :: ixvclo,jxvclo
 real(double) :: tb
 real(double), allocatable, dimension(:) :: m3,y
 real(double), allocatable, dimension(:,:) :: xh3,vh3,x3,v3
+integer, parameter :: nmermax=2000
 real(double), target :: a3(3,nmermax),hrec3,angf3(3,nmermax),ausr3(3,nmermax)
 
 interface

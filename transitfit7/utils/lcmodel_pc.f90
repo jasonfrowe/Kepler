@@ -35,6 +35,7 @@ integer :: iplot
 real(double) :: RpRs
 real(double), allocatable, dimension(:) :: b_thres,b_old,b_cur
 !save vars for Mercury
+integer, parameter :: nmermax=2000
 real(double) :: a(3,nmermax),hrec,angf(3,nmermax),ausr(3,nmermax)
 !timing output
 integer :: nunit,ip,np

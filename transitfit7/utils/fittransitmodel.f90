@@ -16,7 +16,7 @@ real(double), allocatable, dimension(:) :: solfit,wa,fvec
 !ecosw,esinw convertion vars
 !integer :: np
 !real(double) :: ecosw,esinw,sqecosw,sqesinw,ecc
-external fcn
+external fcn2
 
 !!convert sqecosw, sqesinw to ecosw, esinw for LSQ
 !do i=1,nbodies
@@ -58,7 +58,7 @@ lwa=npt*n+5*npt+n
 allocate(fvec(npt),iwa(n),wa(lwa))
 tollm=1.0d-8
 write(0,*) "Calling lmdif1"
-call lmdif1(fcn,npt,n,solfit,fvec,tollm,info,iwa,wa,lwa)
+call lmdif1(fcn2,npt,n,solfit,fvec,tollm,info,iwa,wa,lwa)
 write(0,*) "info: ",info
 
 n=0
@@ -94,7 +94,7 @@ return
 end subroutine fittransitmodel
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-subroutine fcn(npt,n,x,fvec,iflag)
+subroutine fcn2(npt,n,x,fvec,iflag)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 use precision
 use fittingmod

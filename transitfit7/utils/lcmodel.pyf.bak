@@ -19,6 +19,19 @@ python module lcmodel ! in
             integer :: itprint
             integer :: itmodel
         end subroutine lcmodel
+        subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) ! in :lcmodel:lcmodel_pc.f90
+            use precision
+            integer :: nbodies
+            integer :: npt
+            real(kind=8) :: tol
+            real(kind=8) dimension(:) :: sol
+            real(kind=8) dimension(:) :: time
+            integer dimension(:) :: ntmid
+            real(kind=8) dimension(:,:),intent(inout) :: tmid
+            real(kind=8) dimension(:) :: percor
+            integer,intent(inout) :: colflag
+            integer :: itprint
+        end subroutine lcmodel_pc
         subroutine aei2xyz(nbodies,sol,y,m,epoch,percor) ! in :lcmodel:aei2xyz.f90
             use precision
             integer :: nbodies
@@ -613,6 +626,13 @@ python module lcmodel ! in
             real(kind=8) dimension(:,:),intent(in) :: tmid
             real(kind=8) dimension(:) :: percor
         end subroutine percorcalc
+        subroutine calcimpact(nbodies,y,sol,b_cur) ! in :lcmodel:calcimpact.f90
+            use precision
+            integer :: nbodies
+            real(kind=8) dimension(:) :: y
+            real(kind=8) dimension(:) :: sol
+            real(kind=8) dimension(:) :: b_cur
+        end subroutine calcimpact
     end interface 
 end python module lcmodel
 

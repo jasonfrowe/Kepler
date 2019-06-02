@@ -20,7 +20,6 @@ module precision
    real(double), parameter :: Msun=1.9891e30
    real(double), parameter :: AU=1.4959787d11
    real(double), parameter :: MU=Msun,TU=day,LU=AU
-   integer, parameter :: nmermax=2000
 
 
    !BS-Step (modern)

@@ -37,6 +37,7 @@ integer :: nunit,ip,np
 real(double) :: ttomc,t0,per
 character(80) :: filename
 !save vars for Mercury
+integer, parameter :: nmermax=2000
 real(double) :: a(3,nmermax),hrec,angf(3,nmermax),ausr(3,nmermax)
 
 
