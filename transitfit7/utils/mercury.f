@@ -1601,8 +1601,6 @@ c Initialize accelerations
       end do
 c
 c Direct terms
-!$OMP PARALLEL DO PRIVATE(i,j,dx,dy,dz,s2,rc,rc2,s_1,s_3,tmp2,s,q,
-!$OMP& q2,q3,q4,q5,faci,facj)
       do k = 1, nce
         i = ice(k)
         j = jce(k)
@@ -1638,10 +1636,8 @@ c
           a(3,i) = a(3,i)  +  facj * dz
         end if
       end do
-!$OMP END PARALLEL DO
 c
 c Solar terms
-!$OMP PARALLEL DO PRIVATE(s2,s_1,tmp2)
       do i = 2, nbod
         s2 = x(1,i)*x(1,i) + x(2,i)*x(2,i) + x(3,i)*x(3,i)
         s_1 = 1.d0 / sqrt(s2)
@@ -1650,7 +1646,6 @@ c Solar terms
         a(2,i) = a(2,i)  -  tmp2 * x(2,i)
         a(3,i) = a(3,i)  -  tmp2 * x(3,i)
       end do
-!$OMP END PARALLEL DO
 c
 c------------------------------------------------------------------------------
 c
@@ -2039,7 +2034,7 @@ c
 c
 c%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
-c      MCO_DH2H.FOR    (ErikSoft   2 March 2001)
+c       .FOR    (ErikSoft   2 March 2001)
 c
 c%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
