@@ -8,7 +8,7 @@ real(double), dimension(:) :: sol,y,m,percor
 !local vars
 integer :: i,j,np,ii,jj,maxiter,iter
 integer, allocatable, dimension(:) :: iPer
-real(double) :: adrs,Per,b,Pid2,esinw,ecosw,Psec,varpi,bige,      &
+real(double) :: adrs,Per,b,Pid2,tpi,esinw,ecosw,Psec,varpi,bige,      &
  Meanlong,Meananom,T0,eccanom,lame,bigm,de,eps,bigen,fourpisq,fourpid3,    &
  Rstar,Mstar,rhostar,sqecosw,sqesinw
 real(double), allocatable, dimension(:) :: mtot,f,a,ecc,irad,w,Omrad,r, &
@@ -18,6 +18,7 @@ real(double), allocatable, dimension(:) :: mtot,f,a,ecc,irad,w,Omrad,r, &
 eps=EPSILON(1.0d0)
 
 Pid2=Pi/2.0d0
+tpi=2.0d0*Pi
 fourpisq=4.0d0*Pi*Pi
 fourpid3=4.0d0*Pi/3.0d0
 
@@ -54,9 +55,27 @@ do ii=1,nbodies
 
    Omrad(i)=0.0d0 !should this matter?
 
-   if(ecosw.ne.0.0d0) w(i) = atan(esinw/ecosw)
-   if(ecosw.eq.0.0d0) w(i) = asin(esinw)
-   if(ecosw.lt.0.0d0) w(i) = w(i)+Pi
+!   if(ecosw.ne.0.0d0) w(i) = atan(esinw/ecosw)
+!   if(ecosw.eq.0.0d0) w(i) = asin(esinw)
+!   if(ecosw.lt.0.0d0) w(i) = w(i)+Pi
+
+   if(ecc(i).ge.1.0) ecc(i)=0.99
+   if(ecc(i).eq.0.0d0)then
+      w(i)=0.0d0
+   else
+      if(ecosw.eq.0.0d0)then
+         w(i)=Pi/2.0d0
+      else
+         w(i)=atan(esinw/ecosw)
+      endif
+      if((ecosw.gt.0.0d0).and.(esinw.lt.0.0d0))then
+         w(i)=tPi+w(i)
+      elseif((ecosw.lt.0.0d0).and.(esinw.ge.0.0d0))then
+         w(i)=Pi+w(i)
+      elseif((ecosw.le.0.0d0).and.(esinw.lt.0.0d0))then
+         w(i)=Pi+w(i)
+      endif
+   endif
 
 !  mass (kg)
    m(i)=abs(sol(np+5)*Mearth)
