@@ -18,18 +18,6 @@ real(double), allocatable, dimension(:) :: solfit,wa,fvec
 !real(double) :: ecosw,esinw,sqecosw,sqesinw,ecc
 external fcn2
 
-!!convert sqecosw, sqesinw to ecosw, esinw for LSQ
-!do i=1,nbodies
-!   np=7+7*(i-1)
-!   sqecosw=sol(np+6)  !e^1/2 cos(w)
-!   sqesinw=sol(np+7)  !e^1/2 sin(w)
-!   ecc=(sqecosw*sqecosw+sqesinw*sqesinw) !eccentricity
-!   sol(np+6)=sqrt(ecc)*sqecosw
-!   sol(np+7)=sqrt(ecc)*sqesinw
-!!   write(0,*) "sqecosw,sqesinw: ",sqecosw,sqesinw
-!!   write(0,*) "ecosw,esinw: ",sol(np+6),sol(np+7)
-!enddo
-
 allocate(solfit(7+nbodies*7))
 
 !how many variables are we fitting?
@@ -71,21 +59,6 @@ do i=1,7+nbodies*7
    endif
 enddo
 501 format(5(1X,1PE17.10))
-
-!!convert ecosw, esinw to sqecosw, sqesinw for storage
-!do i=1,nbodies
-!   np=7+7*(i-1)
-!   ecosw=sol(np+6)  !ecos(w)
-!   esinw=sol(np+7)  !esin(w)
-!   ecc=sqrt(ecosw*ecosw+esinw*esinw) !eccentricity
-!   if(ecc.gt.0.0)then
-!      sol(np+6)=ecosw/sqrt(ecc)
-!      sol(np+7)=esinw/sqrt(ecc)
-!   else
-!      sol(np+6)=0.0d0
-!      sol(np+7)=0.0d0
-!   endif
-!enddo
 
 deallocate(solfit,fvec,iwa,wa)
 nullify(tol2,nbodies2,sol2,serr2,time2,flux2,ferr2,itime2,ntmidmax2)
@@ -147,7 +120,7 @@ interface
    end subroutine percorcalc
 end interface
 
-write(0,*) "FCN1"
+write(0,*) "FCN2"
 
 !allocate for percorcal
 allocate(ntmid2(nbodies2),tmid2(nbodies2,ntmidmax2))
@@ -165,47 +138,9 @@ do i=1,7+nbodies2*7
    endif
 enddo
 
-
-!!convert ecosw, esinw to sqecosw, sqesinw for model
-!do i=1,nbodies2
-!   np=7+7*(i-1)
-!   ecosw=sol3(np+6)  !ecos(w)
-!   esinw=sol3(np+7)  !esin(w)
-!   ecc=sqrt(ecosw*ecosw+esinw*esinw) !eccentricity
-!   if(ecc.gt.0.0)then
-!      sol3(np+6)=ecosw/sqrt(ecc)
-!      sol3(np+7)=esinw/sqrt(ecc)
-!   else
-!      sol3(np+6)=0.0d0
-!      sol3(np+7)=0.0d0
-!   endif
-!!   write(0,*) "ecosw,esinw: ",ecosw,esinw
-!!   write(0,*) "sqecosw,sqesinw: ",sol3(np+6),sol3(np+7)
-!enddo
-
-!!make sure masses are positive
-!do i=1,nbodies2
-!   np=7+7*(i-1)
-!   sol3(np+5)=abs(sol3(np+5))
-!enddo
-
-!do i=1,7+nbodies2*7
-!   write(0,501) sol3(i),sol2(i),sol3(i)-sol2(i),serr2(i,2)
-!enddo
-
 !for percorcalc
 allocate(percor(nbodies2))
 
-!!setting up percorcalc
-!tsamp=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
-!ts=minval(time2(1:npt))
-!te=maxval(time2(1:npt))
-!npt3=int((te-ts)/tsamp)+1
-!allocate(time3(npt3),itime3(npt3),ans3(npt3))
-!do i=1,npt3
-!   time3(i)=ts+dble(i)*tsamp
-!   itime3(i)=tsamp
-!enddo
 itprint=0 !no output of timing measurements
 percor=0.0d0 !initialize percor to zero.
 !write(0,*) "Calling lcmodel1",npt3
@@ -216,6 +151,8 @@ itmodel=1 !calculate a transit model
 !write(0,*) "Calling lcmodel2"
 call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,ntmid2,tmid2,percor,fvec,colflag,itprint,itmodel)
 
+write(0,*) "done with lcmodel"
+
 !$OMP PARALLEL DO
 do i=1,npt
    fvec(i)=(fvec(i)-flux2(i))/ferr2(i) 
@@ -225,7 +162,7 @@ enddo
 
 deallocate(ntmid2,tmid2,sol3,percor)
 
-write(0,*) "FCN1.. done"
+write(0,*) "FCN2.. done"
 
 return
 end
