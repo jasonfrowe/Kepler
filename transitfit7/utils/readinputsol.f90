@@ -1,7 +1,7 @@
-subroutine readinputsol(inputsol,nbodies,sol,serr)
+subroutine readinputsol(inputsol,sol,serr)
 use precision
 implicit none
-integer :: nbodies,nunit,filestatus,rnbody,i,j,np
+integer :: nunit,filestatus,rnbody,j,np
 real(double) :: rsol
 real(double), dimension(:) :: sol
 real(double), dimension(:,:) :: serr
@@ -101,16 +101,6 @@ do
 enddo
 
 close(nunit)
-
-!do i=1,nbodies
-!   m(i)=m(i)/MU*Mearth
-!   y(6*i-5)=y(6*i-5)/LU*AU
-!   y(6*i-4)=y(6*i-4)/LU*AU
-!   y(6*i-3)=y(6*i-3)/LU*AU
-!   y(6*i-2)=y(6*i-2)*TU/LU
-!   y(6*i-1)=y(6*i-1)*TU/LU
-!   y(6*i)=y(6*i)*TU/LU
-!enddo
 
 return
 end subroutine

@@ -32,6 +32,7 @@ np=7+7*(iPer(1)-1)
 rhostar=abs(sol(1)*1000.0) !mean stellar density (kg/m^3)
 Mstar=abs(sol(np+5)) !mass of central object (MEarth)
 Rstar=(Mearth*Mstar/(fourpid3*rhostar))**(1.0d0/3.0d0)
+deallocate(Pers)
 
 allocate(mtot(nbodies),a(nbodies),ecc(nbodies),f(nbodies),irad(nbodies),&
  w(nbodies),Omrad(nbodies))
@@ -44,8 +45,8 @@ do ii=1,nbodies
    sqecosw=sol(np+6)  !e^1/2 cos(w)
    sqesinw=sol(np+7)  !e^1/2 sin(w)
    !make sure eccentricity results in a bounded orbit
-   sqecosw=min(0.999,max(-0.999,sqecosw))
-   sqesinw=min(0.999,max(-0.999,sqesinw)) 
+   sqecosw=min(0.999d0,max(-0.999d0,sqecosw))
+   sqesinw=min(0.999d0,max(-0.999d0,sqesinw)) 
    ecc(i)=(sqecosw*sqecosw+sqesinw*sqesinw) !eccentricity
    ecosw=sqrt(ecc(i))*sqecosw
    esinw=sqrt(ecc(i))*sqesinw
@@ -261,5 +262,10 @@ do i=1,nbodies
    !write(0,500) m(i)/K2*Msun/Mearth,(y(j),j=6*i-5,6*i),a(i)/LU
    500  format(28(1PE10.3,1X))
 enddo
+
+deallocate(iPer,mtot,a,ecc,f,irad,w,Omrad)
+deallocate(r,x0,y0,z0,vx0,vy0,vz0,x1,y1,z1,vx1,vy1,vz1,x2,y2,z2,vx2,vy2,vz2,x3, &
+ y3,z3,vx3,vy3,vz3)
+deallocate(x4,y4,z4,vx4,vy4,vz4)
 
 end subroutine aei2xyz

@@ -1,16 +1,16 @@
 program transitfit7
 use precision
 implicit none
-integer :: iargc,nmax,npt,nbodies,i,np,itprint,itmodel,colflag,itiming
+integer :: iargc,nmax,npt,nbodies,i,np,itprint,itmodel,colflag
 real(double) :: tol
 real(double), allocatable, dimension(:) :: time,flux,ferr,itime,sol,ans, &
  Pers,percor
 real(double), allocatable, dimension(:,:) :: serr
 character(80) :: inputsol,photfile
 !percor vars
-integer :: npt2
-real(double) :: tsamp,ts,te
-real(double), allocatable, dimension(:) :: time2,itime2,ans2
+!integer :: npt2
+!real(double) :: tsamp,ts,te
+!real(double), allocatable, dimension(:) :: time2,itime2,ans2
 !ocmod vars
 integer :: ntmidmax
 integer, allocatable, dimension(:) :: ntmid
@@ -21,34 +21,33 @@ interface
    subroutine readkeplc(photfile,npt,time,flux,ferr,itime)
       use precision
       implicit none
-      character(80), intent(in) :: photfile
-      integer, intent(out) :: npt
-      real(double), dimension(:), intent(inout) :: time,flux,ferr,itime
+      character(80) :: photfile
+      integer :: npt
+      real(double), dimension(:) :: time,flux,ferr,itime
    end subroutine readkeplc
    subroutine calcnbodies(inputsol,nbodies)
       use precision
       implicit none
-      character(80), intent(in) :: inputsol
-      integer, intent(out) :: nbodies
+      character(80) :: inputsol
+      integer :: nbodies
    end subroutine calcnbodies
-   subroutine readinputsol(inputsol,nbodies,sol,serr)
+   subroutine readinputsol(inputsol,sol,serr)
       use precision
       implicit none
-      character(80), intent(in) :: inputsol
-      integer, intent(inout) :: nbodies
-      real(double), dimension(:), intent(inout) :: sol
-      real(double), dimension(:,:), intent(inout) :: serr
+      character(80) :: inputsol
+      real(double), dimension(:) :: sol
+      real(double), dimension(:,:) :: serr
    end subroutine readinputsol
    subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
       use precision
       implicit none
-      integer, intent(inout) :: nbodies
-      integer, intent(inout) :: npt,itprint,itmodel,colflag
-      integer, dimension(:), intent(inout) :: ntmid
-      real(double), intent(inout) :: tol
-      real(double), dimension(:), intent(inout) :: sol,time,itime,percor
-      real(double), dimension(:), intent(inout) :: ans
-      real(double), dimension(:,:), intent(inout) :: tmid
+      integer :: nbodies
+      integer :: npt,itprint,itmodel,colflag
+      integer, dimension(:) :: ntmid
+      real(double) :: tol
+      real(double), dimension(:) :: sol,time,itime,percor
+      real(double), dimension(:) :: ans
+      real(double), dimension(:,:) :: tmid
    end subroutine lcmodel
    subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint)
       use precision
@@ -62,27 +61,27 @@ interface
    subroutine fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
       use precision
       implicit none
-      integer, intent(inout) :: nbodies,npt,ntmidmax
-      real(double), intent(inout) :: tol
-      real(double), dimension(:), intent(inout) :: sol,time,flux,ferr,itime
-      real(double), dimension(:,:), intent(inout) :: serr
+      integer :: nbodies,npt,ntmidmax
+      real(double) :: tol
+      real(double), dimension(:) :: sol,time,flux,ferr,itime
+      real(double), dimension(:,:) :: serr
    end subroutine fittransitmodel
    subroutine exportfit(nbodies,sol,serr)
       use precision
       implicit none
       integer nbodies
-      real(double), dimension(:), intent(inout) :: sol
-      real(double), dimension(:,:), intent(inout) :: serr
+      real(double), dimension(:) :: sol
+      real(double), dimension(:,:) :: serr
    end subroutine exportfit
    subroutine percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
       use precision
       implicit none
       !import vars
-      integer, intent(in) :: nbodies,ntmidmax
-      integer, dimension(:), intent(in) :: ntmid
-      real(double), dimension(:), intent(in) :: sol
-      real(double), dimension(:,:), intent(in) :: tmid
-      real(double), dimension(:), intent(inout):: percor
+      integer :: nbodies,ntmidmax
+      integer, dimension(:) :: ntmid
+      real(double), dimension(:) :: sol
+      real(double), dimension(:,:) :: tmid
+      real(double), dimension(:) :: percor
    end subroutine percorcalc
 end interface
 !end of interfaces
@@ -108,8 +107,7 @@ call getarg(2,inputsol) !get name of input solution
 call calcnbodies(inputsol,nbodies) !first pass to get number of bodies
 write(0,*) "nbodies: ",nbodies
 allocate(sol(7+nbodies*7),serr(7+nbodies*7,2)) !use nbodies to allocate
-!allocate(m(nbodies))
-call readinputsol(inputsol,nbodies,sol,serr) !read in initial solution
+call readinputsol(inputsol,sol,serr) !read in initial solution
 
 !The following is for enabling determination of model TTVs
 allocate(Pers(nbodies-1))
@@ -117,7 +115,7 @@ do i=2,nbodies
    np=7+7*(i-1)
    Pers(i-1)=sol(np+2)
 enddo
-ntmidmax=(maxval(time)-minval(time))/minval(Pers)*2 !need to add checks for overflows
+ntmidmax=int((maxval(time(1:npt))-minval(time(1:npt)))/minval(Pers(1:nbodies-1)))*2 !need to add checks for overflows
 !write(0,*) "ntmidmax:",ntmidmax,nbodies
 allocate(ntmid(nbodies),tmid(nbodies,ntmidmax))
 ntmid=0
@@ -133,12 +131,11 @@ allocate(percor(nbodies))
 
 allocate(ans(npt)) !ans contains the model to match the data.
 
-itprint=0 !no output of timing measurements, create percor
-itmodel=0 !do not need a transit model
+itprint=1 !no output of timing measurements, create percor
 percor=0.0d0 !initialize percor to zero.
 call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
-!if (colflag.eq.0) call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
-itprint=2 !create output of timing measurements, no percor
+if (colflag.eq.0) call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
+itprint=1 !create output of timing measurements, no percor
 call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
 itprint=0 !do not create output of timing measurements
 itmodel=1 !calculate a transit model
@@ -147,19 +144,6 @@ do i=1,npt
    write(6,501) time(i),flux(i),ans(i)
 enddo
 
-!itprint=0
-!call lcmodel(nbodies,npt,tol,sol,time,itime,percor,ans,itprint) !generate a LC model.
-!call percorcalc(nbodies,sol,percor)
-!itprint=1
-!call lcmodel(nbodies,npt,tol,sol,time,itime,percor,ans,itprint) !generate a LC model.
-!do i=1,npt
-!   write(6,501) time(i),ans(i)
-!enddo
-
-
-!do i=1,npt
-!   write(6,501) time(i),flux(i),ans(i)
-!enddo
 501 format(5(1X,1PE17.10))
 
 end program transitfit7

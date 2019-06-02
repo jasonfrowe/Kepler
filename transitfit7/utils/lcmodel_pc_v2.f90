@@ -8,8 +8,9 @@ real(double), dimension(:) :: sol,time,percor
 integer, dimension(:) :: ntmid !used with octiming 
 real(double), dimension(:,:) :: tmid !used with octiming
 !local vars
-integer :: nintg,nbod,neq,i,j
-real(double) :: eps,epoch,t,te,tout
+integer :: nintg,nbod,neq,i,j,nT0
+integer, allocatable, dimension(:) :: tflag
+real(double) :: eps,epoch,t,ts,te,tout,ttran
 integer, allocatable, dimension(:) :: tc
 real(double), allocatable, dimension(:) :: tcalc,opos,y,m
 real(double), allocatable, dimension(:,:) :: told,bold,xpos,ypos,zpos
@@ -35,43 +36,60 @@ integer :: iplot
 real(double) :: RpRs
 real(double), allocatable, dimension(:) :: b_thres,b_old,b_cur
 !save vars for Mercury
-integer, parameter :: nmax=2000
-real(double) :: a(3,nmax),hrec,angf(3,nmax),ausr(3,nmax)
+real(double) :: a(3,nmermax),hrec,angf(3,nmermax),ausr(3,nmermax)
 !timing output
 integer :: nunit,ip,np
 real(double) :: ttomc,t0,per
 character(80) :: filename
-character(200) :: dumc
+!character(200) :: dumc
 
 
 interface
    subroutine aei2xyz(nbodies,sol,y,m,epoch,percor)
       use precision
       implicit none
-      integer, intent(inout) :: nbodies
-      real(double), dimension(:), intent(inout) :: sol,percor
-      real(double), dimension(:), intent(inout) :: y,m
-      real(double), intent(inout) :: epoch
+      integer :: nbodies
+      real(double), dimension(:) :: sol,percor
+      real(double), dimension(:) :: y,m
+      real(double) :: epoch
    end subroutine aei2xyz
    subroutine octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,  &
     told,bold,ntmid,tmid)
       use precision
       implicit none
-      integer, intent(in) :: nbodies,nintg
-      integer, dimension(:), intent(inout) :: tc
-      integer, dimension(:), intent(inout) :: ntmid
-      real(double), dimension(:,:), intent(in) :: xpos,ypos,zpos
-      real(double), dimension(:), intent(in) :: sol,tcalc
-      real(double), dimension(:), intent(inout) :: opos
-      real(double), dimension(:,:), intent(inout) :: told,bold
-      real(double), dimension(:,:), intent(inout) :: tmid
+      integer :: nbodies,nintg
+      integer, dimension(:) :: tc
+      integer, dimension(:) :: ntmid
+      real(double), dimension(:,:) :: xpos,ypos,zpos
+      real(double), dimension(:) :: sol,tcalc
+      real(double), dimension(:) :: opos
+      real(double), dimension(:,:) :: told,bold
+      real(double), dimension(:,:) :: tmid
    end subroutine octiming
    subroutine calcimpact(nbodies,y,sol,b_cur)
       use precision
-      integer, intent(in) :: nbodies
-      real(double), dimension(:), intent(in) :: y,sol
-      real(double), dimension(:), intent(inout) ::b_cur
+      integer :: nbodies
+      real(double), dimension(:) :: y,sol,b_cur
    end subroutine calcimpact
+   subroutine calcbmin(nbc,nbodies,t,sol,tol,nbod,m,x,v,algor,nbig,ngflag,opflag,colflag,opt,stat,rcen,rmax,&
+    tstart,jcen,en,am,rphys,rce,rcrit,s,a,hrec,angf,ausr,ttran)
+      use precision
+      implicit none
+      !import vars
+      integer :: nbc,nbodies
+      real(double) :: t,ttran
+      real(double), dimension(:) :: sol
+      !import mercury vars
+      integer :: algor,nbig,ngflag,opflag,colflag,nbod
+      integer, dimension(8) :: opt
+      integer, dimension(:) :: stat
+      real(double) :: rcen,rmax,tstart,tol
+      real(double), dimension(3) :: jcen,en,am
+      real(double), dimension(:) :: rphys,rce,rcrit,m
+      real(double), dimension(:,:) :: s,x,v
+      !import mercury save vars
+      real(double) :: a(3,nmermax),hrec,angf(3,nmermax),ausr(3,nmermax)
+   end subroutine calcbmin
 end interface
 
 !plotting
@@ -83,6 +101,10 @@ eps=EPSILON(1.0d0)
 !inititation for timing measurements
 ntmid=0
 
+!tflag makes sure that only one transit time in reported per orbit
+allocate(tflag(nbodies))
+tflag=0 !initialize for no current transits
+
 !oversampling
 nintg=1 !no oversampling needed 
 !dnintg=dble(nintg)
@@ -91,6 +113,7 @@ nintg=1 !no oversampling needed
 allocate(opos(nbodies),tc(nbodies)) !used by octiming for previous position
 allocate(tcalc(nintg)) !storing model times for octiming
 allocate(told(nbodies,5),bold(nbodies,5))
+
 opos=0.0d0 !initilization to zero
 tc=0 !initializtion of transit conidition flag to zero.
 
@@ -100,9 +123,8 @@ y=0.0d0
 m=0.0d0
 
 epoch=time(1)
-!convert from Keplerian to Cartesian coords 
+!convert from Keplerian to Cartesian coords
 call aei2xyz(nbodies,sol,y,m,epoch,percor)
-
 !!plotting stuff...
 !if(iplot.eq.1)then 
 !   call pgopen('/xserve') !open PGPlot device
@@ -178,7 +200,7 @@ enddo
 !write(0,*) maxint*86400.0 
 !read(5,*)
 
-
+ts=minval(time(1:npt))
 te=maxval(time(1:npt))
 
 first=.true.
@@ -218,7 +240,7 @@ do while(t.le.te)
     t=t+h0
 
     call mco_dh2h (t,jcen,nbod,nbig,h0,m,x,v,xh,vh)
-    do j=1,nbodies
+    do j=2,nbodies
       y(6*j-5)=xh(1,j)
       y(6*j-4)=xh(2,j)
       y(6*j-3)=xh(3,j)
@@ -255,26 +277,42 @@ do while(t.le.te)
     do j=2,nbodies
         !if(b_cur(j).lt.2.0d0)then 
         if(abs(2.0*b_cur(j)-b_old(j)).lt.b_thres(j))then
+          if(tflag(j).eq.0)then
             !we are close to transit, so call b-min code
-            call calcbmin()
+            tflag(j)=1 !flag transit condition until past T4.
+            !write(0,*) "hello calc",t
+            call calcbmin(j,nbodies,t,sol,tol,nbod,m,x,v,algor,nbig,ngflag,opflag,colflag,&
+              opt,stat,rcen,rmax,tstart,jcen,en,am,rphys,rce,rcrit,s,a,hrec,angf,ausr,ttran)
+            ntmid(j)=ntmid(j)+1
+            tmid(j,ntmid(j))=ttran !estimate of mid transit time.
+            !write(0,*) "done calc",j,t,ttran
+            !read(5,*)
+          endif
+        else
+          tflag(j)=0 !outside of transit
         endif
     enddo
     b_old=b_cur !update b_old
 
-    write(dumc,503) 't: ',t,maxint,xpos(2,1),ypos(2,1),zpos(2,1)
+!    write(dumc,503) 't: ',t,maxint,xpos(2,1),ypos(2,1),zpos(2,1)
  503   format(A3,1X,78(1PE13.6,1X))
 !    !read(5,*)
 
 enddo
 
-
 !update this to output timing for all nbodies with per>0
 if(itprint.eq.1)then
    nunit=12
-   do ip=1,nbodies
+   do ip=2,nbodies
       np=7+7*(ip-1)
       t0=sol(np+1)
       Per=sol(np+2)
+      nt0=int((t0-ts)/Per)
+      if(nt0.ne.0)then
+!        write(0,*) t0,nt0,ts
+        t0=t0-dble(nt0+1)*per
+!        write(0,*) t0
+      endif
       if((per.gt.0.0d0).and.(ntmid(ip).gt.0))then
          write(filename,'(A6,I1,A4)') 'tmeas_',ip,'.dat'
          open(unit=nunit,file=filename) !open file if we are outputting tt measurements
@@ -289,6 +327,8 @@ if(itprint.eq.1)then
       endif
    enddo
 endif
+
+deallocate(b_thres,b_old,b_cur,xh,vh,s,rho,rceh,rphys,rce,rcrit,x,v,stat,tflag,opos,tc,tcalc,told,bold,y,m)
 
 !if(iplot.eq.1) call pgclos()
 

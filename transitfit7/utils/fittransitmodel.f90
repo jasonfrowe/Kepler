@@ -8,27 +8,27 @@ integer, target :: nbodies,ntmidmax
 real(double), target :: tol
 real(double), dimension(:), target :: sol,time,flux,ferr,itime
 !local vars
-integer n,i,info,lwa,j
+integer n,i,info,lwa
 integer, allocatable, dimension(:) :: iwa
 real(double), target :: tollm
 real(double), dimension(:,:), target :: serr
 real(double), allocatable, dimension(:) :: solfit,wa,fvec
 !ecosw,esinw convertion vars
-integer :: np
-real(double) :: ecosw,esinw,sqecosw,sqesinw,ecc
+!integer :: np
+!real(double) :: ecosw,esinw,sqecosw,sqesinw,ecc
 external fcn
 
-!convert sqecosw, sqesinw to ecosw, esinw for LSQ
-do i=1,nbodies
-   np=7+7*(i-1)
-   sqecosw=sol(np+6)  !e^1/2 cos(w)
-   sqesinw=sol(np+7)  !e^1/2 sin(w)
-   ecc=(sqecosw*sqecosw+sqesinw*sqesinw) !eccentricity
-   sol(np+6)=sqrt(ecc)*sqecosw
-   sol(np+7)=sqrt(ecc)*sqesinw
-!   write(0,*) "sqecosw,sqesinw: ",sqecosw,sqesinw
-!   write(0,*) "ecosw,esinw: ",sol(np+6),sol(np+7)
-enddo
+!!convert sqecosw, sqesinw to ecosw, esinw for LSQ
+!do i=1,nbodies
+!   np=7+7*(i-1)
+!   sqecosw=sol(np+6)  !e^1/2 cos(w)
+!   sqesinw=sol(np+7)  !e^1/2 sin(w)
+!   ecc=(sqecosw*sqecosw+sqesinw*sqesinw) !eccentricity
+!   sol(np+6)=sqrt(ecc)*sqecosw
+!   sol(np+7)=sqrt(ecc)*sqesinw
+!!   write(0,*) "sqecosw,sqesinw: ",sqecosw,sqesinw
+!!   write(0,*) "ecosw,esinw: ",sol(np+6),sol(np+7)
+!enddo
 
 allocate(solfit(7+nbodies*7))
 
@@ -54,7 +54,7 @@ itime2 => itime
 !pointers for octiming calculations
 ntmidmax2 => ntmidmax
 
-lwa=npt*n+5*npt*n
+lwa=npt*n+5*npt+n
 allocate(fvec(npt),iwa(n),wa(lwa))
 tollm=1.0d-8
 write(0,*) "Calling lmdif1"
@@ -72,20 +72,23 @@ do i=1,7+nbodies*7
 enddo
 501 format(5(1X,1PE17.10))
 
-!convert ecosw, esinw to sqecosw, sqesinw for storage
-do i=1,nbodies
-   np=7+7*(i-1)
-   ecosw=sol(np+6)  !ecos(w)
-   esinw=sol(np+7)  !esin(w)
-   ecc=sqrt(ecosw*ecosw+esinw*esinw) !eccentricity
-   if(ecc.gt.0.0)then
-      sol(np+6)=ecosw/sqrt(ecc)
-      sol(np+7)=esinw/sqrt(ecc)
-   else
-      sol(np+6)=0.0d0
-      sol(np+7)=0.0d0
-   endif
-enddo
+!!convert ecosw, esinw to sqecosw, sqesinw for storage
+!do i=1,nbodies
+!   np=7+7*(i-1)
+!   ecosw=sol(np+6)  !ecos(w)
+!   esinw=sol(np+7)  !esin(w)
+!   ecc=sqrt(ecosw*ecosw+esinw*esinw) !eccentricity
+!   if(ecc.gt.0.0)then
+!      sol(np+6)=ecosw/sqrt(ecc)
+!      sol(np+7)=esinw/sqrt(ecc)
+!   else
+!      sol(np+6)=0.0d0
+!      sol(np+7)=0.0d0
+!   endif
+!enddo
+
+deallocate(solfit,fvec,iwa,wa)
+nullify(tol2,nbodies2,sol2,serr2,time2,flux2,ferr2,itime2,ntmidmax2)
 
 return
 end subroutine fittransitmodel
@@ -101,27 +104,28 @@ integer :: npt,n,iflag
 real(double), dimension(n) :: x
 real(double), dimension(npt) :: fvec
 !local vars
-integer :: i,j,nunit,itprint,itmodel,np,colflag
-real(double) :: yp,ecosw,esinw,sqecosw,sqesinw,ecc
-real(double), allocatable, dimension(:) :: sol3,m3,y3,percor
+integer :: i,j,itprint,itmodel,np,colflag
+!real(double) :: yp
+!real(double) :: ecosw,esinw,sqecosw,sqesinw,ecc
+real(double), allocatable, dimension(:) :: sol3,percor
 !percorcalc
-integer :: npt3
+!integer :: npt3
 integer, allocatable, dimension(:) :: ntmid2
-real(double) :: tsamp,ts,te
-real(double), allocatable, dimension(:) :: time3,itime3,ans3
+!real(double) :: tsamp,ts,te
+!real(double), allocatable, dimension(:) :: time3,itime3,ans3
 real(double), allocatable, dimension(:,:) :: tmid2
 
 interface
    subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
       use precision
       implicit none
-      integer, intent(inout) :: nbodies
-      integer, intent(inout) :: npt,itprint,itmodel,colflag
-      integer, dimension(:), intent(inout) :: ntmid
-      real(double), intent(inout) :: tol
-      real(double), dimension(:), intent(inout) :: sol,time,itime,percor
-      real(double), dimension(:), intent(inout) :: ans
-      real(double), dimension(:,:), intent(inout) :: tmid
+      integer :: nbodies
+      integer :: npt,itprint,itmodel,colflag
+      integer, dimension(:) :: ntmid
+      real(double) :: tol
+      real(double), dimension(:) :: sol,time,itime,percor
+      real(double), dimension(:) :: ans
+      real(double), dimension(:,:) :: tmid
    end subroutine lcmodel
    subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint)
       use precision
@@ -135,11 +139,11 @@ interface
    subroutine percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
       use precision
       implicit none
-      integer, intent(in) :: nbodies,ntmidmax
-      integer, dimension(:), intent(in) :: ntmid
-      real(double), dimension(:), intent(in) :: sol
-      real(double), dimension(:,:), intent(in) :: tmid
-      real(double), dimension(:), intent(inout):: percor
+      integer :: nbodies,ntmidmax
+      integer, dimension(:) :: ntmid
+      real(double), dimension(:) :: sol
+      real(double), dimension(:,:) :: tmid
+      real(double), dimension(:) :: percor
    end subroutine percorcalc
 end interface
 
@@ -162,22 +166,22 @@ do i=1,7+nbodies2*7
 enddo
 
 
-!convert ecosw, esinw to sqecosw, sqesinw for model
-do i=1,nbodies2
-   np=7+7*(i-1)
-   ecosw=sol3(np+6)  !ecos(w)
-   esinw=sol3(np+7)  !esin(w)
-   ecc=sqrt(ecosw*ecosw+esinw*esinw) !eccentricity
-   if(ecc.gt.0.0)then
-      sol3(np+6)=ecosw/sqrt(ecc)
-      sol3(np+7)=esinw/sqrt(ecc)
-   else
-      sol3(np+6)=0.0d0
-      sol3(np+7)=0.0d0
-   endif
-!   write(0,*) "ecosw,esinw: ",ecosw,esinw
-!   write(0,*) "sqecosw,sqesinw: ",sol3(np+6),sol3(np+7)
-enddo
+!!convert ecosw, esinw to sqecosw, sqesinw for model
+!do i=1,nbodies2
+!   np=7+7*(i-1)
+!   ecosw=sol3(np+6)  !ecos(w)
+!   esinw=sol3(np+7)  !esin(w)
+!   ecc=sqrt(ecosw*ecosw+esinw*esinw) !eccentricity
+!   if(ecc.gt.0.0)then
+!      sol3(np+6)=ecosw/sqrt(ecc)
+!      sol3(np+7)=esinw/sqrt(ecc)
+!   else
+!      sol3(np+6)=0.0d0
+!      sol3(np+7)=0.0d0
+!   endif
+!!   write(0,*) "ecosw,esinw: ",ecosw,esinw
+!!   write(0,*) "sqecosw,sqesinw: ",sol3(np+6),sol3(np+7)
+!enddo
 
 !!make sure masses are positive
 !do i=1,nbodies2
@@ -203,35 +207,23 @@ allocate(percor(nbodies2))
 !   itime3(i)=tsamp
 !enddo
 itprint=0 !no output of timing measurements
-itmodel=0 !do not need a transit model
 percor=0.0d0 !initialize percor to zero.
 !write(0,*) "Calling lcmodel1",npt3
 call lcmodel_pc(nbodies2,npt,tol2,sol3,time2,ntmid2,tmid2,percor,colflag,itprint) !generate a LC model.
-!call lcmodel(nbodies2,npt3,tol2,sol3,time3,itime3,ntmid2,tmid2,percor,ans3,colflag,itprint,itmodel) !generate a LC model.
-!write(0,*) "Calling percorcal.."
-!if (colflag.eq.0) call percorcalc(nbodies2,sol3,ntmidmax2,ntmid2,tmid2,percor)
+if (colflag.eq.0) call percorcalc(nbodies2,sol3,ntmidmax2,ntmid2,tmid2,percor)
 itprint=0 !no output of timing measurements
 itmodel=1 !calculate a transit model
 !write(0,*) "Calling lcmodel2"
 call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,ntmid2,tmid2,percor,fvec,colflag,itprint,itmodel)
 
-!nunit=10
-!open(unit=nunit,file="junk.dat")
-!do i=1,npt
-!   write(nunit,501) time2(i),flux2(i),fvec(i)
-!enddo
-!close(nunit)
-501 format(5(1X,1PE17.10))
-!write(0,*) "lcmodel in FCN done"
-!read(5,*)
-
-yp=1.0d0
 !$OMP PARALLEL DO
 do i=1,npt
-   fvec(i)=(fvec(i)-flux2(i))/ferr2(i)*yp  !yp is not needed. 
+   fvec(i)=(fvec(i)-flux2(i))/ferr2(i) 
 enddo
 !$OMP END PARALLEL DO
 
+
+deallocate(ntmid2,tmid2,sol3,percor)
 
 !write(0,*) "FCN1.. done"
 

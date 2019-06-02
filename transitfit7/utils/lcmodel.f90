@@ -8,11 +8,11 @@ real(double), dimension(:) :: sol,time,itime,percor,ans
 integer, dimension(:) :: ntmid !used with octiming 
 real(double), dimension(:,:) :: tmid !used with octiming
 !local vars
-integer :: nintg,i,j,k,neq,lrw,liw,istate,nbod
-integer, allocatable, dimension(:) :: iwork,tc
-real(double) :: dnintg,tdnintg,t,tout,tout2,jm1,tmodel,   &
+integer :: nintg,i,j,k,neq,istate,nbod
+integer, allocatable, dimension(:) :: tc
+real(double) :: dnintg,tdnintg,t,tout,jm1,tmodel,   &
  epoch
-real(double), allocatable, dimension(:) :: y,m,rwork,tcalc,opos
+real(double), allocatable, dimension(:) :: y,m,tcalc,opos
 real(double), allocatable, dimension(:,:) :: xpos,ypos,zpos,told,bold
 !mercury vars
 integer :: nclo
@@ -28,48 +28,47 @@ real(double), dimension(3) :: jcen,en,am
 real(double), allocatable, dimension(:) :: rho,rceh,rphys,rce,rcrit
 real(double), allocatable, dimension(:,:) :: xh,vh,s,x,v
 logical :: first
-!plotting stuff
+!!plotting stuff
 integer :: iplot
-real :: bb(4),rasemi,rx,ry
-external f,jac
+!real :: bb(4),rasemi,rx,ry
+!external f,jac
 !timing output
 integer :: nunit,ip,np
 real(double) :: ttomc,t0,per
 character(80) :: filename
 !save vars for Mercury
-integer, parameter :: nmax=2000
-real(double) :: a(3,nmax),hrec,angf(3,nmax),ausr(3,nmax)
+real(double) :: a(3,nmermax),hrec,angf(3,nmermax),ausr(3,nmermax)
 
 
 interface
    subroutine aei2xyz(nbodies,sol,y,m,epoch,percor)
       use precision
       implicit none
-      integer, intent(inout) :: nbodies
-      real(double), dimension(:), intent(inout) :: sol,percor
-      real(double), dimension(:), intent(inout) :: y,m
-      real(double), intent(inout) :: epoch
+      integer :: nbodies
+      real(double), dimension(:) :: sol,percor
+      real(double), dimension(:) :: y,m
+      real(double) :: epoch
    end subroutine aei2xyz
    subroutine transitmodel(nbodies,nintg,xpos,ypos,zpos,sol,tmodel)
       use precision
       implicit none
-      integer, intent(in) :: nbodies,nintg
-      real(double), dimension(:,:), intent(in) :: xpos,ypos,zpos
-      real(double), dimension(:), intent(in) :: sol
-      real(double), intent(out) :: tmodel
+      integer :: nbodies,nintg
+      real(double), dimension(:,:) :: xpos,ypos,zpos
+      real(double), dimension(:) :: sol
+      real(double) :: tmodel
    end subroutine transitmodel
    subroutine octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,  &
     told,bold,ntmid,tmid)
       use precision
       implicit none
-      integer, intent(in) :: nbodies,nintg
-      integer, dimension(:), intent(inout) :: tc
-      integer, dimension(:), intent(inout) :: ntmid
-      real(double), dimension(:,:), intent(in) :: xpos,ypos,zpos
-      real(double), dimension(:), intent(in) :: sol,tcalc
-      real(double), dimension(:), intent(inout) :: opos
-      real(double), dimension(:,:), intent(inout) :: told,bold
-      real(double), dimension(:,:), intent(inout) :: tmid
+      integer :: nbodies,nintg
+      integer, dimension(:) :: tc
+      integer, dimension(:) :: ntmid
+      real(double), dimension(:,:) :: xpos,ypos,zpos
+      real(double), dimension(:) :: sol,tcalc
+      real(double), dimension(:) :: opos
+      real(double), dimension(:,:) :: told,bold
+      real(double), dimension(:,:) :: tmid
    end subroutine octiming
 end interface
 
@@ -216,7 +215,7 @@ do i=1,npt
    enddo
 
    call mco_dh2h (t,jcen,nbod,nbig,h0,m,x,v,xh,vh)
-   do j=1,nbodies
+   do j=2,nbodies
       y(6*j-5)=xh(1,j)
       y(6*j-4)=xh(2,j)
       y(6*j-3)=xh(3,j)

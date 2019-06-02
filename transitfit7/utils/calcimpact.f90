@@ -15,6 +15,7 @@ rhostar=abs(sol(1)*1000.0) !mean stellar density (kg/m^3)
 Mstar=abs(sol(12)) !mass of central object (MEarth)
 rstar=(Mearth*Mstar/(fourpid3*rhostar))**(1.0d0/3.0d0)
 
+b_cur=0
 xs=y(1)
 ys=y(2)
 zs=y(3)

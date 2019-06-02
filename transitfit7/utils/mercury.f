@@ -392,7 +392,8 @@ c         write(0,*) "close: mdt_hy"
         call mdt_hkce (time,tstart,h0,hrec,tol,rmax,en(3),jcen,rcen,
      %    nbod,nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,
      %    ngflag,colflag,ce,nce,ice,jce,nclo,iclo,jclo,dclo,tclo,ixvclo,
-     %    jxvclo,mfo_hkce)
+     %    jxvclo) 
+c               ,mfo_hkce)
       end if
 c
 c Advance solar Hamiltonian for H/2

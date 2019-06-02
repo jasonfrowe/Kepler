@@ -1,7 +1,7 @@
 subroutine readkeplc(photfile,npt,time,flux,ferr,itime)
 use precision
 implicit none
-integer :: npt,nunit,i,filestatus,nmax
+integer :: npt,nunit,i,filestatus
 real(double), dimension(:) :: time,flux,ferr,itime
 real(double) :: Keplertime,sec2day
 character(80) :: photfile

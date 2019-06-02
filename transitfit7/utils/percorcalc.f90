@@ -5,10 +5,11 @@ implicit none
 integer :: nbodies,ntmidmax
 integer, dimension(:) :: ntmid
 real(double), dimension(:) :: sol,percor
-real(double), dimension(:,:), intent(in) :: tmid
+real(double), dimension(:,:) :: tmid
 !local vars
 integer :: i,j,k,np
-real(double) :: per,ptest,median
+real(double) :: per,ptest
+!real(double) :: median
 real(double), allocatable, dimension(:) :: p
  
 allocate(p(ntmidmax)) !stored period from n-body positions
@@ -37,7 +38,7 @@ do i=2,nbodies
      !percor(i)=median(k,p)-Per
     endif
   endif
-  write(0,501) "percor",i,ntmid(i),percor(i),Per,percor(i)+Per
+  !write(0,501) "percor",i,ntmid(i),percor(i),Per,percor(i)+Per
   !read(5,*)
   501 format(A6,1X,I3,1X,I3,1X,28(1PE15.8,1X))
 enddo
