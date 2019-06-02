@@ -25,7 +25,7 @@ python module fdjac2__user__routines
 end python module fdjac2__user__routines
 python module lcmodel ! in 
     interface  ! in :lcmodel
-        subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel) ! in :lcmodel:lcmodel.f90
+        subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmidmax,ntmid,tmid,percor,ans,colflag,itprint,itmodel) ! in :lcmodel:lcmodel.f90
             use precision
             integer :: nbodies
             integer :: npt
@@ -33,23 +33,25 @@ python module lcmodel ! in
             real(kind=8) dimension(:) :: sol
             real(kind=8) dimension(:) :: time
             real(kind=8) dimension(:) :: itime
-            integer dimension(:) :: ntmid
-            real(kind=8) dimension(:,:),intent(inout) :: tmid
+            integer :: ntmidmax
+            integer dimension(:),intent(inout) :: ntmid
+            real(kind=8) dimension(:,:) :: tmid
             real(kind=8) dimension(:) :: percor
             real(kind=8) dimension(:) :: ans
             integer,intent(inout) :: colflag
             integer :: itprint
             integer :: itmodel
         end subroutine lcmodel
-        subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) ! in :lcmodel:lcmodel_pc_v2.f90
+        subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmidmax,ntmid,tmid,percor,colflag,itprint) ! in :lcmodel:lcmodel_pc_v2.f90
             use precision
             integer :: nbodies
             integer :: npt
             real(kind=8) :: tol
             real(kind=8) dimension(:) :: sol
             real(kind=8) dimension(:) :: time
-            integer dimension(:) :: ntmid
-            real(kind=8) dimension(:,:),intent(inout) :: tmid
+            integer :: ntmidmax
+            integer dimension(:),intent(inout) :: ntmid
+            real(kind=8) dimension(:,:) :: tmid
             real(kind=8) dimension(:) :: percor
             integer,intent(inout) :: colflag
             integer :: itprint
@@ -160,7 +162,7 @@ python module lcmodel ! in
             real*8 dimension(nb),depend(nb) :: muo1
             integer, optional,check(len(b0)>=nb),depend(b0) :: nb=len(b0)
         end subroutine occultuniform
-        subroutine octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,ntmid,tmid) ! in :lcmodel:octiming.f90
+        subroutine octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,ntmidmax,ntmid,tmid) ! in :lcmodel:octiming.f90
             use precision
             integer :: nbodies
             integer :: nintg
@@ -173,6 +175,7 @@ python module lcmodel ! in
             real(kind=8) dimension(:) :: tcalc
             real(kind=8) dimension(:,:) :: told
             real(kind=8) dimension(:,:) :: bold
+            integer :: ntmidmax
             integer dimension(:) :: ntmid
             real(kind=8) dimension(:,:) :: tmid
         end subroutine octiming
