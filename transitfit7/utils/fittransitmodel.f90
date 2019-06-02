@@ -31,16 +31,16 @@ enddo
 !write(0,*) "n:",n
 
 !assign pointers from module that is shared with FCN
-tol2 => tol
-nbodies2 => nbodies
-sol2 => sol
-serr2 => serr
-time2 => time
-flux2 => flux
-ferr2 => ferr
-itime2 => itime
+tol2f => tol
+nbodies2f => nbodies
+sol2f => sol
+serr2f => serr
+time2f => time
+flux2f => flux
+ferr2f => ferr
+itime2f => itime
 !pointers for octiming calculations
-ntmidmax2 => ntmidmax
+ntmidmax2f => ntmidmax
 
 lwa=npt*n+5*npt+n
 allocate(fvec(npt),iwa(n),wa(lwa))
@@ -61,7 +61,7 @@ enddo
 501 format(5(1X,1PE17.10))
 
 deallocate(solfit,fvec,iwa,wa)
-nullify(tol2,nbodies2,sol2,serr2,time2,flux2,ferr2,itime2,ntmidmax2)
+nullify(tol2f,nbodies2f,sol2f,serr2f,time2f,flux2f,ferr2f,itime2f,ntmidmax2f)
 
 return
 end subroutine fittransitmodel
@@ -83,10 +83,10 @@ integer :: i,j,itprint,itmodel,np,colflag
 real(double), allocatable, dimension(:) :: sol3,percor
 !percorcalc
 !integer :: npt3
-integer, allocatable, dimension(:) :: ntmid2
+integer, allocatable, dimension(:) :: ntmid2f
 !real(double) :: tsamp,ts,te
 !real(double), allocatable, dimension(:) :: time3,itime3,ans3
-real(double), allocatable, dimension(:,:) :: tmid2
+real(double), allocatable, dimension(:,:) :: tmid2f
 
 interface
    subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
@@ -123,44 +123,44 @@ end interface
 write(0,*) "FCN2"
 
 !allocate for percorcal
-allocate(ntmid2(nbodies2),tmid2(nbodies2,ntmidmax2))
+allocate(ntmid2f(nbodies2f),tmid2f(nbodies2f,ntmidmax2f))
 
-allocate(sol3(7+nbodies2*7))
+allocate(sol3(7+nbodies2f*7))
 
 j=0
-do i=1,7+nbodies2*7
-   sol3(i)=sol2(i)
+do i=1,7+nbodies2f*7
+   sol3(i)=sol2f(i)
 enddo
-do i=1,7+nbodies2*7
-   if(serr2(i,2).ne.0.0d0)then
+do i=1,7+nbodies2f*7
+   if(serr2f(i,2).ne.0.0d0)then
       j=j+1
       sol3(i)=x(j)
    endif
 enddo
 
 !for percorcalc
-allocate(percor(nbodies2))
+allocate(percor(nbodies2f))
 
 itprint=0 !no output of timing measurements
 percor=0.0d0 !initialize percor to zero.
 !write(0,*) "Calling lcmodel1",npt3
-call lcmodel_pc(nbodies2,npt,tol2,sol3,time2,ntmid2,tmid2,percor,colflag,itprint) !generate a LC model.
-if (colflag.eq.0) call percorcalc(nbodies2,sol3,ntmidmax2,ntmid2,tmid2,percor)
+call lcmodel_pc(nbodies2f,npt,tol2f,sol3,time2f,ntmid2f,tmid2f,percor,colflag,itprint) !generate a LC model.
+if (colflag.eq.0) call percorcalc(nbodies2f,sol3,ntmidmax2f,ntmid2f,tmid2f,percor)
 itprint=0 !no output of timing measurements
 itmodel=1 !calculate a transit model
 !write(0,*) "Calling lcmodel2"
-call lcmodel(nbodies2,npt,tol2,sol3,time2,itime2,ntmid2,tmid2,percor,fvec,colflag,itprint,itmodel)
+call lcmodel(nbodies2f,npt,tol2f,sol3,time2f,itime2f,ntmid2f,tmid2f,percor,fvec,colflag,itprint,itmodel)
 
 write(0,*) "done with lcmodel"
 
 !$OMP PARALLEL DO
 do i=1,npt
-   fvec(i)=(fvec(i)-flux2(i))/ferr2(i) 
+   fvec(i)=(fvec(i)-flux2f(i))/ferr2f(i) 
 enddo
 !$OMP END PARALLEL DO
 
 
-deallocate(ntmid2,tmid2,sol3,percor)
+deallocate(ntmid2f,tmid2f,sol3,percor)
 
 write(0,*) "FCN2.. done"
 

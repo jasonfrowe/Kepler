@@ -1,9 +1,8 @@
 module fittingmod
    use precision, only: double
    implicit none
-   integer isol,im,iy
-   integer, pointer :: nbodies2,npt2,ntmidmax2
-   real(double), pointer :: tol2
-   real(double), dimension(:), pointer :: sol2,time2,flux2,ferr2,itime2,y2
-   real(double), dimension(:,:), pointer :: serr2,yserr2
+   integer, pointer :: nbodies2f,npt2f,ntmidmax2f
+   real(double), pointer :: tol2f
+   real(double), dimension(:), pointer :: sol2f,time2f,flux2f,ferr2f,itime2f,y2f
+   real(double), dimension(:,:), pointer :: serr2f,yserr2f
 end module fittingmod
