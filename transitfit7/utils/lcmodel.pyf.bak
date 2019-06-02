@@ -1,6 +1,28 @@
 !    -*- f90 -*-
 ! Note: the context of this file is case sensitive.
 
+python module lmdif__user__routines 
+    interface lmdif_user_interface 
+        subroutine fcn(m,n,x,fvec,iflag) ! in :lcmodel:minpack.f:lmdif:unknown_interface
+            integer, optional,check(len(fvec)>=m),depend(fvec) :: m=len(fvec)
+            integer, optional,check(len(x)>=n),depend(x) :: n=len(x)
+            double precision dimension(n) :: x
+            double precision dimension(m) :: fvec
+            integer :: iflag
+        end subroutine fcn
+    end interface lmdif_user_interface
+end python module lmdif__user__routines
+python module fdjac2__user__routines 
+    interface fdjac2_user_interface 
+        subroutine fcn(m,n,x,wa,iflag) ! in :lcmodel:minpack.f:fdjac2:unknown_interface
+            integer, optional,check(len(wa)>=m),depend(wa) :: m=len(wa)
+            integer, optional,check(len(x)>=n),depend(x) :: n=len(x)
+            double precision dimension(n) :: x
+            double precision dimension(m) :: wa
+            integer :: iflag
+        end subroutine fcn
+    end interface fdjac2_user_interface
+end python module fdjac2__user__routines
 python module lcmodel ! in 
     interface  ! in :lcmodel
         subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel) ! in :lcmodel:lcmodel.f90
@@ -19,7 +41,7 @@ python module lcmodel ! in
             integer :: itprint
             integer :: itmodel
         end subroutine lcmodel
-        subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) ! in :lcmodel:lcmodel_pc.f90
+        subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) ! in :lcmodel:lcmodel_pc_v2.f90
             use precision
             integer :: nbodies
             integer :: npt
@@ -623,7 +645,7 @@ python module lcmodel ! in
             real(kind=8) dimension(:) :: sol
             integer :: ntmidmax
             integer dimension(:) :: ntmid
-            real(kind=8) dimension(:,:),intent(in) :: tmid
+            real(kind=8) dimension(:,:) :: tmid
             real(kind=8) dimension(:) :: percor
         end subroutine percorcalc
         subroutine calcimpact(nbodies,y,sol,b_cur) ! in :lcmodel:calcimpact.f90
@@ -633,6 +655,149 @@ python module lcmodel ! in
             real(kind=8) dimension(:) :: sol
             real(kind=8) dimension(:) :: b_cur
         end subroutine calcimpact
+        subroutine calcbmin(nbc,nbodies,t,sol,tol,nbod,m,x,v,algor,nbig,ngflag,opflag,colflag,opt,stat,rcen,rmax,tstart,jcen,en,am,rphys,rce,rcrit,s,a,hrec,angf,ausr,ttran) ! in :lcmodel:calcbmin.f90
+            use precision
+            use bfittingmod
+            integer, target :: nbc
+            integer, target :: nbodies
+            real(kind=8), target :: t
+            real(kind=8), target,dimension(:) :: sol
+            real(kind=8), target :: tol
+            integer, target :: nbod
+            real(kind=8), target,dimension(:) :: m
+            real(kind=8), target,dimension(:,:) :: x
+            real(kind=8), target,dimension(:,:) :: v
+            integer, target :: algor
+            integer, target :: nbig
+            integer, target :: ngflag
+            integer, target :: opflag
+            integer, target :: colflag
+            integer, target,dimension(8) :: opt
+            integer, target,dimension(:) :: stat
+            real(kind=8), target :: rcen
+            real(kind=8), target :: rmax
+            real(kind=8), target :: tstart
+            real(kind=8), target,dimension(3) :: jcen
+            real(kind=8), target,dimension(3) :: en
+            real(kind=8), target,dimension(3) :: am
+            real(kind=8), target,dimension(:) :: rphys
+            real(kind=8), target,dimension(:) :: rce
+            real(kind=8), target,dimension(:) :: rcrit
+            real(kind=8), target,dimension(:,:) :: s
+            real(kind=8), target,dimension(3,2000) :: a
+            real(kind=8), target :: hrec
+            real(kind=8), target,dimension(3,2000) :: angf
+            real(kind=8), target,dimension(3,2000) :: ausr
+            real(kind=8) :: ttran
+        end subroutine calcbmin
+        subroutine fcn(npt,n,x,fvec,iflag) ! in :lcmodel:calcbmin.f90
+            use precision
+            use bfittingmod
+            integer, optional,check(len(fvec)>=npt),depend(fvec) :: npt=len(fvec)
+            integer, optional,check(len(x)>=n),depend(x) :: n=len(x)
+            real(kind=8) dimension(n) :: x
+            real(kind=8) dimension(npt) :: fvec
+            integer :: iflag
+        end subroutine fcn
+        subroutine lmdif1(fcn,m,n,x,fvec,tol,info,iwa,wa,lwa) ! in :lcmodel:minpack.f
+            use lmdif__user__routines
+            external fcn
+            integer, optional,check(len(fvec)>=m),depend(fvec) :: m=len(fvec)
+            integer, optional,check(len(x)>=n),depend(x) :: n=len(x)
+            double precision dimension(n) :: x
+            double precision dimension(m) :: fvec
+            double precision :: tol
+            integer :: info
+            integer dimension(n),depend(n) :: iwa
+            double precision dimension(lwa) :: wa
+            integer, optional,check(len(wa)>=lwa),depend(wa) :: lwa=len(wa)
+        end subroutine lmdif1
+        subroutine lmdif(fcn,m,n,x,fvec,ftol,xtol,gtol,maxfev,epsfcn,diag,mode,factor,nprint,info,nfev,fjac,ldfjac,ipvt,qtf,wa1,wa2,wa3,wa4) ! in :lcmodel:minpack.f
+            use lmdif__user__routines
+            external fcn
+            integer, optional,check(len(fvec)>=m),depend(fvec) :: m=len(fvec)
+            integer, optional,check(len(x)>=n),depend(x) :: n=len(x)
+            double precision dimension(n) :: x
+            double precision dimension(m) :: fvec
+            double precision :: ftol
+            double precision :: xtol
+            double precision :: gtol
+            integer :: maxfev
+            double precision :: epsfcn
+            double precision dimension(n),depend(n) :: diag
+            integer :: mode
+            double precision :: factor
+            integer :: nprint
+            integer :: info
+            integer :: nfev
+            double precision dimension(ldfjac,n),depend(n) :: fjac
+            integer, optional,check(shape(fjac,0)==ldfjac),depend(fjac) :: ldfjac=shape(fjac,0)
+            integer dimension(n),depend(n) :: ipvt
+            double precision dimension(n),depend(n) :: qtf
+            double precision dimension(n),depend(n) :: wa1
+            double precision dimension(n),depend(n) :: wa2
+            double precision dimension(n),depend(n) :: wa3
+            double precision dimension(m),depend(m) :: wa4
+        end subroutine lmdif
+        function enorm(n,x) ! in :lcmodel:minpack.f
+            integer, optional,check(len(x)>=n),depend(x) :: n=len(x)
+            double precision dimension(n) :: x
+            double precision :: enorm
+        end function enorm
+        function dpmpar(i) ! in :lcmodel:minpack.f
+            integer :: i
+            double precision :: dpmpar
+        end function dpmpar
+        subroutine fdjac2(fcn,m,n,x,fvec,fjac,ldfjac,iflag,epsfcn,wa) ! in :lcmodel:minpack.f
+            use fdjac2__user__routines
+            external fcn
+            integer, optional,check(len(fvec)>=m),depend(fvec) :: m=len(fvec)
+            integer, optional,check(len(x)>=n),depend(x) :: n=len(x)
+            double precision dimension(n) :: x
+            double precision dimension(m) :: fvec
+            double precision dimension(ldfjac,n),depend(n) :: fjac
+            integer, optional,check(shape(fjac,0)==ldfjac),depend(fjac) :: ldfjac=shape(fjac,0)
+            integer :: iflag
+            double precision :: epsfcn
+            double precision dimension(m),depend(m) :: wa
+        end subroutine fdjac2
+        subroutine lmpar(n,r,ldr,ipvt,diag,qtb,delta,par,x,sdiag,wa1,wa2) ! in :lcmodel:minpack.f
+            integer, optional,check(shape(r,1)==n),depend(r) :: n=shape(r,1)
+            double precision dimension(ldr,n) :: r
+            integer, optional,check(shape(r,0)==ldr),depend(r) :: ldr=shape(r,0)
+            integer dimension(n),depend(n) :: ipvt
+            double precision dimension(n),depend(n) :: diag
+            double precision dimension(n),depend(n) :: qtb
+            double precision :: delta
+            double precision :: par
+            double precision dimension(n),depend(n) :: x
+            double precision dimension(n),depend(n) :: sdiag
+            double precision dimension(n),depend(n) :: wa1
+            double precision dimension(n),depend(n) :: wa2
+        end subroutine lmpar
+        subroutine qrfac(m,n,a,lda,pivot,ipvt,lipvt,rdiag,acnorm,wa) ! in :lcmodel:minpack.f
+            integer :: m
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(lda,n) :: a
+            integer, optional,check(shape(a,0)==lda),depend(a) :: lda=shape(a,0)
+            logical :: pivot
+            integer dimension(lipvt) :: ipvt
+            integer, optional,check(len(ipvt)>=lipvt),depend(ipvt) :: lipvt=len(ipvt)
+            double precision dimension(n),depend(n) :: rdiag
+            double precision dimension(n),depend(n) :: acnorm
+            double precision dimension(n),depend(n) :: wa
+        end subroutine qrfac
+        subroutine qrsolv(n,r,ldr,ipvt,diag,qtb,x,sdiag,wa) ! in :lcmodel:minpack.f
+            integer, optional,check(shape(r,1)==n),depend(r) :: n=shape(r,1)
+            double precision dimension(ldr,n) :: r
+            integer, optional,check(shape(r,0)==ldr),depend(r) :: ldr=shape(r,0)
+            integer dimension(n),depend(n) :: ipvt
+            double precision dimension(n),depend(n) :: diag
+            double precision dimension(n),depend(n) :: qtb
+            double precision dimension(n),depend(n) :: x
+            double precision dimension(n),depend(n) :: sdiag
+            double precision dimension(n),depend(n) :: wa
+        end subroutine qrsolv
     end interface 
 end python module lcmodel
 
