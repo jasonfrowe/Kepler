@@ -1,22 +1,21 @@
 subroutine octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,&
- bold,ntmid,tmid)
+ bold,ntmidmax,ntmid,tmid)
 use precision
 implicit none
 integer, dimension(:) :: ntmid
 real(double), dimension(:,:) :: tmid
-integer nbodies,i,j,nintg,np,k
+integer nbodies,i,j,nintg,np,k,ntmidmax
 integer, dimension(:) :: tc
 real(double) :: rstar,RpRs,LU2,b,rt1,rt2,s1,s2,b1,b2,bmin,fourpid3,&
   rhostar,Mstar
 real(double), dimension(:,:) :: xpos,ypos,zpos,told,bold
 real(double), dimension(:) :: sol,opos,tcalc
 !vars for output of timing measurements
-integer :: itprint
+!integer :: itprint
 
-itprint=0 
+!itprint=0 
 
 LU2=LU*LU
-!rstar=(sol(12)/(4.0d0/3.0d0*Pi*sol(1)*1000.0d0)*Mearth)**(1.0d0/3.0d0)
 fourpid3=4.0d0*Pi/3.0d0
 rhostar=abs(sol(1)*1000.0) !mean stellar density (kg/m^3)
 Mstar=abs(sol(12)) !mass of central object (MEarth)
@@ -60,23 +59,25 @@ do i=2,nbodies
                
                b1=bold(i,1)-s1*told(i,1)
                b2=bold(i,5)-s2*told(i,5)
-               ntmid(i)=ntmid(i)+1
-               tmid(i,ntmid(i))=(b2-b1)/(s1-s2) !estimate of mid transit time.
+               if(ntmid(i)+1.le.ntmidmax)then !prevent overflow.
+                  ntmid(i)=ntmid(i)+1
+                  tmid(i,ntmid(i))=(b2-b1)/(s1-s2) !estimate of mid transit time.
+               endif
 !               if(i.eq.2) write(0,*) "tmid:",ntmid(i),tmid(i,ntmid(i))
                
-               if(itprint.eq.1)then
-                  if (i.eq.4) then
-                  !   write(0,501) told(i,1),bold(i,1),b1,bmin
-                  !   write(0,501) told(i,2),bold(i,2)
-                  !   write(0,501) told(i,3),bold(i,3)
-                  !   write(0,501) told(i,4),bold(i,4)
-                  !   write(0,501) told(i,5),bold(i,5),b2,bmin
-                     if (ntmid(i)-1 > 0) then
-                        write(0,501) tmid(i,ntmid(i)),tmid(i,ntmid(i))-tmid(i,ntmid(i)-1)
-                     endif
-                  !   read(5,* )
-                  endif
-               endif
+!               if(itprint.eq.1)then
+!                  if (i.eq.4) then
+!                  !   write(0,501) told(i,1),bold(i,1),b1,bmin
+!                  !   write(0,501) told(i,2),bold(i,2)
+!                  !   write(0,501) told(i,3),bold(i,3)
+!                  !   write(0,501) told(i,4),bold(i,4)
+!                  !   write(0,501) told(i,5),bold(i,5),b2,bmin
+!                     if (ntmid(i)-1 > 0) then
+!                        write(0,501) tmid(i,ntmid(i)),tmid(i,ntmid(i))-tmid(i,ntmid(i)-1)
+!                     endif
+!                  !   read(5,* )
+!                  endif
+!               endif
                501  format(78(1PE13.6,1X))
 
                

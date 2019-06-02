@@ -38,21 +38,20 @@ interface
       real(double), dimension(:) :: sol
       real(double), dimension(:,:) :: serr
    end subroutine readinputsol
-   subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
+   subroutine lcmodel(nbodies,npt,tol,sol,time,itime,ntmidmax,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
       use precision
       implicit none
-      integer :: nbodies
-      integer :: npt,itprint,itmodel,colflag
+      integer :: nbodies,npt,itprint,itmodel,colflag,ntmidmax
       integer, dimension(:) :: ntmid
       real(double) :: tol
       real(double), dimension(:) :: sol,time,itime,percor
       real(double), dimension(:) :: ans
       real(double), dimension(:,:) :: tmid
    end subroutine lcmodel
-   subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint)
+   subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmidmax,ntmid,tmid,percor,colflag,itprint)
       use precision
       implicit none
-      integer :: nbodies,colflag,itprint,npt
+      integer :: nbodies,colflag,itprint,npt,ntmidmax
       real(double) :: tol
       real(double), dimension(:) :: sol,time,percor
       integer, dimension(:) :: ntmid !used with octiming 
@@ -133,13 +132,13 @@ allocate(ans(npt)) !ans contains the model to match the data.
 
 itprint=1 !no output of timing measurements, create percor
 percor=0.0d0 !initialize percor to zero.
-call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
+call lcmodel_pc(nbodies,npt,tol,sol,time,ntmidmax,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
 if (colflag.eq.0) call percorcalc(nbodies,sol,ntmidmax,ntmid,tmid,percor)
 itprint=1 !create output of timing measurements, no percor
-call lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
+call lcmodel_pc(nbodies,npt,tol,sol,time,ntmidmax,ntmid,tmid,percor,colflag,itprint) !generate a LC model.
 itprint=0 !do not create output of timing measurements
 itmodel=1 !calculate a transit model
-call lcmodel(nbodies,npt,tol,sol,time,itime,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
+call lcmodel(nbodies,npt,tol,sol,time,itime,ntmidmax,ntmid,tmid,percor,ans,colflag,itprint,itmodel)
 do i=1,npt
    write(6,501) time(i),flux(i),ans(i)
 enddo

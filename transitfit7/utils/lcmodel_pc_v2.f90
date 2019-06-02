@@ -1,8 +1,8 @@
-subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmid,tmid,percor,colflag,itprint)
+subroutine lcmodel_pc(nbodies,npt,tol,sol,time,ntmidmax,ntmid,tmid,percor,colflag,itprint)
 use precision
 implicit none
 !import vars
-integer :: nbodies,colflag,itprint,npt
+integer :: nbodies,colflag,itprint,npt,ntmidmax
 real(double) :: tol
 real(double), dimension(:) :: sol,time,percor
 integer, dimension(:) :: ntmid !used with octiming 
@@ -267,10 +267,6 @@ do while(t.le.te)
 !      enddo
 !   endif
 
-!    call octiming(nbodies,nintg,xpos,ypos,zpos,sol,opos,tc,tcalc,told,bold,&
-!     ntmid,tmid)
-
-
     maxint=maxintg/86400.0 !default for out of transit sampling [days] 
     !check for transit condition and if so, adjust integration time for timing precision
     !calculate thresholds for a transit to occur
@@ -285,8 +281,10 @@ do while(t.le.te)
             !write(0,*) "hello calc",t
             call calcbmin(j,nbodies,t,sol,tol,nbod,m,x,v,algor,nbig,ngflag,opflag,colflag,&
               opt,stat,rcen,rmax,tstart,jcen,en,am,rphys,rce,rcrit,s,a,hrec,angf,ausr,ttran)
-            ntmid(j)=ntmid(j)+1
-            tmid(j,ntmid(j))=ttran !estimate of mid transit time.
+            if(ntmid(j)+1.le.ntmidmax)then !prevent overflow
+              ntmid(j)=ntmid(j)+1
+              tmid(j,ntmid(j))=ttran !estimate of mid transit time.
+            endif
             !write(0,*) "done calc",j,t,ttran
             !read(5,*)
           endif
