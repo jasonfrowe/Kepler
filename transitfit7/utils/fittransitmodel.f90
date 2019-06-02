@@ -147,7 +147,7 @@ interface
    end subroutine percorcalc
 end interface
 
-!write(0,*) "FCN1"
+write(0,*) "FCN1"
 
 !allocate for percorcal
 allocate(ntmid2(nbodies2),tmid2(nbodies2,ntmidmax2))
@@ -225,7 +225,7 @@ enddo
 
 deallocate(ntmid2,tmid2,sol3,percor)
 
-!write(0,*) "FCN1.. done"
+write(0,*) "FCN1.. done"
 
 return
 end
