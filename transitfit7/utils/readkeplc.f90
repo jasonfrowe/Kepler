@@ -3,10 +3,10 @@ use precision
 implicit none
 integer :: npt,nunit,i,filestatus
 real(double), dimension(:) :: time,flux,ferr,itime
-real(double) :: Keplertime,sec2day
+real(double) :: ztime,sec2day
 character(80) :: photfile
 
-Keplertime=54900.0
+ztime=0.0
 sec2day=86400.0d0
 
 nunit=10
@@ -22,7 +22,7 @@ do
 !   write(0,*) i
    read(nunit,*,iostat=filestatus) time(i),flux(i),ferr(i)
    if(filestatus == 0) then
-      time(i)=time(i)-Keplertime
+      time(i)=time(i)-ztime
       time(i)=time(i)+0.5d0 !MJD half day offset
       flux(i)=flux(i)+1.0!-2.5*log10(mag(i)+1.0d0)
       itime(i)=1765.5/sec2day

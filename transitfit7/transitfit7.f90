@@ -2,7 +2,7 @@ program transitfit7
 use precision
 implicit none
 integer :: iargc,nmax,npt,nbodies,i,np,itprint,itmodel,colflag
-real(double) :: tol
+real(double) :: tol,ztime
 real(double), allocatable, dimension(:) :: time,flux,ferr,itime,sol,ans, &
  Pers,percor
 real(double), allocatable, dimension(:,:) :: serr
@@ -18,13 +18,14 @@ real(double), allocatable, dimension(:,:) :: tmid
 
 !below are all the interfaces to allow dynamic arrays.
 interface
-   subroutine readkeplc(photfile,npt,time,flux,ferr,itime)
+   subroutine readdata2(obsfile,nmax,npt,time,flux,ferr,itime,ztime)
       use precision
       implicit none
-      character(80) :: photfile
-      integer :: npt
+      integer :: nmax,npt
+      real(double) :: ztime
       real(double), dimension(:) :: time,flux,ferr,itime
-   end subroutine readkeplc
+      character(80) :: obsfile
+   end subroutine readdata2
    subroutine calcnbodies(inputsol,nbodies)
       use precision
       implicit none
@@ -95,7 +96,9 @@ endif
 call getarg(1,photfile)  !get filename for photometry
 nmax=200000  !hard-coded maximum number of points to read -- will update
 allocate(time(nmax),flux(nmax),ferr(nmax),itime(nmax)) !allocate photometry
-call readkeplc(photfile,npt,time,flux,ferr,itime) !read in the Kepler phot
+!call readkeplc(photfile,npt,time,flux,ferr,itime) !read in the Kepler phot
+ztime=0.0 !time offset.  Should be nomially set to zero.
+call readdata2(photfile,nmax,npt,time,flux,ferr,itime,ztime)
 write(0,*) "Number of observations read: ",npt !report number of obs
 if(npt.gt.nmax)then
    write(0,*) "Increase nmax to at least: ",npt
@@ -120,10 +123,10 @@ allocate(ntmid(nbodies),tmid(nbodies,ntmidmax))
 ntmid=0
 deallocate(Pers)
 
-write(0,*) "Fitting data"
-call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
-write(0,*) "Exporting fit"
-call exportfit(nbodies,sol,serr)
+!write(0,*) "Fitting data"
+!call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
+!write(0,*) "Exporting fit"
+!call exportfit(nbodies,sol,serr)
 
 !for percorcalc
 allocate(percor(nbodies))
