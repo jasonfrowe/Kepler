@@ -27,20 +27,23 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
       integer i,itmax
-      parameter(itmax=100)
-      double precision Manom,Eanom,Eold,eccn,diff,thres
-      thres=1.0d-8
+      parameter(itmax=20)
+      double precision Manom,Eanom,eccn,f,fp,fpp,delta
 
-      Eold=Eanom
-      Eanom=Manom+eccn*sin(Eanom)
-      diff=abs(1.0d0-Eanom/Eold)
-      Eold=Eanom
-      i=0
-      do while ((diff.gt.thres).and.(i.lt.itmax))
-        Eanom=Manom+eccn*sin(Eanom)
-        diff=abs(1.0d0-Eanom/Eold)
-        Eold=Eanom
-        i=i+1
+      if (eccn .lt. 0.8d0) then
+         Eanom = Manom + eccn * sin(Manom)
+      else
+         Eanom = Manom
+      endif
+
+      do i=1,itmax
+         f = Eanom - eccn*sin(Eanom) - Manom
+         if (abs(f) .lt. 1.0d-13) exit
+         fp = 1.0d0 - eccn*cos(Eanom)
+         fpp = eccn*sin(Eanom)
+         delta = -f / fp
+         delta = -f / (fp + 0.5d0*delta*fpp)
+         Eanom = Eanom + delta
       enddo
 
       return

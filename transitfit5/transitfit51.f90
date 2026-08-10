@@ -140,6 +140,8 @@ if(idump.eq.1)then
 endif
 500 format(5(F17.11,1X),I1)
 
+
+
 chisq=0.0d0
 !$OMP PARALLEL DO REDUCTION(+:chisq)
 do i=1,npta

@@ -100,11 +100,10 @@ real(double) :: x(n),fvec(m)
 !local vars
 integer :: i,j,nfit
 real(double) :: y,yy,drho,rhoin(9),yp,dsig,c1,c2,c3,c4
-real(double), allocatable, dimension(:) :: sol
+real(double) :: sol(nfit2)
 data rhoin/-1.0d2,-3.0d0,-2.0d0,-1.0d0,0.0d0,1.0d0,2.0d0,3.0d0,1.0d2/
 
 nfit=nfit2
-allocate(sol(nfit))
 sol(1:nfit)=sol2(1:nfit)
 
 j=0

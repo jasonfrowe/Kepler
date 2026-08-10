@@ -18,7 +18,9 @@ C     (c) jasonfrowe@gmail.com
      .  albedomod,phase,ratio,ab,tm,mu(nintg),y2,x2,incl,mulimbf(nintg),
      .  occ(nintg),bp(nintg),jm1,tdnintg
       integer ntt(nplanetmax)
-      double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax),ttcor
+      double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax),ttcor,
+     .  tmid,phim,Manom_mid,Eanom_mid,Tanom_mid,drs_mid,x2_mid,y2_mid,
+     .  b_mid,margin
       
       Pi=acos(-1.d0)!define Pi and 2*Pi
       tPi=2.0d0*Pi 
@@ -113,11 +115,39 @@ C       added 2019/08/14
 !Add parallel commands here
         !write(6,*) 'Number of threads',OMP_GET_NUM_THREADS()
 !$OMP PARALLEL DO PRIVATE(j,jm1,ttcor,tflux,t,phi,Manom,Tanom,drs,
-!$OMP& x2,y2,bt,vt,tide,alb,caltran,mu,tm,bp,ratio,occ) 
+!$OMP& x2,y2,bt,vt,tide,alb,caltran,mu,tm,bp,ratio,occ,
+!$OMP& tmid,phim,Manom_mid,Eanom_mid,Tanom_mid,drs_mid,x2_mid,y2_mid,
+!$OMP& b_mid,margin) 
 !$OMP& FIRSTPRIVATE (Eanom,c1,c2,c3,c4)
         do i=1,npt
             call lininterp(tobs,omc,nplanetmax,nmax,ii,ntt,time(i),
      .          ttcor)
+
+            ! Fast Out-of-Transit Bounding Filter
+            tmid=time(i)-epoch-ttcor
+            phim=tmid/per-floor(tmid/per)
+            phim=phim*tPi+phi0
+            Manom_mid=phim
+            if(Manom_mid.gt.tPi) Manom_mid=Manom_mid-tPi
+            if(Manom_mid.lt.0.0d0) Manom_mid=Manom_mid+tPi
+            call kepler(Manom_mid,Eanom_mid,eccn)
+            Tanom_mid=trueanomaly(eccn,Eanom_mid)
+            drs_mid=distance(adrs,eccn,Tanom_mid)
+            x2_mid=drs_mid*Sin(Tanom_mid-w)
+            y2_mid=drs_mid*Cos(Tanom_mid-w)*cos(incl)
+            b_mid=sqrt(x2_mid*x2_mid+y2_mid*y2_mid)
+
+            margin=0.40d0+3.5d0*Pi*adrs/per*itime(i)*(1.0d0+eccn)/
+     .             (1.0d0-eccn)
+
+            if(b_mid.gt.1.0d0+RpRs+margin)then
+               if(dtype(i).eq.0)then
+                  if((ell.eq.0.0d0).and.(ag.eq.0.0d0).and.
+     .               (ted.eq.0.0d0).and.(fDB.eq.0.0d0))then
+                     goto 1189
+                  endif
+               endif
+            endif
 c            write(0,*) ii,time(i),ttcor
 c            read(5,*)
             do 11 j=1,nintg
@@ -290,6 +320,7 @@ c            write(0,*) "rv:",tmodel(i)
 c            read(5,*)
             endif
             tmodel(i)=tmodel(i)+tm
+ 1189       continue
         enddo
 !$OMP END PARALLEL DO
  
