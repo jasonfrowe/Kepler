@@ -357,6 +357,7 @@ C       if(abs(YYalpfe-0.3d0).le.0.1d0)FeH0=FeH-FeHa2
 C       if(abs(YYalpfe-0.6d0).le.0.1d0)FeH0=FeH-FeHa4
       ZovX=(10.0d0**FeH0)*Zsun/Xsun
       Z=ZovX*(1.0d0+dydz*zp-yp)/(1.0d0+ZovX*(1.0d0+dydz))
+      write(0,*) 'Z: ',Z
       return
       end
       

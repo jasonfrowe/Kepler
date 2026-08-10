@@ -8,7 +8,7 @@ real(double), dimension(:) :: sol,time,percor
 integer, dimension(:) :: ntmid !used with octiming 
 real(double), dimension(:,:) :: tmid !used with octiming
 !local vars
-integer :: nintg,nbod,neq,i,j,nT0
+integer :: nintg,nbod,neq,i,j,nT0,cflag
 integer, allocatable, dimension(:) :: tflag
 real(double) :: eps,epoch,t,ts,te,tout,ttran
 integer, allocatable, dimension(:) :: tc
@@ -182,6 +182,7 @@ am=0 !angular momentums
 stat=0 !0-alive,1-to be removed
 opflag=0 !integration mode
 colflag=0 !collision flag.  0 means no collision
+cflag=0
 
 maxint=maxintg/86400.0 !default for out of transit sampling [days] 
 !check for transit condition and if so, adjust integration time for timing precision
@@ -232,10 +233,14 @@ do while(t.le.te)
 
        call mdt_hy (t,tstart,h0,tol,rmax,en,am,jcen,rcen,nbod,           &
         nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
-        ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
+        ngflag,opflag,cflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
         a,hrec,angf,ausr)
-    if(colflag.ne.0)then
-        write(0,*) "Close encounter, stopping integration"
+    if(cflag.ne.0)then
+        colflag = 1
+        !there is a bug in f2py that prevents colflag from being returned, borrowing percor until then
+        percor(1) = 1.0e30 
+        percor(2) = t
+        !write(0,*) "Close encounter, stopping integration",colflag
 !        if(iplot.eq.1) call pgclos()
         return
     endif
@@ -279,7 +284,7 @@ do while(t.le.te)
             !we are close to transit, so call b-min code
             tflag(j)=1 !flag transit condition until past T4.
             !write(0,*) "hello calc",t
-            call calcbmin(j,nbodies,t,sol,tol,nbod,m,x,v,algor,nbig,ngflag,opflag,colflag,&
+            call calcbmin(j,nbodies,t,sol,tol,nbod,m,x,v,algor,nbig,ngflag,opflag,cflag,&
               opt,stat,rcen,rmax,tstart,jcen,en,am,rphys,rce,rcrit,s,a,hrec,angf,ausr,ttran)
             if(ntmid(j)+1.le.ntmidmax)then !prevent overflow
               ntmid(j)=ntmid(j)+1

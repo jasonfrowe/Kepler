@@ -121,12 +121,12 @@ do i=2,nbodies
    if(sol(np+5).ne.0.0d0)then
       solout(npout+6)=sol(np+5)  !ecosw
    else
-      solout(npout+6)=1.0d-2
+      solout(npout+6)=1.0d-3
    endif
    if(sol(np+6).ne.0.0d0)then
       solout(npout+7)=sol(np+6)  !esinw
    else
-      solout(npout+7)=1.0d-2
+      solout(npout+7)=1.0d-3
    endif
    do j=1,7
       serr(npout+j,2)=-1.0d0

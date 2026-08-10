@@ -1,0 +1,48 @@
+# Build output and object files
+*.o
+*.mod
+*.a
+*.so
+*.dylib
+*.dll
+*__genmod.f90
+*__genmod.mod
+
+# Binary directories and executables
+bin/
+build/
+
+# macOS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor and IDE configurations
+*.swp
+*~
+*.bak
+*.orig
+.vscode/
+.idea/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.ipynb_checkpoints/
+
+# Autotools and configure temporary files
+config.log
+config.status
+autom4te.cache/
+
+# Archives and package files
+*.tgz
+*.tar.gz
+*.zip
+
+# Data and plot temporary files
+*.ps
+*.png
+*.pdf
+koi*.tt

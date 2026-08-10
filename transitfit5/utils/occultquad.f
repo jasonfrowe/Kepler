@@ -161,8 +161,13 @@ C Equation 25:
      *THIRD=1.d0/3.d0,C1=.3d0,C2=1.d0/7.d0,C3=.375d0,C4=9.d0/22.d0)
       REAL*8 alamb,ave,s,w,xt,yt
       if(x.lt.0..or.y.eq.0..or.(x+abs(y)).lt.TINY.or.(x+
-     *abs(y)).gt.BIG.or.(y.lt.-COMP1.and.x.gt.0..and.x.lt.COMP2))pause 
-     *'invalid arguments in rc'
+     *abs(y)).gt.BIG.or.(y.lt.-COMP1.and.x.gt.0..and.x.lt.COMP2))then
+        write(0,*) 'invalid arguments in rc'
+        rc=0.0
+        return
+      endif 
+c      pause 
+c     *'invalid arguments in rc'
       if(y.gt.0.d0)then
         xt=x
         yt=y
@@ -195,7 +200,9 @@ CU    USES rc,rf
       if(min(x,y,z).lt.0..or.min(x+y,x+z,y+z,abs(p)).lt.TINY.or.max(x,y,
      *z,abs(p)).gt.BIG)then
          write(0,*) x,y,z,abs(p)
-         pause 'invalid arguments in rj'
+         write(0,*) 'invalid arguments in rj'
+         rj=0.0
+         return
       endif
       sum=0.d0
       fac=1.d0
@@ -295,7 +302,10 @@ C integral of the first kind (Hasting's approximation):
      *C1=1.d0/24.d0,C2=.1d0,C3=3.d0/44.d0,C4=1.d0/14.d0)
       REAL*8 alamb,ave,delx,dely,delz,e2,e3,sqrtx,sqrty,sqrtz,xt,yt,zt
       if(min(x,y,z).lt.0.d0.or.min(x+y,x+z,y+z).lt.TINY.or.max(x,y,
-     *z).gt.BIG)pause 'invalid arguments in rf'
+     *z).gt.BIG)then
+        write(0,*) 'invalid arguments in rf'
+        rf=0.0
+      endif
       xt=x
       yt=y
       zt=z

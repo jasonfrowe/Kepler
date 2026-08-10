@@ -1,3 +1,53 @@
+program dataclip
+use precision
+implicit none
+integer iargc,nunit,npt,nmax,i
+real(double) :: ztime
+real(double), allocatable, dimension(:) :: time,flux,ferr,itime
+character(80) :: obsfile
+
+interface
+   subroutine readdata2(obsfile,nmax,npt,time,flux,ferr,itime,ztime)
+      use precision
+      implicit none
+      integer :: nmax,npt
+      real(double) :: ztime
+      real(double), dimension(:) :: time,flux,ferr,itime
+      character(80) :: obsfile
+   end subroutine readdata2
+   subroutine cutoutliers(npt,x,y,yerr,itime)
+      use precision
+      implicit none
+      integer :: npt
+      real(double), dimension(:) :: x,y,yerr,itime
+   end subroutine cutoutliers
+end interface
+
+
+if(iargc().lt.1)then
+   write(6,*) "Usage: dataclip <photfile>"                                     
+   stop
+endif
+
+!maximum number of data points
+nmax=2000000
+
+call getarg(1,obsfile)
+allocate(time(nmax),flux(nmax),ferr(nmax),itime(nmax))
+ztime=54900.0
+call readdata2(obsfile,nmax,npt,time,flux,ferr,itime,ztime)                                                    
+write(0,*) "Number of data points read: ",npt
+
+call cutoutliers(npt,time,flux,ferr,itime)
+
+!dump clipped data to stdout
+do i=1,npt
+   write(6,500) time(i)-0.5d0+ztime,flux(i)-1.0d0,ferr(i)!,itime(i)                                       
+enddo
+500 format(F17.11,1X,F17.11,1X,F17.11,1X,F17.11)
+
+end program dataclip
+
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 subroutine readdata2(obsfile,nmax,npt,time,flux,ferr,itime,ztime)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC

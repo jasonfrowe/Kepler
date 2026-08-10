@@ -87,17 +87,19 @@ do i=1,npt
     else
         offset(i)=Sum(y(1:npt2))/dble(npt2) !fall back to simple mean if too few points
     endif
+    !write(0,*) "Debug:: ",offset(i),i
 enddo
 !$OMP END PARALLEL DO
 
 write(0,*) "npt: ",npt
-!$OMP PARALLEL DO
+! !$OMP PARALLEL DO
 do i=1,npt
 	time(i)=tsort(i)
 	flux(i)=fsort(i)-offset(i)
 	ferr(i)=ferr(i)
+	write(0,*) "debug: ",offset(i),fsort(i),flux(i)
 enddo
-!$OMP END PARALLEL DO
+! !$OMP END PARALLEL DO
 
 return
 end

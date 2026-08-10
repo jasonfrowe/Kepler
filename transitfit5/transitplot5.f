@@ -177,6 +177,7 @@ C     Plot the binned observations
         npt2=k
 
         bins=int(sol(10*(i-1)+8+2)*1440.0d0/30.0d0)
+        bins=min(600000,bins) !Avoids segfault in binp for max bins
         call binp(npt2,phase2,flux2,ferr2,bins,flag)
         j=0
         do 21 iii=1,npt2
@@ -211,7 +212,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             tobs2(1,j)=tobs(i,j)
             omc2(1,j)=omc(i,j)
  23     continue
-        
+
         call lininterp(tobs2,omc2,nplanetmax,nmax,1,ntt2,sol2(9+col),
      .        ttcor)
 C       We reverse correct transit-time to match model

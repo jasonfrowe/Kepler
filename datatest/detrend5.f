@@ -9,7 +9,7 @@ C     (c) Jason Rowe (2010) jasonfrowe@gmail.com
      .  rmavg,t(nmax),f(nmax),fe(nmax),sol(nfit),serr(nfit,2),
      .  Dpvary(nfit),err(nfit),doe,toff,eoff,phase(nmax),x(nmax),
      .  y(nmax),z(nmax),gaps(nmax),offset(nmax),work(nmax),
-     .  tobs(nplanetmax,nmax),omc(nplanetmax,nmax)
+     .  tobs(nplanetmax,nmax),omc(nplanetmax,nmax),itime(nmax)
       character*80 filename,cline,inputsol,ttfile
       
       if(iargc().lt.3) goto 901
@@ -22,7 +22,7 @@ C     (c) Jason Rowe (2010) jasonfrowe@gmail.com
             
       nunit=10
       open(unit=nunit,file=filename,status='old',err=902)
-      call readkeplc(nunit,nmax,npt,time,flux,ferr)
+      call readkeplc(nunit,nmax,npt,time,flux,ferr,itime)
       close(nunit)
       if(npt.eq.0) goto 999
       
@@ -88,13 +88,14 @@ c 12   continue
  9      do 10 i=1,npt
 c            if(tflag(i).eq.0) write(6,*) time(i)-0.5d0+54900.0d0,
 c     .          flux(i),ferr(i)
-            write(6,*) time(i)-0.5d0+54900.0d0,
-     .          flux(i),ferr(i)
+            write(6,502) time(i)-0.5d0+54900.0d0,
+     .          flux(i),ferr(i),itime(i)
  10     continue
       else
         call boxfilter(npt,time,flux,ferr,ts,ngap,gaps,tflag,x,y,z,
      .      boxbin,nx)
       endif
+ 502  format(4(F17.11,1X))
       
       
       goto 999
@@ -248,26 +249,42 @@ C        make sure phase is between 0 and 1
       end
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine readkeplc(nunit,nmax,npt,dtime,flux,ferr)
+      subroutine readkeplc(nunit,nmax,npt,dtime,flux,ferr,itime)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
       integer nunit,nmax,npt,i
-      double precision dtime(nmax),flux(nmax),ferr(nmax),Keplertime
+      double precision dtime(nmax),flux(nmax),ferr(nmax),Keplertime,
+     .  itime(nmax),t,f,e,it,sec2day,min2day
+      character(20) :: zeros
+      character(400) :: line
 
-      Keplertime=54900.0d0
+      sec2day=86400.0d0 !number of seconds in a day
+      min2day=24.0*60.0 !number of minutes in a day
+      Keplertime=54900.0
+      write(zeros, '(*(I2))') (0, i=1, 4) !write a bunch of zeros
 
-      i=1
-      
+      i=0
   9   continue
- 10   read(nunit,*,err=9,end=20) dtime(i),flux(i),ferr(i)
-         dtime(i)=dtime(i)+0.5d0-Keplertime
-c        mag(i)=-2.5*log10(mag(i)+1.0d0)
-c        ferr(i)=0.00005
-        i=i+1
+c 10   read(nunit,*,err=9,end=20) dtime(i),flux(i),ferr(i)
+  10  read(nunit,'(A)',err=9,end=20) line
+         line=trim(line) // zeros  !trick to always read in at least 4 columns.
+         read(line,*,err=9) t,f,e,it
+         i=i+1
+         dtime(i)=t-Keplertime+0.50d0
+         flux(i)=f
+         ferr(i)=e
+         if ((it.lt.1.0d-7).and.(it.gt.-1.0d-7)) then
+            itime(i)=1765.5/sec2day !long cadence
+         elseif (it.lt.0.0) then
+            itime(i)=58.85/sec2day !short cadence
+         else
+            itime(i)=it/sec2day !itime is expected to be in minutes when read in, convert to days.
+         endif       
+
       goto 10
  20   continue
         
-      npt=i-1
+      npt=i
       write(0,*)   "-------------------------"
       write(0,500) "Observations read: ",npt
       write(0,*)   "-------------------------"
@@ -275,6 +292,7 @@ c        ferr(i)=0.00005
  
       return
       end
+
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine getfitpars(nunit,nfit,nplanet,sol,serr,err)

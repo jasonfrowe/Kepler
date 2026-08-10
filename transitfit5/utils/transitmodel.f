@@ -5,6 +5,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C     My Transit-model.  Handles multi-planets, TTVs, phase-curves and
 C     radial-velocities
 C     (c) jasonfrowe@gmail.com
+      USE OMP_LIB
       implicit none
       integer nfit,npt,i,j,nintg,dtype(npt),ii,nplanet,nplanetmax,nmax,
      .   caltran
@@ -83,7 +84,7 @@ c        adrs=sol(5)*per/tpi*sqrt(1-sol(3))*(1+sol(8))/sqrt(1-eccn*eccn)
 c        write(0,*) "a/R*:",adrs
 
 C       Find inclination !hmm.. this is probably wrong
-        incl=acos(b/adrs)
+c        incl=acos(b/adrs)
 
 
 c        K=abs(sol(10*(ii-1)+8+7))
@@ -103,10 +104,15 @@ c        phi1=(epoch/per-int(epoch/per))*twopi
         Eanom=tan(w/2.0d0)/sqrt((1.0d0+eccn)/(1.0d0-eccn)) !mean anomaly
         Eanom=2.0d0*atan(Eanom)
         phi0=Eanom-eccn*sin(Eanom)
+C       added 2019/08/14
+        Tanom=trueanomaly(eccn,Eanom)
+        drs=distance(adrs,eccn,Tanom)
+        incl=acos(b/drs)
       
 
 !Add parallel commands here
-!$OMP PARALLEL DO PRIVATE(j,jm1,ttcor,tflux,t,phi,Manom,Tanom,drs,incl,
+        !write(6,*) 'Number of threads',OMP_GET_NUM_THREADS()
+!$OMP PARALLEL DO PRIVATE(j,jm1,ttcor,tflux,t,phi,Manom,Tanom,drs,
 !$OMP& x2,y2,bt,vt,tide,alb,caltran,mu,tm,bp,ratio,occ) 
 !$OMP& FIRSTPRIVATE (Eanom,c1,c2,c3,c4)
         do i=1,npt
@@ -128,6 +134,7 @@ c     .              epoch-ttcor
 !              new time-convolution (basically gives same results)
                 t=time(i)-itime(i)*(0.5d0-1.0d0/tdnintg-jm1/dnintg)-
      .              epoch-ttcor
+C                write(0,*) t
      
 c                write(0,*) itime(i)
 C               get orbital position (mean anomaly)
@@ -141,7 +148,7 @@ C               get orbital position (mean anomaly)
                 if(phi.gt.Pi) phi=phi-tPi            
                 drs=distance(adrs,eccn,Tanom)
 C              Added this (2014/04/23)
-                incl=acos(b/drs)
+c                incl=acos(b/drs)
                 x2=drs*Sin(Tanom-w)
                 y2=drs*Cos(Tanom-w)*cos(incl)
 
@@ -151,6 +158,7 @@ c                y2=drs*Sin(Tanom+w)*cos(incl)
 
 c                bt(j)=sqrt(bs2+(drs*sin(Tanom-w))**2)
                 bt(j)=sqrt(x2*x2+y2*y2)
+c                write(0,*) t,x2,y2
 C               Correct for light-travel time!
 c            if((abs(bt(j))-RpRs.le.1.0d0).and.(abs(phi).gt.Pid2))then
 c              t=time(i)-ltt+itime(i)*(2.0*dble(j)-dnintg-1.0)/dnintgm1
@@ -218,6 +226,8 @@ c                         read(5,*)
                           c2=0.0d0
                        else
                       !non-linear law.
+c                          call occultnlbm(RpRs,c1,c2,c3,c4,bt,tflux,
+c     .                                    nintg)
                        call occultsmall(RpRs,c1,c2,c3,c4,nintg,bt,tflux)
 c                         call occultnl(RpRs,c1,c2,c3,c4,bt,tflux,
 c     .                     mulimbf,nintg)
@@ -225,6 +235,10 @@ c                         write(0,*) RpRs,abs(sol(10*(ii-1)+8+4))
 c                         write(6,550) RpRs,(bt(j),tflux(j),j=1,nintg)
  550                     format(30(F8.5,1X))
                        endif
+                       !do j=1,nintg
+                       !  write(0,*) bt(j),tflux(j)
+                       !enddo
+                       !read(5,*)
                     else
                         do 19 j=1,nintg
                            tflux(j)=1.0d0

@@ -387,7 +387,7 @@ C           j=planet parameters*(np-1)+8 initial parameters
             j=10*(np-1)+8+10
             read(command(5:160),*) sol(j),serr(j,1),serr(j,2),err(j)
         endif
- 501    format(A5,5(1X,PE17.10))
+ 501    format(A5,5(1X,1PE17.10))
 c        write(0,*) command
       goto 10 !loop back to read statement
  11   continue !end loop when EOF is reached

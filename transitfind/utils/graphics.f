@@ -1,4 +1,51 @@
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine plottrans2(n,x,y,per,phase,tdur)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      implicit none
+      integer i,n
+      real bb(4),px,py
+      double precision x(n),y(n),per,phase,tdur,qtran
+
+      qtran=tdur/per
+
+
+
+      call pgvport(0.5,0.95,0.2,0.8) !gives enough room for labels
+
+      bb(1)=real(max(0.5-2.0*qtran,0.0))
+      bb(2)=real(min(0.5+2.0*qtran,1.0))
+      bb(3)=y(1)
+      bb(4)=y(1)
+      do 10 i=1,n
+        bb(3)=min(bb(3),y(i))
+        bb(4)=max(bb(4),y(i))
+ 10   continue
+
+      call pgwindow(bb(1),bb(2),bb(3),bb(4))
+c      call pgbox('BNTS1',0.0,0,'BCNTSV1',0.0,0)
+      call pgptxt(bb(1)-0.15*(bb(2)-bb(1)),(bb(3)+bb(4))/2.0,90.0,0.5,
+     .   "flux")
+      call pgptxt((bb(2)+bb(1))/2.0,bb(3)-0.25*(bb(4)-bb(3)), 0.0,0.5,
+     .   "phase (hours)")
+
+      call pgbbuf()
+      do 30 i=1,n
+        px=real(x(i)/per-int(x(i)/per)-phase+0.5)
+        if(px.lt.0.0)px=px+1
+        if(px.gt.1.0)px=px-1
+        py=real(y(i))
+        call pgpt1(px,py,1)
+ 30   continue
+      call pgebuf()
+
+      call pgwindow(real(-48.0*qtran*per),real(48.0*qtran*per),
+     .   bb(3),bb(4))
+      call pgbox('BNTS1',0.0,0,'BCNTSV1',0.0,0)
+
+      return
+      end
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine plottrans(n,x,y,per,phase,qtran)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
@@ -39,6 +86,7 @@ c      call pgbox('BNTS1',0.0,0,'BCNTSV1',0.0,0)
 
       return
       end
+
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine plotph(n,x,y,per,phase)

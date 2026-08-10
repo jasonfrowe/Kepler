@@ -4,7 +4,7 @@ CCMPL = gcc
 F77 = ifort
 F90 = ifort
 #compiling object file flags
-OPT1 = -O3 -fast -parallel -ipo -no-prec-div
+OPT1 = -O3 -parallel -mkl
 OPT2 = 
 FFLAGS = -c $(OPT1) $(OPT2)
 #FFLAGS = -c -O0 -g -CB -warn $(OPT2)
@@ -20,12 +20,12 @@ PGPLOTDIR = /usr/local/lib
 #X11 libraries
 X11DIR = /usr/X11R6/lib
 # libraries for linking PGPLOT
-LIBS = -L$(PGPLOTDIR) -L$(X11DIR) -lX11 -lpgplot -lpng
+LIBS = -L$(PGPLOTDIR) -L$(X11DIR) -lX11 -lpgplot -lpng -lgfortran
 # libraries for linking CFITSIO
 LIBS2 = -L$(PGPLOTDIR) -L$(X11DIR) -L$(FITSIODIR) -lX11 -lpgplot -lcfitsio -lpng
 #Directory where executable are placed
-BIN = /Users/rowe/Documents/smodels/YY/
-BINISO = /Users/rowe/Documents/smodels/dartmouth/
+BIN = /data/rowe/Kepler/smodels/YY/
+BINISO = /data/rowe/Kepler/smodels/dartmouth/
 #utils source directory
 UTILS = utils/
 

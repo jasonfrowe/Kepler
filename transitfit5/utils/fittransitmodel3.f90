@@ -67,7 +67,7 @@ rhoierr2 => rhoierr
 
 !call fitter
 call lmdif1(fcn,m,n,solin,fvec,tol,info,iwa,wa,lwa)
-write(0,*) "info: ",info
+!write(0,*) "info: ",info
 
 n=0
 do i=1,nfit

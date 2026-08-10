@@ -131,7 +131,8 @@ C     number of seconds in a day
         flux(i)=flux(i)+1.0!-2.5*log10(mag(i)+1.0d0)
 c        ferr(i)=0.00005
         if ((it.lt.1.0d-7).and.(it.gt.-1.0d-7)) then
-          itime(i)=1765.5/sec2day
+          !itime(i)=1765.5/sec2day
+          itime(i)=1764.944/sec2day
         elseif (it.lt.0.0) then
           itime(i)=58.85/sec2day !short cadence
         else

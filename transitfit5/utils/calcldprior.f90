@@ -44,10 +44,10 @@ nunit=10
 !First see if file in current working directory.
 open(unit=nunit,file=filename,iostat=filestatus,status='old')
 !If not, then try workdir
-if(filestatus>0) open(unit=nunit,file=filename,iostat=filestatus,status='old')
+if(filestatus>0) open(unit=nunit,file=trim(workdir)//trim(filename),iostat=filestatus,status='old')
 !if we still can't find the find, then we spit out an erro
 if(filestatus>0)then !trap missing file errors
-   write(0,'(A12,A80)') "Cannot open ",filename
+   write(0,'(A12,A80)') "Cannot open ",trim(workdir)//trim(filename)
    write(0,'(A13,A80)') " tried . and ",workdir
    stop
 endif
@@ -55,39 +55,39 @@ endif
 !read in Table
 allocate(pars1(4),cin1(2))
 do i=1,nteff
-	do j=1,nlogg
-		do k=1,nfeh
-			ldparsin(i,j,k)%c=-10.0 !give bad values as default.
-		enddo
-	enddo
+        do j=1,nlogg
+                do k=1,nfeh
+                        ldparsin(i,j,k)%c=-10.0 !give bad values as default.
+                enddo
+        enddo
 enddo
 
 do i=1,13
-	read(nunit,*) dumc !skip header
+        read(nunit,*) dumc !skip header
 enddo
 
 i=0
 do
-   	read(nunit,*,iostat=filestatus) (pars1(j),j=1,4),(cin1(j),i=1,2)
-	if(filestatus == 0) then
+   read(nunit,*,iostat=filestatus) (pars1(j),j=1,4),(cin1(j),i=1,2)
+     if(filestatus == 0) then
 
-      	!find index to fill in limb-darkening results.
+     !find index to fill in limb-darkening results.
 
-      	call locate(teffs,nteff,pars1(2),nt)
-      	call locate(loggs,nlogg,pars1(1),nl)
-      	call locate(fehs,nfeh,pars1(3),nf)
+      call locate(teffs,nteff,pars1(2),nt)
+      call locate(loggs,nlogg,pars1(1),nl)
+      call locate(fehs,nfeh,pars1(3),nf)
 
         ldparsin(nt,nl,nf)%pars(1:4)=pars1(1:4)
         ldparsin(nt,nl,nf)%c(1:2)=cin1(1:2)
 
-   	elseif(filestatus == -1) then
-      	exit  !successively break from data read loop.
-   	else
-      	write(0,*) "File Error!! Line:",i+1
-      	write(0,900) "iostat: ",filestatus
-      	900 format(A8,I3)
-      	stop
-   	endif
+   elseif(filestatus == -1) then
+      exit  !successively break from data read loop.
+   else
+      write(0,*) "File Error!! Line:",i+1
+      write(0,900) "iostat: ",filestatus
+      900 format(A8,I3)
+      stop
+   endif
 enddo
 close(nunit) !close file
 
@@ -99,11 +99,11 @@ call locate(fehs,nfeh,feh,fehidx)
 !calculate min/max bracketing indices.
 !taking edges into account
 if(teffidx.ge.nteff)then
-	tidx(1)=nteff-1
-	tidx(2)=nteff
+        tidx(1)=nteff-1
+        tidx(2)=nteff
 else
-	tidx(1)=teffidx
-	tidx(2)=teffidx
+        tidx(1)=teffidx
+        tidx(2)=teffidx
 endif
 if(loggidx.ge.nlogg)then
 	lidx(1)=nlogg-1

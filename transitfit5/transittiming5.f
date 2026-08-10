@@ -10,7 +10,7 @@
      .  aM(nmax),aE(nmax),aIT(nmax),tdur,transitdur,Tmin,Tmax,T0,
      .  tobs(nplanetmax,nmax),omc(nplanetmax,nmax),ttcor,ttold,
      .  tcor(nmax),Ts,Te,Ts2,Te2,sol2(nfit),dchistop,ttold2,
-     .  covar(nfit,nfit),alpha(nfit,nfit),tdurout,tdurerr
+     .  covar(nfit,nfit),alpha(nfit,nfit),tdurout,tdurerr,dtold
       character*80 obsfile,cline,rvfile,inputsol
       common /Fitting/ npta,nplanet,aIT,ntt,tobs,omc
 
@@ -115,20 +115,21 @@ c      read(5,*)
       endif
 
       ttold=0.0 !use timing offset from previous measurement
+c      ttold=+0.268
 c      ttold=-0.2
-c      ttold=1.5
+      dtold=0.0d0
 
       do while(T0.lt.Tmax)
 c         if(T0.gt.1340.0) ttold=-0.01*sol(2)
 c         if(T0.gt.1470.0) ttold=-0.02*sol(2)
-c        if((T0.gt.300.0).and.(T0.lt.400.0)) ttold=0.1
+c KOI8327        if((T0.gt.800.0).and.(T0.lt.900.0)) ttold=0.621
 c         write(6,*) "ttold ",ttold
 c        write(0,*) T0
 C     Section of data we want to fit:
-        Ts=T0-2.0*tdur+ttold
-        Te=T0+2.0*tdur+ttold
-        Ts2=T0-0.5*tdur+ttold
-        Te2=T0+0.5*tdur+ttold
+        Ts=T0-2.0*tdur+ttold+dtold
+        Te=T0+2.0*tdur+ttold+dtold
+        Ts2=T0-0.5*tdur+ttold-0.021+dtold !add 30-mins
+        Te2=T0+0.5*tdur+ttold+0.021+dtold
 
 C       We only fit the epoch
         do 12 i=1,nfit
@@ -141,7 +142,7 @@ C       Copy all-fit solution
         do 13 i=1,nfit
             sol2(i)=sol(i)
  13     continue
-        sol2(9)=sol(9)+ttold
+        sol2(9)=sol(9)+ttold+dtold
 
 C     Store all the observations in the master file
         j=0
@@ -159,22 +160,25 @@ C     Store all the observations in the master file
  17     continue
         npta=j
 
-        if(k.ge.4)then
-            write(0,*) "k:",k
+        if(k.ge.3)then
+            write(0,*) "k:",k,T0
             dchistop=1.0d-10
 c            call fittransitmodel(npta,aT,aM,aE,dtype,nfit,sol2,serr,ia,
 c     .          covar,alpha,dchistop,err)
             call fittransitmodel(npta,aT,aM,aE,dtype,nfit,nplanet,sol2,
      .         serr,ia,covar,alpha,dchistop,err)
+           
+            dtold=ttold 
             ttold2=sol2(9)-sol(9)-ttold
             ttold=sol2(9)-sol(9)
+            dtold=ttold-dtold
 
 !           estimating transit durations
 c            tdurout=transitdur(nfit,sol2,np)
 c            sol2(11)=sol2(11)+err(11)
 c            tdurerr=abs(transitdur(nfit,sol2,np)-tdurout)
 
-            write(6,500) T0,sol2(9)-sol(9),err(9)
+            write(6,500) T0,sol2(9)-sol(9),err(9)!,ttold,dtold
 c            write(6,500) T0,sol2(9)-sol(9),err(9),tdurout/
 c     .         8.64d4,tdurerr/8.64d4
  500  format(19(1X,1PE17.10))
@@ -182,7 +186,10 @@ c     .         8.64d4,tdurerr/8.64d4
             ttold=ttold+ttold2
         endif
 
-        if(flag.eq.0) ttold=0.0d0  !check if we are using predictive
+        if(flag.eq.0) then 
+           ttold=0.0d0  !check if we are using predictive
+           dtold=0.0d0
+        endif
         T0=T0+sol(10)
 
 

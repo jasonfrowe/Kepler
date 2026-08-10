@@ -169,11 +169,12 @@ c        ferr(i)=0.00005
       end
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine getfitpars(nunit,nfit,sol,serr,Dpvary,err,doe,toff)
+      subroutine getfitpars(nunit,nfit,sol,serr,Dpvary,err,doe,toff,
+     .                      eoff)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
       integer nfit,nunit,i
-      double precision sol(nfit),serr(nfit,2),Dpvary(nfit),toff,
+      double precision sol(nfit),serr(nfit,2),Dpvary(nfit),toff,eoff,
      .  err(nfit),doe
       character*160 command
       

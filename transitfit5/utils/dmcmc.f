@@ -20,7 +20,7 @@ C     Jason Rowe - jasonfrowe@gmail.com
      .  corscale,acorsub,gscale(nfitm),gcorsub,gratio(nfitm),echeck,b,
      .  perprior(2),epoprior(2),chiold,eccn,ecw,esw,w,pi,tpi,rdr
       integer nfrho
-      double precision rhoi,rhoierr(9),rhoin(9),dsig,drho
+      double precision rhoi,rhoierr(9),rhoin(9),dsig,drho,rhostar
       character*80 cout 
       integer nplanetmax,nmax,ntt(nplanetmax)
       double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax)
@@ -145,6 +145,9 @@ c        write(0,*) aM(i),tmodel(i)
  12   continue
       !$OMP END PARALLEL DO
       chi2=chi2*bchi
+
+c      chi1=npta !testing  MCMC distributions 
+c      chi2=npta
  
       if(nfrho.eq.0)then  !if nfrho=0, then we are fitting rho_*
         drho=1.0d3*sol2(1)-rhoi  !the 10^3 makes sol2(1) kg/m^3
@@ -161,11 +164,17 @@ C     if b>1
          b=sol2(11+10*(i-1))
          rdr=sol2(12+10*(i-1))
          if( (b.gt.1.0).and.(rdr.gt.0.0)) then
-            chi2=chi2+log(1.d0+rdr*(b-1.0)/1.0d0)*0.5d0
+            chi2=chi2+b*b
          endif
  28   continue
 
-
+C     prior for Eric Ford
+c      do i=1,nplanet
+c        b=sol2(11+10*(i-1))
+c        rdr=sol2(12+10*(i-1))
+c        rhostar=sol2(1)
+c        chi2=chi2+rhostar*(1-b*b)/0.13998908451
+c      enddo
 
 C     eccentricity constraints
 c      do 27 i=1,8+nplanet*10
@@ -203,6 +212,12 @@ c      flag=0 !pass everything (for now)
 C     bounds for the mean-stellar density
       if((sol2(1).lt.1.0e-5).or.(sol2(1).gt.1000.0)) flag=1 !density
 
+C     bounds for Period (must be positive)
+      do 29 i=1,nplanet
+         if(sol2(10+10*(i-1)).le.0.0) flag=1 !period 
+ 29   continue
+
+
 C     bounds for limb-darkening
       if((sol2(2).eq.0.0).and.(sol2(3).eq.0.0))then  !Kipping Limb-darkening
          if((sol2(4).lt.0.0).or.(sol2(4).gt.1.0).or.
@@ -223,10 +238,10 @@ c      if((sol2(8).lt.-5.0e-5).or.(sol2(8).gt.5.0e-5)) flag=1 !zpt
       do 25 i=1,nplanet
 
       ! simple addition to look at MCMC priors (epoch and period)
-c        if((sol2(9+10*(i-1)).lt.67.00).or.
-c     .     (sol2(9+10*(i-1)).gt.68.00)) flag=1 !EPO
-c        if((sol2(10+10*(i-1)).lt.3.00).or.
-c     .     (sol2(10+10*(i-1)).gt.4.00)) flag=1 !Period
+c        if((sol2(9+10*(i-1)).lt.113.00).or.
+c     .     (sol2(9+10*(i-1)).gt.114.00)) flag=1 !EPO
+c        if((sol2(10+10*(i-1)).lt.14.00).or.
+c     .     (sol2(10+10*(i-1)).gt.15.00)) flag=1 !Period
 
         b=sol2(11+10*(i-1)) !changed from b^2 to b
         if((b.lt.0.0).or.

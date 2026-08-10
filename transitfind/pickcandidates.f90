@@ -49,7 +49,7 @@ do
    endif
 enddo
 
-end program pickcandidate
+end program pickcandidates
 
 !CCCCCCCCCCCCCCCC
 subroutine checks(ncol,values,cflag)
@@ -64,10 +64,10 @@ if(values(8) > 7.0)then !check S/N
 
    else
       cflag=2 !failed fbmax1 test
-
+   endif
 else
    cflag=1 !failed S/N
 endif
 
 return
-end
+end subroutine checks

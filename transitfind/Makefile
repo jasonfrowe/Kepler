@@ -1,100 +1,132 @@
-#Name of C compiler
-CCMPL = gcc
-#Name of Fortran compiler
-F77 = ifort
-F90 = ifort
-#compiling object file flags
-#OPT1 = -O3 -fast -parallel -ipo -no-prec-div
-OPT1 = -O3 -parallel -openmp -mkl
-OPT2 = 
-FFLAGS = -c $(OPT1) $(OPT2)
-#FFLAGS = -c -O0 -g -CB $(OPT2)
-#linking flags
-LFLAGS = $(OPT1) $(OPT2)
-#LFLAGS = -O0 -g -CB $(OPT2)
-#testing flags
-#LFLAGS = -O0 -g -CB 
-#fitsio libraries
-FITSIODIR = /usr/local/lib
-#Pgplot plot libraries
-PGPLOTDIR = /usr/local/lib
-#X11 libraries
-X11DIR = /usr/X11R6/lib
-# libraries for linking PGPLOT
-LIBS = -L$(PGPLOTDIR) -L$(X11DIR) -lX11 -lpgplot -lpng
-# libraries for linking CFITSIO
-LIBS2 = -L$(PGPLOTDIR) -L$(X11DIR) -L$(FITSIODIR) -lX11 -lpgplot -lcfitsio -lpng
-#Directory where executable are placed
-BIN = /Users/rowe/Documents/bin/
-#utils source directory
+# ==============================================================================
+# Makefile for transitfind
+# ==============================================================================
+
+FC = gfortran
+CC = gcc
+OPT ?= -O3
+OPENMP ?= -fopenmp
+FFLAGS ?= $(OPT) $(OPENMP) -std=legacy -fallow-argument-mismatch
+CFLAGS ?= $(OPT) -std=gnu89 -Wno-implicit-function-declaration
+
+# Output directory for binaries
+BIN ?= ./bin/
+
+# Utilities subdirectory
 UTILS = utils/
 
-#Listing of programs to create.
+# Operating system detection
+UNAME_S := $(shell uname -s)
 
-all: transitfind tpsclean tpsstats effplot transitfind2
+# PGPLOT library detection
+ifeq ($(PGPLOT_DIR),)
+  ifneq ($(wildcard $(HOME)/Software/pgplot/build/libpgplot.a),)
+    PGPLOT_DIR = $(HOME)/Software/pgplot/build
+  else ifneq ($(wildcard /Users/jasonrowe/Software/pgplot/build/libpgplot.a),)
+    PGPLOT_DIR = /Users/jasonrowe/Software/pgplot/build
+  else ifneq ($(wildcard /usr/local/lib/libpgplot.so /usr/local/lib/libpgplot.a),)
+    PGPLOT_DIR = /usr/local/lib
+  endif
+endif
 
-pdmsearchincl = precision.o readdata2.o nyquest2.o rqsort.o calcnsteps.o qfunc.o pdm.o ovrwrt.o makeplot.o graphics.o
-pdmsearch: pdmsearch.f90 $(pdmsearchincl)
-	$(F90) $(LFLAGS) -o $(BIN)pdmsearch pdmsearch.f90 $(pdmsearchincl) $(LIBS)
+ifneq ($(PGPLOT_DIR),)
+  PGPLOT_LFLAGS ?= -L$(PGPLOT_DIR) -lpgplot
+endif
 
-pickincl = precision.o
-pickcandidates: pickcandidates.f90 $(pickincl)
-	$(F90) $(LFLAGS) -o /Users/rowe/Documents/Kepler/periodsearch/pickcandidates pickcandidates.f90 $(pickincl)
+ifeq ($(UNAME_S),Darwin)
+  X11_LFLAGS ?= -L/opt/homebrew/lib -L/opt/X11/lib -lX11 -lpng -lz
+else
+  X11_LFLAGS ?= -L/usr/X11R6/lib -L/usr/lib64 -L/usr/local/lib -lX11 -lpng -lz
+endif
 
-find2incl = precision.o rqsort.o stdev.o graphics.o
-transitfind2: transitfind2.f90 $(find2incl)
-	$(F90) $(LFLAGS) -o $(BIN)transitfind2 transitfind2.f90 $(find2incl) $(LIBS)
+LIBS_PGPLOT = $(PGPLOT_LFLAGS) $(X11_LFLAGS)
 
-notesmerge: notesmerge.f
-	$(F77) $(LFLAGS) -o /home/rowe/Kepler/tpsMQ/q1q10/notes/work/notesmerge notesmerge.f
+# Targets to build
+TARGETS = transitfind5 transitfind3 transitfind2 transitfind pdmsearch \
+          pickcandidates tpsclean tpsdawg tpsstats effplot notesmerge mescomp
+
+.PHONY: all clean init_bin
+
+all: init_bin $(TARGETS)
+
+init_bin:
+	@mkdir -p $(BIN)
+
+# Common object dependencies
+TF_OBJS = precision.o rqsort.o stdev.o graphics.o
+
+transitfind5: transitfind5.f90 $(TF_OBJS)
+	$(FC) $(FFLAGS) -o $(BIN)$@ transitfind5.f90 $(TF_OBJS) $(LIBS_PGPLOT)
+
+transitfind3: transitfind3.f90 $(TF_OBJS)
+	$(FC) $(FFLAGS) -o $(BIN)$@ transitfind3.f90 $(TF_OBJS) $(LIBS_PGPLOT)
+
+transitfind2: transitfind2.f90 $(TF_OBJS)
+	$(FC) $(FFLAGS) -o $(BIN)$@ transitfind2.f90 $(TF_OBJS) $(LIBS_PGPLOT)
+
+TF1_OBJS = dataio.o bls.o nyquest.o rqsort.o
+transitfind: transitfind1.f $(TF1_OBJS)
+	$(FC) $(FFLAGS) -o $(BIN)$@ transitfind1.f $(TF1_OBJS) $(LIBS_PGPLOT)
+
+PDM_OBJS = precision.o readdata2.o nyquest2.o rqsort.o calcnsteps.o qfunc.o \
+           pdm.o ovrwrt.o makeplot.o graphics.o
+pdmsearch: pdmsearch.f90 $(PDM_OBJS)
+	$(FC) $(FFLAGS) -o $(BIN)$@ pdmsearch.f90 $(PDM_OBJS) $(LIBS_PGPLOT)
+
+pickcandidates: pickcandidates.f90 precision.o
+	$(FC) $(FFLAGS) -o $(BIN)$@ pickcandidates.f90 precision.o
+
+tpsclean: tpsclean.f
+	$(FC) $(FFLAGS) -o $(BIN)$@ tpsclean.f
 
 tpsdawg: tpsdawg.f
-	$(F77) $(LFLAGS) -o /home/rowe/Kepler/tpsMQ/tpsdawg tpsdawg.f $(LIBS)
-
-effplot: effplot.f
-	$(F77) $(LFLAGS) -o $(BIN)effplot effplot.f $(LIBS)
+	$(FC) $(FFLAGS) -o $(BIN)$@ tpsdawg.f $(LIBS_PGPLOT)
 
 tpsstats: tpsstats.f
-	$(F77) $(LFLAGS) -o $(BIN)tpsstats tpsstats.f $(LIBS)
+	$(FC) $(FFLAGS) -o $(BIN)$@ tpsstats.f $(LIBS_PGPLOT)
 
-tpsclean: tpsclean.f 
-	$(F77) $(LFLAGS) -o $(BIN)tpsclean tpsclean.f
+effplot: effplot.f
+	$(FC) $(FFLAGS) -o $(BIN)$@ effplot.f $(LIBS_PGPLOT)
 
-FINDINCL = dataio.o bls.o nyquest.o rqsort.o
-transitfind: transitfind1.f $(FINDINCL)
-	$(F77) $(LFLAGS) -o $(BIN)transitfind transitfind1.f $(FINDINCL) $(LIBS)
+notesmerge: notesmerge.f
+	$(FC) $(FFLAGS) -o $(BIN)$@ notesmerge.f
 
-#building object libraries
-makeplot.o: $(UTILS)makeplot.f90
-	$(F90) $(FFLAGS) $(UTILS)makeplot.f90
-ovrwrt.o: $(UTILS)ovrwrt.f
-	$(F90) $(FFLAGS) $(UTILS)ovrwrt.f
-pdm.o: $(UTILS)pdm.f90
-	$(F90) $(FFLAGS) $(UTILS)pdm.f90
-qfunc.o: $(UTILS)qfunc.f90
-	$(F90) $(FFLAGS) $(UTILS)qfunc.f90
-calcnsteps.o: $(UTILS)calcnsteps.f90
-	$(F90) $(FFLAGS) $(UTILS)calcnsteps.f90
-readdata2.o: $(UTILS)readdata2.f90
-	$(F90) $(FFLAGS) $(UTILS)readdata2.f90
-nyquest2.o: $(UTILS)nyquest2.f90
-	$(F90) $(FFLAGS) $(UTILS)nyquest2.f90
-graphics.o: $(UTILS)graphics.f
-	$(F77) $(FFLAGS) $(UTILS)graphics.f
-stdev.o: $(UTILS)stdev.f
-	$(F77) $(FFLAGS) $(UTILS)stdev.f
+mescomp: mescomp.f
+	$(FC) $(FFLAGS) -o $(BIN)$@ mescomp.f $(LIBS_PGPLOT)
+
+# Object compilation rules
 precision.o: $(UTILS)precision.f90
-	$(F90) $(FFLAGS) $(UTILS)precision.f90
-dataio.o: $(UTILS)dataio.f
-	$(F77) $(FFLAGS) $(UTILS)dataio.f
-bls.o: $(UTILS)bls.f
-	$(F77) $(FFLAGS) $(UTILS)bls.f
-nyquest.o: $(UTILS)nyquest.f
-	$(F77) $(FFLAGS) $(UTILS)nyquest.f
-rqsort.o: $(UTILS)rqsort.f
-	$(F77) $(FFLAGS) $(UTILS)rqsort.f
+	$(FC) -c $(FFLAGS) -o $@ $<
 
-# Removing object files
-.PHONY : clean
-clean :
-	rm *.o ; rm *.mod
+readdata2.o: $(UTILS)readdata2.f90 precision.o
+	$(FC) -c $(FFLAGS) -o $@ $<
+
+nyquest2.o: $(UTILS)nyquest2.f90 precision.o
+	$(FC) -c $(FFLAGS) -o $@ $<
+
+calcnsteps.o: $(UTILS)calcnsteps.f90 precision.o
+	$(FC) -c $(FFLAGS) -o $@ $<
+
+qfunc.o: $(UTILS)qfunc.f90 precision.o
+	$(FC) -c $(FFLAGS) -o $@ $<
+
+pdm.o: $(UTILS)pdm.f90 precision.o
+	$(FC) -c $(FFLAGS) -o $@ $<
+
+makeplot.o: $(UTILS)makeplot.f90 precision.o
+	$(FC) -c $(FFLAGS) -o $@ $<
+
+makeplot2.o: $(UTILS)makeplot2.f90 precision.o
+	$(FC) -c $(FFLAGS) -o $@ $<
+
+%.o: $(UTILS)%.f90
+	$(FC) -c $(FFLAGS) -o $@ $<
+
+%.o: $(UTILS)%.f
+	$(FC) -c $(FFLAGS) -o $@ $<
+
+clean:
+	rm -f *.o *.mod *__genmod.f90 $(BIN)transitfind5 $(BIN)transitfind3 \
+	      $(BIN)transitfind2 $(BIN)transitfind $(BIN)pdmsearch \
+	      $(BIN)pickcandidates $(BIN)tpsclean $(BIN)tpsdawg $(BIN)tpsstats \
+	      $(BIN)effplot $(BIN)notesmerge $(BIN)mescomp

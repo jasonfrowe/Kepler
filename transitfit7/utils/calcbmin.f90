@@ -94,7 +94,7 @@ integer :: npt,n,iflag
 real(double), dimension(n) :: x
 real(double), dimension(npt) :: fvec
 !local vars
-integer :: j
+integer :: j,cflag
 real(double) :: h0,hdid,eps,maxint
 real(double), allocatable, dimension(:) :: b_cur
 !local mercury vars
@@ -147,7 +147,9 @@ do while(abs(h0).gt.2.0*eps)
      ngflag2,opflag2,colflag2,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
      a3,hrec3,angf3,ausr3)
     if(colflag2.ne.0)then
-        write(0,*) "Close encounter, stopping integration"
+        cflag=1
+        !write(0,*) "Close encounter, stopping integration"
+        
 !        if(iplot.eq.1) call pgclos()
         return
     endif

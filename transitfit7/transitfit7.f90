@@ -123,10 +123,10 @@ allocate(ntmid(nbodies),tmid(nbodies,ntmidmax))
 ntmid=0
 deallocate(Pers)
 
-!write(0,*) "Fitting data"
-!call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
-!write(0,*) "Exporting fit"
-!call exportfit(nbodies,sol,serr)
+write(0,*) "Fitting data"
+call fittransitmodel(nbodies,npt,tol,sol,serr,time,flux,ferr,itime,ntmidmax)
+write(0,*) "Exporting fit"
+call exportfit(nbodies,sol,serr)
 
 !for percorcalc
 allocate(percor(nbodies))

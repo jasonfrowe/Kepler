@@ -198,7 +198,7 @@ c                write(6,*) j,time(j)
  11         continue
          endif
 C        8-PDC-Map,4-SAP_FLUX
-         if(i.eq.8)then
+         if(i.eq.4)then
             do 12 j=1,nrows
 C     read in the character string from the table.
                 call ftgcvd(unitfits,i,j,1,1," ",ts,anyf,status)

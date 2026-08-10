@@ -7,7 +7,7 @@
       real rp(nmax),bdatax(nbinmax),bdatay(nbinmax),errs(6),ave,std
       double precision mstar(nmax),age(nmax),z(nmax),rstar(nmax),
      .  rhostar(nmax),temp(nmax),lum(nmax),work(nmax),sol(nfitm),
-     .  serr(nfitm,2),err(nfitm),dd(nmax),dumr,ran2,med,output(17)
+     .  serr(nfitm,2),err(nfitm),dd(nmax),dumr,ran2,med,output(19)
       character*80 rhofile,title,parsfile,titles(18),mcmcfile,cline,
      .  names(18),name
 
@@ -67,7 +67,7 @@
 c      call pgopen('/null')
       call pgask(.true.) !don't ask for new page.. just do it.
       call PGPAP ( 8.0 ,1.0) !paper size
-      call pgsubp(3,3)  !break up plot into grid
+      call pgsubp(4,4)  !break up plot into grid
 
       write(6,501) "Parameter    ","Median    ", "Stdev     ",
      .  "+1 sig     ", "-1 sig     ", "+2 sig     ", "-2 sig     ",
@@ -133,6 +133,10 @@ c            write(6,500) sol(i),ave,std,(errs(j),j=1,6)
                         dd(jj)=(dd(jj)-med)!*1.0d6
  15                 continue
                 endif
+
+                !if(j.eq.3)then !impact parameter
+                !        dd=dd**(1/1.2)
+                !endif
 
                 call histogram(npt,rp,dd,work,nd,nbin,nbinmax,bdatax,
      .              bdatay,title,ave,std,errs)
@@ -212,6 +216,8 @@ cc        write(6,500) ave,std,(errs(k),k=1,6)
 c        name="T12 (h)"
 c        call writetable(ave,std,errs,name)
 c        rewind(nunit)
+c        output(18)=ave
+c        output(19)=std
 
         call gettdur2(nunit,i,nmax,npt,dd,np,rstar,mstar,seed)
         title="T\dd\u (h)"
@@ -816,7 +822,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer col,npt,i,j,k,nunit
       double precision dd(npt),dumr
 
-      do 5 i=1,1!5000
+      do 5 i=1,1
       read(nunit,*) dumr
  5    continue
 

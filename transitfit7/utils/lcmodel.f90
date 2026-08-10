@@ -8,7 +8,7 @@ real(double), dimension(:) :: sol,time,itime,percor,ans
 integer, dimension(:) :: ntmid !used with octiming 
 real(double), dimension(:,:) :: tmid !used with octiming
 !local vars
-integer :: nintg,i,j,k,neq,istate,nbod
+integer :: nintg,i,j,k,neq,istate,nbod,cflag
 integer, allocatable, dimension(:) :: tc
 real(double) :: dnintg,tdnintg,t,tout,jm1,tmodel,   &
  epoch
@@ -160,6 +160,7 @@ am=0 !angular momentums
 stat=0 !0-alive,1-to be removed
 opflag=0 !integration mode
 colflag=0 !collision flag.  0 means no collision
+cflag=0 !local collision flag
 
 maxint=maxintg/86400.0 !sampling [days]  !1-5 min seems to be fine for Kepler.
 
@@ -204,9 +205,10 @@ do i=1,npt
       hdid=min(maxint,h0)
       call mdt_hy (t,tstart,hdid,tol,rmax,en,am,jcen,rcen,nbod,           &
          nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
-         ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
+         ngflag,opflag,cflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
          a,hrec,angf,ausr)
-      if(colflag.ne.0)then
+      if(cflag.ne.0)then
+         colflag = 1
          write(0,*) "Close encounter, stopping integration"
 !         if(iplot.eq.1) call pgclos()
          return
@@ -246,9 +248,10 @@ do i=1,npt
          dtflag=2 !normal call.
          call mdt_hy (t,tstart,hdid,tol,rmax,en,am,jcen,rcen,nbod,           &
             nbig,m,x,v,s,rphys,rcrit,rce,stat,algor,opt,dtflag,        &
-            ngflag,opflag,colflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
+            ngflag,opflag,cflag,nclo,iclo,jclo,dclo,tclo,ixvclo,jxvclo, &
             a,hrec,angf,ausr)
-         if(colflag.ne.0)then
+         if(cflag.ne.0)then
+            colflag = 1
             write(0,*) "Close encounter, stopping integration"
 !            if(iplot.eq.1) call pgclos()
             return

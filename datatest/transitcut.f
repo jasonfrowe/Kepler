@@ -136,11 +136,12 @@ c        ferr(i)=0.00005
       end
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine getfitpars(nunit,nfit,sol,serr,Dpvary,err,doe,toff)
+      subroutine getfitpars(nunit,nfit,sol,serr,Dpvary,err,doe,toff,
+     .                      eoff)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
       integer nfit,nunit,i
-      double precision sol(nfit),serr(nfit,2),Dpvary(nfit),toff,
+      double precision sol(nfit),serr(nfit,2),Dpvary(nfit),toff,eoff,
      .  err(nfit),doe
       character*160 command
       
@@ -250,7 +251,7 @@ c     .          err(16)
  13     continue
 c            write(0,501) "OFF: ",toff,doe
         endif
- 501    format(A5,5(1X,PE17.10))
+ 501    format(A5,5(1X,1PE17.10))
       goto 10 !loop back to read statement
  11   continue !end loop when EOF is reached
 c      write(0,*) "----------------------------"
