@@ -2,12 +2,10 @@
 # Makefile for datatest
 # ==============================================================================
 
-FC = gfortran
-CC = gcc
+FC ?= gfortran
+CC ?= gcc
 OPT ?= -O3
 OPENMP ?= -fopenmp
-FFLAGS ?= $(OPT) $(OPENMP) -std=legacy -fallow-argument-mismatch
-CFLAGS ?= $(OPT) -std=gnu89 -Wno-implicit-function-declaration
 
 # Output directory for binaries
 BIN ?= ./bin/
@@ -34,10 +32,14 @@ ifneq ($(PGPLOT_DIR),)
 endif
 
 ifeq ($(UNAME_S),Darwin)
+  LDFLAGS ?= -Wl,-stack_size,0x20000000
   X11_LFLAGS ?= -L/opt/homebrew/lib -L/opt/X11/lib -lX11 -lpng -lz
 else
   X11_LFLAGS ?= -L/usr/X11R6/lib -L/usr/lib64 -L/usr/local/lib -lX11 -lpng -lz
 endif
+
+FFLAGS ?= $(OPT) $(OPENMP) $(LDFLAGS) -std=legacy -fallow-argument-mismatch
+CFLAGS ?= $(OPT) -std=gnu89 -Wno-implicit-function-declaration
 
 LIBS_PGPLOT = $(PGPLOT_LFLAGS) $(X11_LFLAGS)
 

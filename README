@@ -29,7 +29,8 @@ Prerequisites:
 ------------------------------------------------------------------------
 Quick INSTALL:
 
-  Option A (Autoconf):
+  Option A (Autoconf / Standard Build):
+     ./autogen.sh
      ./configure
      make -j4
 
@@ -37,7 +38,7 @@ Quick INSTALL:
      make -j4
 
   *Note*: 
-  - If `./configure` is not present, you can generate it with `autoconf`, or simply run `make -j4` directly.
+  - `./autogen.sh` generates `./configure` from `configure.ac` using `autoreconf`.
   - The `./bin/` directory is created automatically by the Makefiles during compilation; no manual `mkdir` is required.
 
 ------------------------------------------------------------------------

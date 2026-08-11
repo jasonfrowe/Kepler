@@ -32,6 +32,9 @@ __pycache__/
 *.ipynb_checkpoints/
 
 # Autotools and configure temporary files
+/Makefile
+configure
+configure~
 config.log
 config.status
 autom4te.cache/

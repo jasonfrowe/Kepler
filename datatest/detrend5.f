@@ -397,6 +397,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       parameter (nmax=2000000,nitmax=50)
       double precision time(npt),mag(npt),merr(npt),sig,std,stdev,
      .  tmp1(nmax),tmp2(nmax),tmp3(nmax),mean,dum,tmp4(nmax),omean,rmavg
+      save
 
 
 C     watch out for infinite loops

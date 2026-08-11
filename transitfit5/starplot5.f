@@ -17,6 +17,7 @@ C     TT variations
       double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax),
      .  tobs2(nplanetmax,nmax),omc2(nplanetmax,nmax),tcor(nmax),ttcor
       character*80 inputsol,obsfile,ttfile,cline
+      save
 c      data order /4,2,1,3,5,6,7,8,9,10/
       data order /1,2,3,4,5,6,7,8,9,10/
       

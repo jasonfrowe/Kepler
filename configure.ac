@@ -31,12 +31,22 @@ for INCDIR in $INCDIRS ; do
 done
 
 AC_MSG_NOTICE([  -- PGPLOT -- ])
-AC_CHECK_LIB([pgplot],[pgopen_],[PGPLOTLIB="-lpgplot -lpng -lz"],[
-  AC_MSG_WARN([PGPLOT library not found in standard search paths. Will attempt build with stub/custom path if available.])
-  PGPLOTLIB=""
-],[-lpng -lz])
-
-AC_CHECK_LIB([png],[png_error],[PGPLOTLIB="$PGPLOTLIB -lpng -lz"],[],[$PGPLOTLIB])
+AC_LANG_PUSH([Fortran])
+SAVED_LIBS="$LIBS"
+LIBS="-lpgplot -L/opt/homebrew/lib -L/opt/X11/lib -lX11 -lpng -lz $LIBS"
+AC_LINK_IFELSE(
+  [AC_LANG_PROGRAM([], [      call pgopen('?')])],
+  [
+    PGPLOTLIB="-lpgplot -L/opt/homebrew/lib -L/opt/X11/lib -lX11 -lpng -lz"
+    AC_MSG_NOTICE([PGPLOT library found successfully.])
+  ],
+  [
+    AC_MSG_WARN([PGPLOT library not found in standard search paths. Will attempt build with stub/custom path if available.])
+    PGPLOTLIB=""
+  ]
+)
+LIBS="$SAVED_LIBS"
+AC_LANG_POP([Fortran])
 
 AC_MSG_NOTICE([  -- CFITSIO -- ])
 AC_CHECK_LIB([cfitsio],[ffopen],[CFITSIOLIB="-lcfitsio"],[
