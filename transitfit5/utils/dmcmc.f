@@ -104,17 +104,17 @@ c         write(6,*) "dsig:",dsig,(Teffn1-Teff)/Tefferr
 c         write(0,*) 1.0d3*sol(1),rhoi,dsig
        endif
 
-C     Eccentricity constraints...
-c      do 26 i=1,8+nplanet*10
-c         if(serr(i,1).ne.0)then
-c            if(sol(i).gt.serr(i,1))then
-c               dsig=(serr(i,1)-sol(i))/err(i,1)
-c            else
-c               dsig=(serr(i,1)-sol(i))/err(i,2)
-c            endif
-c            chi1=chi1+dsig*dsig
-c         endif
-c 26   continue
+C     Priors.  These are read in by getfitpars2, which allows for extra err(i,2) array.
+      do 26 i=1,8+nplanet*10
+         if(serr(i,1).ne.0)then
+            if(sol(i).gt.serr(i,1))then
+               dsig=(serr(i,1)-sol(i))/err(i,1)
+            else
+               dsig=(serr(i,1)-sol(i))/err(i,2)
+            endif
+            chi1=chi1+dsig*dsig
+         endif
+ 26   continue
 
 cC     add in T0 and Period prior (alpha Cen work)
 c      dsig=(perprior(1)-sol(10))/perprior(2)
@@ -176,17 +176,17 @@ c        rhostar=sol2(1)
 c        chi2=chi2+rhostar*(1-b*b)/0.13998908451
 c      enddo
 
-C     eccentricity constraints
-c      do 27 i=1,8+nplanet*10
-c         if(serr(i,1).ne.0)then
-c            if(sol2(i).gt.serr(i,1))then
-c               dsig=(serr(i,1)-sol2(i))/err(i,1)
-c            else
-c               dsig=(serr(i,1)-sol2(i))/err(i,2)
-c            endif
-c            chi2=chi2+dsig*dsig
-c         endif
-c 27   continue
+C     Priors, checking both solutions.  
+      do 27 i=1,8+nplanet*10
+         if(serr(i,1).ne.0)then
+            if(sol2(i).gt.serr(i,1))then
+               dsig=(serr(i,1)-sol2(i))/err(i,1)
+            else
+               dsig=(serr(i,1)-sol2(i))/err(i,2)
+            endif
+            chi2=chi2+dsig*dsig
+         endif
+ 27   continue
 
 cC     add in T0 and Period prior (alpha Cen work)
 c      dsig=(perprior(1)-sol2(10))/perprior(2)

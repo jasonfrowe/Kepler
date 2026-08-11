@@ -13,7 +13,7 @@ C     Jason Rowe - jasonfrowe@gmail.com
      .  ngprobsub(nfitm),ntt(nplanetmax),ngs(nfitm),nas
       double precision sol(nfitm),time(nmax),dt,tmodel(nmax),
      .  flux(nmax),ferr(nmax),exptime(nmax),Keplertime,serr(nfitm,2),
-     .  err(nfitm),vtime(nmax),vel(nmax),verr(nmax),vetime(nmax),
+     .  err(nfitm,2),vtime(nmax),vel(nmax),verr(nmax),vetime(nmax),
      .  aT(nmax),aM(nmax),aE(nmax),aIT(nmax),kmag,kerr,ran2,dumr,
      .  sol2(nfitm),rchi,bchi,gasdev,accrate,dil(2),
      .  buffer(nfitm,nbuffer),corscale,gscale(nfitm),gratio(nfitm),
@@ -127,7 +127,7 @@ c        write(6,*) "rv:",(vtime(i),i=1,nptv)
       nunit=10 !unit number used for file input
       open(unit=nunit,file=inputsol,status='old',err=902)
 C     We start by reading in solution from input file
-      call getfitpars(nunit,nfitm,nplanet,sol,serr,err)
+      call getfitpars2(nunit,nfitm,nplanet,sol,serr,err) ! We use getfitpars2 to get err(i,2)
       close(nunit) !release unit number as we are done with file
       write(0,*) "nPlanet: ",nplanet
       nfit=nplanet*10+8
