@@ -10,36 +10,23 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       double precision dp(npt),dp2(npt),ave,var,med,bfit
       character*80 title
 
-C     Find median
-c      call rqsort(npt,dp,np) !changed npt to k
-c      i=npt/2
-c      if(i.le.0) i=1
-      ave=bfit!dp(np(i))
-C     First we remove the average (helps a lot with double -> real)
+      ave=bfit
       call avevar2(dp,dp2,npt,ave,var)
       rave=real(ave) !convert to real*4
       std=real(sqrt(var))
-c      write(0,*) "hist:",ave,var,std
       
-C     Now we convert dp to rp
-      j=0 !because we have sigma-clipping, we need a counter.
+      j=0
       do 10 i=1,npt
-c        if(abs(dp(i)-ave).lt.4.0*sqrt(var))then
             j=j+1
             dp2(j)=dp(i)-ave
             rp(j)=real(dp2(j))
-c        endif
  10   continue
       npt2=j
 
-C     Find median          
-c      call rqsort(npt2,dp2,np) !changed npt to k
-c      i=npt2/2
-c      if(i.le.0) i=1
-      med=bfit-ave!dp2(np(i))
+      call rqsort(npt2,dp2,np)
+      med=bfit-ave
       rmed=real(med)
 
-C     Find datarange
       datamin=rp(1)
       datamax=rp(1)
       do 12 i=2,npt2
@@ -52,10 +39,7 @@ C     Find datarange
       call pgpage() !fresh plotting surface
       call pgslw(1)
       call pgsch(2.0)
-c         call windowsetup(xb1,xb2,yb1,yb2) !make a square plotting surface
-c         call pgvport(xb1,xb2,yb1,yb2)
       call pgvport(0.2,1.0,0.2,0.9)
-c      fc=2.*(datamax-datamin)/real(nbin) !center histograms
       call pgwindow(datamin,datamax,0.,bmax+0.1*bmax) !set size
          
 C        Add axis labels
@@ -66,249 +50,204 @@ C     Shift axis scale to account for average removal
       call pgwindow(datamin+rave,datamax+rave,0.,1.0+0.1*1.0)
       call pgbox('BCNTS1',0.0,0,'BCNTS1',0.0,0) !add boarders
       
-      call errorest(npt2,rp,nbin,bdatax,bdatay,bmax,rmed,errs)
-c      call errorest2(nbin,bdatax,bdatay,bmax,rmed,errs)
+      call errorest(npt2,dp2,np,nbin,bdatax,bdatay,bmax,rmed,errs)
       rmed=rmed+rave !correct for average removal
-C     Need to recalulate standard deviation at this point!      
 
       return
       end      
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine errorest2(nbin,bdatax,bdatay,bmax,frsol,errs)
+      integer function count_range(npt, dp2, np, intl, inth)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
-      integer nbin,i,j,k,nbinmax,mdpnt
-      parameter(nbinmax=500)
-      integer bsy(nbinmax)
-      real bdatax(nbin),bdatay(nbin),bmax,frsol,errs(6),sumby,shgt,
-     .  inth,intl,sumval,per,perold,inthold,intlold,e1,e2,bx
-      logical loop
+      integer npt, np(npt), l, r, mid, ilow, ihigh
+      double precision dp2(npt), intl, inth
       
-      sumby=0
-      do 6 i=1,nbin
-        sumby=sumby+bdatay(i)
+      if (npt .le. 0 .or. inth .lt. intl) then
+         count_range = 0
+         return
+      endif
+
+      if (dp2(np(npt)) .lt. intl) then
+         count_range = 0
+         return
+      endif
+      if (dp2(np(1)) .ge. intl) then
+         ilow = 1
+      else
+         l = 1
+         r = npt
+ 10      if (r - l .gt. 1) then
+            mid = (l + r) / 2
+            if (dp2(np(mid)) .ge. intl) then
+               r = mid
+            else
+               l = mid
+            endif
+            goto 10
+         endif
+         ilow = r
+      endif
+
+      if (dp2(np(1)) .gt. inth) then
+         count_range = 0
+         return
+      endif
+      if (dp2(np(npt)) .le. inth) then
+         ihigh = npt
+      else
+         l = 1
+         r = npt
+ 20      if (r - l .gt. 1) then
+            mid = (l + r) / 2
+            if (dp2(np(mid)) .le. inth) then
+               l = mid
+            else
+               r = mid
+            endif
+            goto 20
+         endif
+         ihigh = l
+      endif
+
+      if (ihigh .ge. ilow) then
+         count_range = ihigh - ilow + 1
+      else
+         count_range = 0
+      endif
+      return
+      end
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine errorest(npt, dp2, np, nbin, bdatax, bdatay, bmax,
+     .  frsol, errs)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      implicit none
+      integer npt, nbin, np(npt), i, k, mdpnt, count_range, cnt
+      integer bsy(500)
+      real bdatax(nbin), bdatay(nbin), bmax, frsol, errs(6)
+      double precision dp2(npt), dx, xc(500), shgt, intl, inth, per,
+     .  perold, intlold, inthold, e1, e2, dy
+      logical found
+
+      do 4 i = 1, 6
+         errs(i) = 0.0
+ 4    continue
+      if (nbin .gt. 500 .or. nbin .le. 1) return
+
+      dx = dble(bdatax(2) - bdatax(1))
+      do 5 i = 1, nbin
+         xc(i) = dble(bdatax(i)) + 0.5d0 * dx
+ 5    continue
+
+      mdpnt = 1
+      do 6 i = 1, nbin - 1
+         if (dble(bdatax(i)) .le. dble(frsol) .and.
+     .       dble(bdatax(i+1)) .gt. dble(frsol)) then
+            mdpnt = i
+         endif
  6    continue
-c      write(0,*) "sumby:",sumby
-      
-      call rqsortr(nbin,bdatay,bsy)
-      bx=bdatax(bsy(nbin))
-      
-C     find out which bin contains the middle.      
-      do 5 i=1,nbin-1
-c        write(0,*) frsol,bdatax(i),bdatax(i+1)
-        if((bdatax(i).le.frsol).and.(bdatax(i+1).gt.frsol))then
-            mdpnt=i
-        endif
- 5    continue
-C     case when "bestfit" is outside histogram (i.e. eccentricity)
-      if(frsol.le.bdatax(1)) mdpnt=1
-      if(frsol.ge.bdatax(nbin)) mdpnt=nbin 
-c      write(0,*) "mdpnt:",mdpnt,bdatax(mdpnt)
+      if (dble(frsol) .ge. dble(bdatax(nbin))) mdpnt = nbin
 
-      perold=0 !initalization of variables
-      intlold=0
-      inthold=0
-      do 14 i=1,6  !initialize variable to zero.
-        errs(i)=0.0
- 14   continue
-      do 13 k=nbin,1,-1
-        shgt=real(bdatay(bsy(k)))
-c        write(0,*) shgt
+      call rqsortr(nbin, bdatay, bsy)
 
-        loop=.true. !loop until loop is false
-        i=mdpnt  !removed -1
-        do 10 while(loop)
-            if((bdatay(i).ge.shgt).and.(bdatay(i+1).lt.shgt))then
-                loop=.false.
-                inth=real(i)!bdatax(i)
-c                inth=(bdatay(i+1)-shgt)/(bdatay(i+1)-bdatay(i))
-c     .              *(bdatax(i+1)-bdatax(i))+
-c     .              bdatax(i)
-            endif
-            if(i.ge.nbin-1) then
-                loop=.false.
-                inth=real(nbin)!bdatax(nbin)
-            endif
-            i=i+1
-c           write(6,*) "i:",i
- 10     enddo
- 
-C       now we move in the reverse direction
-        loop=.true. !loop until loop is false
-        i=mdpnt+1
-        do 11 while(loop)
-            if((bdatay(i).ge.shgt).and.(bdatay(i-1).lt.shgt))then
-                loop=.false.
-                intl=real(i)!bdatax(i)
-c                intl=bdatax(i)-
-c     .              (bdatay(i)-shgt)/(bdatay(i)-bdatay(i-1))
-c     .              *(bdatax(i)-bdatax(i-1))
-            endif
-            if(i.le.2) then
-                loop=.false.
-                intl=real(1)!bdatax(1)
-            endif
-            i=i-1
- 11     enddo
+      perold = 0.0d0
+      intlold = dble(frsol)
+      inthold = dble(frsol)
 
-        sumval=0.0
-        do 15 i=intl,inth
-            sumval=sumval+bdatay(i)
- 15     continue
-        per=sumval/sumby
-        
-        if((per.ge.0.683).and.(perold.lt.0.683))then
-            e1=bdatax(inth)-(per-0.683)/(per-perold)*
-     .          (bdatax(inth)-bdatax(inthold))
-            e2=bdatax(intl)-(per-0.683)/(per-perold)*
-     .          (bdatax(intl)-bdatax(intlold))
-            errs(1)=e1-bx!-frsol
-            errs(2)=e2-bx!-frsol
-        endif
-        if((per.ge.0.954).and.(perold.lt.0.954))then
-            e1=bdatax(inth)-(per-0.954)/(per-perold)*
-     .          (bdatax(inth)-bdatax(inthold))
-            e2=bdatax(intl)-(per-0.954)/(per-perold)*
-     .          (bdatax(intl)-bdatax(intlold))
-            errs(3)=e1-bx!-frsol
-            errs(4)=e2-bx!-frsol
-        endif
-        if((per.ge.0.9973).and.(perold.lt.0.9973))then
-            e1=bdatax(inth)-(per-0.9973)/(per-perold)*
-     .          (bdatax(inth)-bdatax(inthold))
-            e2=bdatax(intl)-(per-0.9973)/(per-perold)*
-     .          (bdatax(intl)-bdatax(intlold))
-            errs(5)=e1-bx!-frsol
-            errs(6)=e2-bx!-frsol
-        endif
-        
-        perold=per
-        intlold=intl
-        inthold=inth
+      do 13 k = nbin, 1, -1
+         shgt = dble(bdatay(bsy(k)))
+         if (shgt .le. 0.0d0) goto 13
 
-c      write(0,*) shgt,intl,inth,per
-c      write(0,*) e1,e2
-        
+         found = .false.
+         do 10 i = mdpnt, nbin - 1
+            if (dble(bdatay(i)) .ge. shgt .and.
+     .          dble(bdatay(i+1)) .lt. shgt) then
+               dy = dble(bdatay(i+1) - bdatay(i))
+               if (abs(dy) .gt. 1.0d-12) then
+                  inth = xc(i) + (shgt - dble(bdatay(i))) / dy * dx
+               else
+                  inth = xc(i)
+               endif
+               found = .true.
+               goto 11
+            endif
+ 10      continue
+ 11      if (.not. found) then
+            inth = dble(bdatax(nbin)) + dx
+         endif
+
+         found = .false.
+         do 20 i = mdpnt, 2, -1
+            if (dble(bdatay(i)) .ge. shgt .and.
+     .          dble(bdatay(i-1)) .lt. shgt) then
+               dy = dble(bdatay(i-1) - bdatay(i))
+               if (abs(dy) .gt. 1.0d-12) then
+                  intl = xc(i) + (shgt - dble(bdatay(i))) / dy * (-dx)
+               else
+                  intl = xc(i)
+               endif
+               found = .true.
+               goto 21
+            endif
+ 20      continue
+ 21      if (.not. found) then
+            intl = dble(bdatax(1))
+         endif
+
+         cnt = count_range(npt, dp2, np, intl, inth)
+         per = dble(cnt) / dble(npt)
+
+         if (per .ge. 0.682689d0 .and. perold .lt. 0.682689d0) then
+            if (per .gt. perold) then
+               e1 = inthold + (0.682689d0 - perold) / (per - perold) *
+     .              (inth - inthold)
+               e2 = intlold + (0.682689d0 - perold) / (per - perold) *
+     .              (intl - intlold)
+            else
+               e1 = inth
+               e2 = intl
+            endif
+            errs(1) = real(e1 - dble(frsol))
+            errs(2) = real(e2 - dble(frsol))
+         endif
+
+         if (per .ge. 0.954500d0 .and. perold .lt. 0.954500d0) then
+            if (per .gt. perold) then
+               e1 = inthold + (0.954500d0 - perold) / (per - perold) *
+     .              (inth - inthold)
+               e2 = intlold + (0.954500d0 - perold) / (per - perold) *
+     .              (intl - intlold)
+            else
+               e1 = inth
+               e2 = intl
+            endif
+            errs(3) = real(e1 - dble(frsol))
+            errs(4) = real(e2 - dble(frsol))
+         endif
+
+         if (per .ge. 0.997300d0 .and. perold .lt. 0.997300d0) then
+            if (per .gt. perold) then
+               e1 = inthold + (0.997300d0 - perold) / (per - perold) *
+     .              (inth - inthold)
+               e2 = intlold + (0.997300d0 - perold) / (per - perold) *
+     .              (intl - intlold)
+            else
+               e1 = inth
+               e2 = intl
+            endif
+            errs(5) = real(e1 - dble(frsol))
+            errs(6) = real(e2 - dble(frsol))
+         endif
+
+         perold = per
+         inthold = inth
+         intlold = intl
  13   continue
-      
-c      write(0,*) frsol
-c      read(5,*)      
+
       return
       end
-      
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine errorest(npt,dd,nbin,bdatax,bdatay,bmax,frsol,errs)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      implicit none
-      integer npt,nbin,i,j,mdpnt,k,nbinmax
-      parameter(nbinmax=500)
-      integer bsy(nbinmax)
-      real dd(npt),bdatax(nbin),bdatay(nbin),bmax,frsol,errs(6),shgt,
-     .  intl,inth,per,perold,e1,e2,inthold,intlold
-      logical loop
-      
-      call rqsortr(nbin,bdatay,bsy)
-      
-C     find out which bin contains the middle.      
-      do 5 i=1,nbin-1
-c        write(0,*) frsol,bdatax(i),bdatax(i+1)
-        if((bdatax(i).le.frsol).and.(bdatax(i+1).gt.frsol))then
-            mdpnt=i
-        endif
- 5    continue
-C     case when "bestfit" is outside histogram (i.e. eccentricity)
-      if(frsol.le.bdatax(1)) mdpnt=1
-      if(frsol.ge.bdatax(nbin)) mdpnt=nbin 
-c      write(0,*) "mdpnt:",mdpnt
-      
-      
-      perold=0 !initalization of variables
-      intlold=0
-      inthold=0
-      do 14 i=1,6  !initialize variable to zero.
-        errs(i)=0.0
- 14   continue
-C     bmax is the value of the largest histogram bin
-c      do 13 k=1,bmax-1
-c        shgt=real(bmax-k)
-      do 13 k=nbin,1,-1
-        shgt=real(bdatay(bsy(k)))
-        
-C       first we move in the forward direction      
-        loop=.true. !loop until loop is false
-        i=mdpnt  !removed -1
-        do 10 while(loop)
-            if((bdatay(i).ge.shgt).and.(bdatay(i+1).lt.shgt))then
-                loop=.false.
-c               inth=bdatax(i)
-                inth=(bdatay(i+1)-shgt)/(bdatay(i+1)-bdatay(i))
-     .              *(bdatax(i+1)-bdatax(i))+
-     .              bdatax(i)
-            endif
-            if(i.ge.nbin-1) then
-                loop=.false.
-                inth=bdatax(nbin)
-            endif
-            i=i+1
-c           write(6,*) "i:",i
- 10     enddo
-       
-C       now we move in the reverse direction
-        loop=.true. !loop until loop is false
-        i=mdpnt+1
-        do 11 while(loop)
-            if((bdatay(i).ge.shgt).and.(bdatay(i-1).lt.shgt))then
-                loop=.false.
-c               intl=bdatax(i)
-                intl=bdatax(i)-
-     .              (bdatay(i)-shgt)/(bdatay(i)-bdatay(i-1))
-     .              *(bdatax(i)-bdatax(i-1))
-            endif
-            if(i.le.2) then
-                loop=.false.
-                intl=bdatax(1)
-            endif
-            i=i-1
- 11     enddo
 
-        j=0
-        do 12 i=1,npt
-            if((dd(i).gt.intl).and.(dd(i).lt.inth))then
-                j=j+1    
-            endif
- 12     continue
- 
-        per=real(j)/real(npt)
-        if((per.ge.0.683).and.(perold.lt.0.683))then
-            e1=inth-(per-0.683)/(per-perold)*(inth-inthold)
-            e2=intl+(per-0.683)/(per-perold)*(intlold-intl)
-            errs(1)=e1-frsol
-            errs(2)=e2-frsol
-c           write(6,*) "1 sigma:",frsol,errs(1),errs(2)
-        endif
-        if((per.ge.0.954).and.(perold.lt.0.954))then
-            e1=inth-(per-0.954)/(per-perold)*(inth-inthold)
-            e2=intl+(per-0.954)/(per-perold)*(intlold-intl)
-            errs(3)=e1-frsol
-            errs(4)=e2-frsol
-c           write(6,*) "2 sigma:",frsol,errs(3),errs(4)
-        endif 
-        if((per.ge.0.9973).and.(perold.lt.0.9973))then
-            e1=inth-(per-0.9973)/(per-perold)*(inth-inthold)
-            e2=intl+(per-0.9973)/(per-perold)*(intlold-intl)
-            errs(5)=e1-frsol
-            errs(6)=e2-frsol
-c           write(6,*) "3 sigma:",frsol,errs(5),errs(6)
-        endif       
-        perold=per
-        intlold=intl
-        inthold=inth
-c       write(6,*) per,intl,inth,shgt
- 13   continue
-      
-      return
-      end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine bindata(nbin,npt,pdata,bdatax,bdatay,datamin,datamax,
      .   bmax)
@@ -318,30 +257,24 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       real pdata(npt),bdatax(nbin),bdatay(nbin),datamin,datamax,
      .   binsize,bmax,tsum
 
-C     get size of bin.
       binsize=(datamax-datamin)/real(nbin-1)
       
-C     initalize bdata
       do 20 i=1,nbin
          bdatay(i)=0.
  20   continue
 
-C     loop over data and place data into proper bin.
       do 10 i=1,npt
-C        calculate bin number
          bin=int((pdata(i)-datamin)/binsize)+1
          if((bin.gt.0).and.(bin.le.nbin)) bdatay(bin)=bdatay(bin)+1.0
  10   continue
 
-C     get the max value in a bin and assign bin value.
       tsum=0.
       bmax=0.
       do 30 i=1,nbin
          bmax=max(bdatay(i),bmax)
-         bdatax(i)=datamin+real(i-1)*binsize !added -1
+         bdatax(i)=datamin+real(i-1)*binsize
          tsum=tsum+bdatay(i)
  30   continue
-c      write(6,*) "Sum:",tsum
  
       return
       end
@@ -349,39 +282,19 @@ c      write(6,*) "Sum:",tsum
 c**********************************************************************
       subroutine rqsortr(n,a,p)
 c======================================================================
-c     Return integer array p which indexes array a in increasing order.
-c     Array a is not disturbed.  The Quicksort algorithm is used.
-c
-c     B. G. Knapp, 86/12/23
-c
-c     Reference: N. Wirth, Algorithms and Data Structures,
-c     Prentice-Hall, 1986
-c======================================================================
       implicit none
-
-c     Input:
       integer   n
       real      a(n)
-
-c     Output:
       integer   p(n)
-
-c     Constants
       integer   LGN, Q
       parameter (LGN=32, Q=11)
-c        (LGN = log base 2 of maximum n;
-c         Q = smallest subfile to use quicksort on)
-
-c     Local:
       real      x
       integer   stackl(LGN),stackr(LGN),s,t,l,m,r,i,j
 
-c     Initialize the stack
       stackl(1)=1
       stackr(1)=n
       s=1
 
-c     Initialize the pointer array
       do 1 i=1,n
          p(i)=i
     1 continue
@@ -392,8 +305,6 @@ c     Initialize the pointer array
          s=s-1
 
     3    if ((r-l).lt.Q) then
-
-c           Use straight insertion
             do 6 i=l+1,r
                t = p(i)
                x = a(t)
@@ -405,8 +316,6 @@ c           Use straight insertion
     5          p(j+1) = t
     6       continue
          else
-
-c           Use quicksort, with pivot as median of a(l), a(m), a(r)
             m=(l+r)/2
             t=p(m)
             if (a(t).lt.a(p(l))) then
@@ -425,7 +334,6 @@ c           Use quicksort, with pivot as median of a(l), a(m), a(r)
                endif
             endif
 
-c           Partition
             x=a(t)
             i=l+1
             j=r-1
@@ -448,7 +356,6 @@ c           Partition
                goto 7
             endif
 
-c           Stack the larger subfile
             s=s+1
             if ((j-l).gt.(r-i)) then
                stackl(s)=l
