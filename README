@@ -13,7 +13,7 @@ Prerequisites:
        brew install cfitsio
        brew install --cask xquartz
   2. Building PGPLOT from source on macOS:
-     PGPLOT is built in a local build directory (e.g. ~/Software/pgplot/build or /Users/jasonrowe/Software/pgplot/build):
+     PGPLOT is built in a local build directory (e.g. ~/Software/pgplot/build):
        mkdir -p ~/Software/pgplot/build
        cd ~/Software/pgplot/build
        cp ../drivers.list .
