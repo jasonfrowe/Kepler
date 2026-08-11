@@ -4,7 +4,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
       integer nfit,col,np
       double precision sol(nfit),Pi,Msun,Rsun,G,aConst,b,Psec,adrs,
-     .  cincl,temp(4),tpi,rdr,bb
+     .  cincl,temp(4),tpi,rdr,bb,esw,ecw,eccn,drs_ratio,sinincl
 
       Pi=acos(-1.d0)   !Pi
       tpi=2.0d0*pi
@@ -19,16 +19,35 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Psec=sol(col+2)*8.64d4 !sec ; period of planet
       adrs=1000.0*sol(1)*G*(Psec)**2/(3.0d0*Pi)
       adrs=adrs**(1.0d0/3.0d0) !a/R*
-      cincl=b/adrs !cos(i)
       rdr=sol(col+4)
+      esw=sol(col+5)
+      ecw=sol(col+6)
 
-      temp(1)=Psec/Pi
-      temp(2)=1.0d0/adrs
-      temp(3)=(1+rdr)**2.0-bb
-      temp(4)=1-cincl*cincl
-C     Transit duration in sec
-      transitdur=temp(1)*asin(temp(2)*sqrt(temp(3)/temp(4)))!/3600.0
+      eccn=sqrt(esw*esw+ecw*ecw)
+      if(eccn.ge.1.0d0) eccn=0.999d0
 
+      drs_ratio=(1.0d0-eccn*eccn)/(1.0d0+esw) ! r/a at transit
+      cincl=b/(adrs*drs_ratio) ! cos(i)
+
+      if(abs(cincl).ge.1.0d0) then
+          sinincl=0.0d0
+      else
+          sinincl=sqrt(1.0d0-cincl*cincl)
+      endif
+
+      if((sinincl.gt.0.0d0).and.(adrs*drs_ratio.gt.0.0d0)) then
+          temp(1)=Psec * ((1.0d0-eccn*eccn)**1.5d0)/
+     .            (Pi*(1.0d0+esw)**2.0d0)
+          temp(2)=1.0d0/(adrs*drs_ratio)
+          temp(3)=(1.0d0+rdr)**2.0d0 - bb
+          if(temp(3).ge.0.0d0) then
+              transitdur=temp(1)*asin(temp(2)*sqrt(temp(3))/sinincl)
+          else
+              transitdur=0.0d0
+          endif
+      else
+          transitdur=0.0d0
+      endif
 
       return
       end

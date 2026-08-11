@@ -501,6 +501,7 @@ c        endif
       end
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine gett12(nunit,nplanet,nmax,npt,t12,np,rstar,mstar,
      .  seed)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -508,7 +509,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer nunit,nplanet,npt,np,seed,i,j,k,col,nmax
       double precision tdur,rstar(np),mstar(np),Psec,per,dumr,Pi,
      .  Msun,Rsun,G,aConst,temp(5),ran2,M1,R1,asemi,bb,b,cincl,rdr,R2,
-     .  adrs,rhostar,tF,t12(nmax)
+     .  adrs,rhostar,tF,t12(nmax),esw,ecw,eccn,drs_ratio,sinincl
 
       Pi=acos(-1.d0)   !Pi
       Msun=1.9891d30 !kg  mass of Sun
@@ -520,35 +521,44 @@ C     Need period from transit models
       col=8+10*(nplanet-1)+2
       i=1 !counter
       read(10,*) dumr
-c 10   read(nunit,*,end=11) (dumr,j=1,col+2),per,bb,rdr
  10   read(nunit,*,end=11) dumr,dumr,dumr,rhostar,(dumr,j=1,col-2),per,
-     .      b,rdr
+     .      b,rdr,esw,ecw
         bb=b*b
-        k=ran2(seed)*(np-1)+1 !pick a random selection from isochrones
+        eccn=sqrt(esw*esw+ecw*ecw)
+        if(eccn.ge.1.0d0) eccn=0.999d0
+
         Psec=per*8.64d4 !sec ; period of planet
         adrs=1000.0*rhostar*G*(per*86400.0d0)**2/(3.0d0*Pi)
         adrs=adrs**(1.0d0/3.0d0) !a/R*
-        cincl=b/adrs !cos(i)
 
-        temp(1)=Psec/Pi
-        temp(2)=1.0d0/adrs
-        temp(3)=(1+rdr)**2.0-bb
-        temp(4)=1-cincl*cincl
-        temp(5)=(1-rdr)**2.0-bb
-C     Transit duration in hours
-        tdur=temp(1)*asin(temp(2)*sqrt(temp(3)/temp(4)))/3600.0
-        tF=temp(1)*asin(temp(2)*sqrt(temp(5)/temp(4)))/3600.0
-        t12(i)=(tdur-tF)/2.0d0
-        if((t12(i).gt.-9.9e30).and.(t12(i).lt.9.9e30))then
-c            write(0,500) per,bb,rdr,tdur(i)
-            i=i+1
+        drs_ratio=(1.0d0-eccn*eccn)/(1.0d0+esw) ! r/a at transit
+        cincl=b/(adrs*drs_ratio) ! cos(i)
+        if(abs(cincl).ge.1.0d0) then
+            sinincl=0.0d0
         else
-            write(0,500) per,bb,rdr
-            write(0,500) Psec,adrs,cincl
-            write(0,500) (temp(j),j=1,4)
-            write(0,500) t12(i),dble(i)
-c            read(5,*)
- 500        format(7(1PE16.9,1X))
+            sinincl=sqrt(1.0d0-cincl*cincl)
+        endif
+
+        if((sinincl.gt.0.0d0).and.(adrs*drs_ratio.gt.0.0d0)) then
+            temp(1)=Psec/Pi * ((1.0d0-eccn*eccn)**1.5d0)/
+     .              ((1.0d0+esw)**2.0d0)
+            temp(2)=1.0d0/(adrs*drs_ratio)
+            temp(3)=(1.0d0+rdr)**2.0d0-bb
+            temp(5)=(1.0d0-rdr)**2.0d0-bb
+            if(temp(3).ge.0.0d0) then
+                tdur=temp(1)*asin(temp(2)*sqrt(temp(3))/sinincl)/3600.0
+            else
+                tdur=0.0d0
+            endif
+            if(temp(5).ge.0.0d0) then
+                tF=temp(1)*asin(temp(2)*sqrt(temp(5))/sinincl)/3600.0
+            else
+                tF=0.0d0
+            endif
+            t12(i)=(tdur-tF)/2.0d0
+            if((t12(i).gt.-9.9e30).and.(t12(i).lt.9.9e30))then
+                i=i+1
+            endif
         endif
 
         goto 10
@@ -566,7 +576,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer nunit,nplanet,npt,np,seed,i,j,k,col,nmax
       double precision tdur(nmax),rstar(np),mstar(np),Psec,per,dumr,Pi,
      .  Msun,Rsun,G,aConst,temp(4),ran2,M1,R1,asemi,bb,b,cincl,rdr,R2,
-     .  adrs,rhostar
+     .  adrs,rhostar,esw,ecw,eccn,drs_ratio,sinincl
 
       Pi=acos(-1.d0)   !Pi
       Msun=1.9891d30 !kg  mass of Sun
@@ -578,32 +588,36 @@ C     Need period from transit models
       col=8+10*(nplanet-1)+2
       i=1 !counter
       read(10,*) dumr
-c 10   read(nunit,*,end=11) (dumr,j=1,col+2),per,bb,rdr
  10   read(nunit,*,end=11) dumr,dumr,dumr,rhostar,(dumr,j=1,col-2),per,
-     .      b,rdr
+     .      b,rdr,esw,ecw
         bb=b*b
-        k=ran2(seed)*(np-1)+1 !pick a random selection from isochrones
+        eccn=sqrt(esw*esw+ecw*ecw)
+        if(eccn.ge.1.0d0) eccn=0.999d0
+
         Psec=per*8.64d4 !sec ; period of planet
         adrs=1000.0*rhostar*G*(per*86400.0d0)**2/(3.0d0*Pi)
         adrs=adrs**(1.0d0/3.0d0) !a/R*
-        cincl=b/adrs !cos(i)
 
-        temp(1)=Psec/Pi
-        temp(2)=1.0d0/adrs
-        temp(3)=(1+rdr)**2.0-bb
-        temp(4)=1-cincl*cincl
-C     Transit duration in hours
-        tdur(i)=temp(1)*asin(temp(2)*sqrt(temp(3)/temp(4)))/3600.0
-        if((tdur(i).gt.-9.9e30).and.(tdur(i).lt.9.9e30))then
-c            write(0,500) per,bb,rdr,tdur(i)
-            i=i+1
+        drs_ratio=(1.0d0-eccn*eccn)/(1.0d0+esw) ! r/a at transit
+        cincl=b/(adrs*drs_ratio) ! cos(i)
+        if(abs(cincl).ge.1.0d0) then
+            sinincl=0.0d0
         else
-            write(0,500) per,bb,rdr
-            write(0,500) Psec,adrs,cincl
-            write(0,500) (temp(j),j=1,4)
-            write(0,500) tdur(i),dble(i)
-c            read(5,*)
- 500        format(7(1PE16.9,1X))
+            sinincl=sqrt(1.0d0-cincl*cincl)
+        endif
+
+        if((sinincl.gt.0.0d0).and.(adrs*drs_ratio.gt.0.0d0)) then
+            temp(1)=Psec/Pi * ((1.0d0-eccn*eccn)**1.5d0)/
+     .              ((1.0d0+esw)**2.0d0)
+            temp(2)=1.0d0/(adrs*drs_ratio)
+            temp(3)=(1.0d0+rdr)**2.0d0-bb
+            if(temp(3).ge.0.0d0) then
+                tdur(i)=temp(1)*asin(temp(2)*sqrt(temp(3))/sinincl)/
+     .                  3600.0d0
+                if((tdur(i).gt.-9.9e30).and.(tdur(i).lt.9.9e30))then
+                    i=i+1
+                endif
+            endif
         endif
 
         goto 10
@@ -620,7 +634,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
       integer nunit,nplanet,npt,np,seed,i,j,k,col,nmax
       double precision tdur(nmax),rstar(np),mstar(np),Psec,per,dumr,Pi,
-     .  Msun,Rsun,G,aConst,temp(4),ran2,M1,R1,asemi,bb,b,cincl,rdr,R2
+     .  Msun,Rsun,G,aConst,temp(4),ran2,M1,R1,asemi,bb,b,cincl,rdr,R2,
+     .  esw,ecw,eccn,drs_ratio,sinincl
 
       Pi=acos(-1.d0)   !Pi
       Msun=1.9891d30 !kg  mass of Sun
@@ -632,32 +647,40 @@ C     Need period from transit models
       col=8+10*(nplanet-1)+2
       i=1 !counter
       read(10,*) dumr
- 10   read(nunit,*,end=11) (dumr,j=1,col+2),per,b,rdr
+ 10   read(nunit,*,end=11) dumr,dumr,dumr,R2,(dumr,j=1,col-2),per,
+     .      b,rdr,esw,ecw
         bb=b*b
+        eccn=sqrt(esw*esw+ecw*ecw)
+        if(eccn.ge.1.0d0) eccn=0.999d0
+
         k=ran2(seed)*(np-1)+1 !pick a random selection from isochrones
         Psec=per*8.64d4 !sec ; period of planet
         M1=mstar(k)*Msun
         R1=rstar(k)*Rsun
         R2=R1*rdr
         asemi=(M1)**(1.0d0/3.0d0)*Psec**(2.0d0/3.0d0)*aConst
-        cincl=b*R1/asemi !cos(i)
 
-        temp(1)=Psec/Pi
-        temp(2)=R1/asemi
-        temp(3)=(1+(R2/R1))**2.0-((asemi/R1)*cincl)**2.0
-        temp(4)=1-cincl*cincl
-C     Transit duration in hours
-        tdur(i)=temp(1)*asin(temp(2)*sqrt(temp(3)/temp(4)))/3600.0
-        if((tdur(i).gt.-9.9e30).and.(tdur(i).lt.9.9e30))then
-c            write(0,500) per,bb,rdr,tdur(i)
-            i=i+1
+        drs_ratio=(1.0d0-eccn*eccn)/(1.0d0+esw) ! r/a at transit
+        cincl=b*R1/(asemi*drs_ratio) !cos(i)
+        if(abs(cincl).ge.1.0d0) then
+            sinincl=0.0d0
         else
-            write(0,500) per,bb,rdr
-            write(0,500) Psec,M1,R1,R2,asemi,cincl,rdr
-            write(0,500) (temp(j),j=1,4)
-            write(0,500) tdur(i),dble(i)
-c            read(5,*)
- 500        format(7(1PE16.9,1X))
+            sinincl=sqrt(1.0d0-cincl*cincl)
+        endif
+
+        if((sinincl.gt.0.0d0).and.(asemi*drs_ratio.gt.0.0d0)) then
+            temp(1)=Psec/Pi * ((1.0d0-eccn*eccn)**1.5d0)/
+     .              ((1.0d0+esw)**2.0d0)
+            temp(2)=R1/(asemi*drs_ratio)
+            temp(3)=(1.0d0+(R2/R1))**2.0d0-
+     .              ((asemi*drs_ratio/R1)*cincl)**2.0d0
+            if(temp(3).ge.0.0d0) then
+                tdur(i)=temp(1)*asin(temp(2)*sqrt(temp(3))/sinincl)/
+     .                  3600.0d0
+                if((tdur(i).gt.-9.9e30).and.(tdur(i).lt.9.9e30))then
+                    i=i+1
+                endif
+            endif
         endif
 
         goto 10
