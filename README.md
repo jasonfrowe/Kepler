@@ -126,6 +126,6 @@ Exoplanet transit discovery and search algorithms.
 
 If you make use of this codebase in your research, please cite:
 
-* **Rowe et al. (2014)**, *Validation of Kepler's Multiple Planet Candidates. III. Light Curve Analysis & Performance of Medea*, ApJ, 784, 45. [[DOI:10.1088/0004-637X/784/1/45](https://doi.org/10.1088/0004-637X/784/1/45)]
+* **Rowe et al. (2014)**, *Validation of Kepler's Multiple Planet Candidates. III. Light Curve Analysis & Performance ....*, ApJ, 784, 45. [[DOI:10.1088/0004-637X/784/1/45](https://doi.org/10.1088/0004-637X/784/1/45)]
 * **Rowe et al. (2015)**, *Planetary Candidates Observed by Kepler. V. Planet Sample from Q1–Q16 (47 Months)*, ApJS, 217, 16. [[DOI:10.1088/0067-0049/217/1/16](https://doi.org/10.1088/0067-0049/217/1/16)]
 * **Jason Rowe (2016)**, *Kepler: Kepler Transit Model Codebase Release* [Data set]. Zenodo. [[DOI:10.5281/zenodo.60297](http://doi.org/10.5281/zenodo.60297)]
