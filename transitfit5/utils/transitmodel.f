@@ -118,7 +118,7 @@ C       added 2019/08/14
 !$OMP& x2,y2,bt,vt,tide,alb,caltran,mu,tm,bp,ratio,occ,
 !$OMP& tmid,phim,Manom_mid,Eanom_mid,Tanom_mid,drs_mid,x2_mid,y2_mid,
 !$OMP& b_mid,margin) 
-!$OMP& FIRSTPRIVATE (Eanom,c1,c2,c3,c4)
+!$OMP& FIRSTPRIVATE (Eanom,c1,c2,c3,c4) SCHEDULE(GUIDED)
         do i=1,npt
             call lininterp(tobs,omc,nplanetmax,nmax,ii,ntt,time(i),
      .          ttcor)
@@ -206,16 +206,24 @@ c                bt(j)=sqrt(bs2+(drs*sin(Tanom-phi0))**2)
 c            endif
 c                vt(j)=K*(cos(Pid2+Tanom-phi0)+eccn*cos(w))
 
-                vt(j)=K*(cos(Tanom-w+pid2)+eccn*cos(-w+pid2))
-c                write(6,*) "DB:",fDB*vt(j)/Cs,vt(j)
-c                vt(j)=-K*(cos(Tanom+w)+ecw)
+                if (fDB .ne. 0.0d0) then
+                   vt(j)=K*(cos(Tanom-w+pid2)+eccn*cos(-w+pid2))
+                else
+                   vt(j)=0.0d0
+                endif
 
-                tide(j)=ell*(drs/adrs)**(1.0d0/3.0d0)*
-     .              cos(2.0d0*(Pid2+Tanom-w))
-c                tide(j)=ell*(drs/adrs)**(1.0d0/3.0d0)*
-c     .              cos(2.0d0*(Pid2+phi))
-     
-                alb(j)=albedomod(Pi,ag,Tanom-w)*adrs/drs
+                if (ell .ne. 0.0d0) then
+                   tide(j)=ell*(drs/adrs)**(1.0d0/3.0d0)*
+     .                 cos(2.0d0*(Pid2+Tanom-w))
+                else
+                   tide(j)=0.0d0
+                endif
+
+                if (ag .ne. 0.0d0) then
+                   alb(j)=albedomod(Pi,ag,Tanom-w)*adrs/drs
+                else
+                   alb(j)=0.0d0
+                endif
 c                alb(j)=albedomod(Pi,ag,phi)*adrs/drs
             
 c                if(j.eq.nintg/2+1)then

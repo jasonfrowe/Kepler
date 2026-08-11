@@ -80,7 +80,6 @@ c       call transitmodel(nfit,nplanet,sol,npta,aT,aIT,tmodel,dtype)
      .   ntt,tobs,omc,tmodel,dtype)
 
        chi1=0.0d0
-       !$OMP PARALLEL DO REDUCTION(+:chi1)
        do 11 i=1,npta
          if(dtype(i).eq.1)then
              chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i)+
@@ -88,10 +87,7 @@ c       call transitmodel(nfit,nplanet,sol,npta,aT,aIT,tmodel,dtype)
          else
              chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i))
          endif
-c         chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i))
-c         chi1=chi1+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/tmodel(i)
  11    continue
-       !$OMP END PARALLEL DO
        chi1=chi1*bchi
 
        if(nfrho.eq.0)then  !if nfrho=0, then we are fitting rho_*
@@ -131,7 +127,6 @@ c      call transitmodel(nfit,nplanet,sol2,npta,aT,aIT,tmodel,dtype)
      .  ntt,tobs,omc,tmodel,dtype) 
       
       chi2=0.0d0
-      !$OMP PARALLEL DO REDUCTION(+:chi2)
       do 12 i=1,npta
         if(dtype(i).eq.1)then
             chi2=chi2+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i)+
@@ -139,11 +134,7 @@ c      call transitmodel(nfit,nplanet,sol2,npta,aT,aIT,tmodel,dtype)
         else
             chi2=chi2+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i))
         endif
-c        chi2=chi2+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/(aE(i)*aE(i))
-c        chi2=chi2+(aM(i)-tmodel(i))*(aM(i)-tmodel(i))/tmodel(i)
-c        write(0,*) aM(i),tmodel(i)
  12   continue
-      !$OMP END PARALLEL DO
       chi2=chi2*bchi
 
 c      chi1=npta !testing  MCMC distributions 
