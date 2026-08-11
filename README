@@ -36,7 +36,9 @@ Quick INSTALL:
   Option B (Direct Make):
      make -j4
 
-This compiles all components (`transitfit5`, `datatest`, `transitfind`) and places binaries into the `./bin/` directory.
+  *Note*: 
+  - If `./configure` is not present, you can generate it with `autoconf`, or simply run `make -j4` directly.
+  - The `./bin/` directory is created automatically by the Makefiles during compilation; no manual `mkdir` is required.
 
 ------------------------------------------------------------------------
 Citation Reference:
