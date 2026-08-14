@@ -11,6 +11,11 @@
       character*80 rhofile,title,parsfile,titles(18),mcmcfile,cline,
      .  names(18),name
 
+      logical has_stellar, has_teff
+      double precision mstar_in, mstar_perr, mstar_merr,
+     .  rstar_in, rstar_perr, rstar_merr,
+     .  teff_in, teff_perr, teff_merr
+
       call itime(now)
       seed=abs(now(3)+now(1)*now(2)+now(1)*now(3)+now(2)*now(3)*100)
       dumr=ran2(-seed)
@@ -62,6 +67,38 @@
       endif
       if(nbin.lt.2) goto 905
       if(nbin.gt.nbinmax) goto 906
+
+      has_stellar = .false.
+      has_teff = .false.
+
+      if(iargc().ge.9)then
+        call getarg(4,cline)
+        read(cline,*) mstar_in
+        call getarg(5,cline)
+        read(cline,*) mstar_perr
+        call getarg(6,cline)
+        read(cline,*) mstar_merr
+
+        call getarg(7,cline)
+        read(cline,*) rstar_in
+        call getarg(8,cline)
+        read(cline,*) rstar_perr
+        call getarg(9,cline)
+        read(cline,*) rstar_merr
+
+        has_stellar = .true.
+      endif
+
+      if(iargc().ge.12)then
+        call getarg(10,cline)
+        read(cline,*) teff_in
+        call getarg(11,cline)
+        read(cline,*) teff_perr
+        call getarg(12,cline)
+        read(cline,*) teff_merr
+
+        has_teff = .true.
+      endif
 
       call pgopen('?') !open PGPlot device
 c      call pgopen('/null')
@@ -230,6 +267,36 @@ c        write(6,500) ave,std,(errs(k),k=1,6)
         output(16)=ave
         output(17)=std
 
+        if(has_stellar) then
+           call getprad(nunit,i,nmax,npt,dd,mstar_in,mstar_perr,
+     .       mstar_merr,rstar_in,rstar_perr,rstar_merr,seed)
+           title="R\dp\u (R\d\(2281)\u)"
+           call histogram(npt,rp,dd,work,nd,nbin,nbinmax,bdatax,
+     .         bdatay,title,ave,std,errs)
+           name="Rp (R_earth)"
+           call writetable(ave,std,errs,name)
+           rewind(nunit)
+
+           call getsflux(nunit,i,nmax,npt,dd,mstar_in,mstar_perr,
+     .       mstar_merr,rstar_in,rstar_perr,rstar_merr,has_teff,
+     .       teff_in,teff_perr,teff_merr,seed)
+           title="S (S\d\(2281)\u)"
+           call histogram(npt,rp,dd,work,nd,nbin,nbinmax,bdatax,
+     .         bdatay,title,ave,std,errs)
+           name="S (S_earth)"
+           call writetable(ave,std,errs,name)
+           rewind(nunit)
+
+           call getincl(nunit,i,nmax,npt,dd,mstar_in,mstar_perr,
+     .       mstar_merr,rstar_in,rstar_perr,rstar_merr,seed)
+           title="Inclination (deg)"
+           call histogram(npt,rp,dd,work,nd,nbin,nbinmax,bdatax,
+     .         bdatay,title,ave,std,errs)
+           name="Inclination (deg)"
+           call writetable(ave,std,errs,name)
+           rewind(nunit)
+        endif
+
  11   continue
 
  25   continue
@@ -241,7 +308,8 @@ c        write(6,500) ave,std,(errs(k),k=1,6)
  503  format(17(1PE17.10,1X))
 
       goto 999
- 901  write(0,*) "Usage: mcmchist5 n1.dat mcmc.dat"
+ 901  write(0,*) "Usage: mcmchist5 <parsfile> <mcmcfile> [nbin] ",
+     .  "[Mstar +Merr -Merr Rstar +Rerr -Rerr] [Teff +Terr -Terr]"
       goto 999
  902  write(0,*) "Cannot open ",rhofile
       goto 999
@@ -315,30 +383,26 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
       integer nunit,nplanet,npt,j,col,i,dtype(1),nfitm,nplanetmax,nfit,
      .   nmax
-      parameter(nfitm=112,nplanetmax=10,nmax=1500000)
+      parameter(nfitm=112,nplanetmax=10,nmax=1)
       integer ntt(nplanetmax)
       double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax)
-      double precision tdepth(npt),sol(nfitm),dumr,tmodel(1),tdep(npt),
+      double precision sol(nfitm),dumr,tmodel(1),tdep(npt),
      .   itime(1),time(1)
-
-      nfit=nfitm
+      
+      nfit=nplanet*10+8
       itime(1)=1765.5/86400.0d0
       dtype(1)=0
-      ntt(1)=0
+      do 5 j=1,nplanetmax
+         ntt(j)=0
+ 5    continue
+      
+      i=1
+      read(nunit,*) dumr
+ 10   read(nunit,*,end=11) dumr,dumr,dumr,(sol(j),j=1,nfit)
 
-C     Get all the parameters for a transit model
-      col=10*(nplanet-1)
-      i=1 !counter
-      read(10,*) dumr
- 10   read(nunit,*,end=11) dumr,dumr,dumr,(sol(j),j=1,8),
-     .   (dumr,j=1,col),(sol(j),j=9,18)
-
-        time(1)=sol(9)
-
-C     FIX ME.... HERE
-c        call transitmodel(nfit,1,sol,1,time,itime,tmodel,dtype)
+        time(1)=sol(8+10*(nplanet-1)+1)
         call transitmodel(nfit,1,nplanetmax,sol,nmax,1,time,
-     .  itime,ntt,tobs,omc,tmodel,dtype)
+     .    itime,ntt,tobs,omc,tmodel,dtype)
 
         tdep(i)=(1.0d0-tmodel(1)+sol(8))*1.0d6
 c        write(0,*) (1.0d0-tmodel)*1.0d6
@@ -353,154 +417,131 @@ c        read(5,*)
       end
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine getrhoplanet(nunit,nplanet,npt,mp,np,mstar,rstar,seed)
+      double precision function draw_asym(val, perr, merr, seed)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
-      integer nunit,nplanet,npt,np,seed,i,j,k,col
-      double precision mp(npt),rstar(np),mstar(np),ecw,esw,per,bb,Kr,b,
-     .  Pi,Msun,Rsun,G,aConst,Psec,M1,R1,incl,dumr,ran2,asemi,ac,bc,C1,
-     .  C2,ct(3),Mearth,rdr,pmass,prad,fourthirdsPi
+      double precision val, perr, merr, z, sp, sm, gasdev
+      integer seed
 
-      ct(1)=1.0d0/3.0d0
-      ct(2)=2.0d0**ct(1)
-      ct(3)=3.0d0*sqrt(3.0d0)
-
-      Pi=acos(-1.d0)   !Pi
-      Msun=1.9891d30 !kg  mass of Sun
-      Mearth=5.9742d24 !kg mass of Earth
-      Rsun=696265.0d0*1000.0d0 !m  radius of Sun
-      G=6.674d-11 !N m^2 kg^-2  Gravitation constant
-      aConst=(G/(4.0*Pi*Pi))**(1.0d0/3.0d0)
-      fourthirdsPi=4.0d0/3.0d0*Pi
-
-C     Need period from transit models
-      col=8+10*(nplanet-1)+2
-      i=1 !counter
-      read(10,*) dumr
- 10   read(nunit,*,end=11) (dumr,j=1,col+2),per,b,rdr,ecw,esw,Kr
-
-c        Kr=Kr/1.9103
-
-        bb=b*b !b to b^2
-        Psec=per*8.64d4 !sec ; period of planet
-        k=ran2(seed)*(np-1)+1 !pick a random selection from isochrones
-        M1=mstar(k)*Msun
-        R1=rstar(k)*Rsun
-        asemi=(M1)**(1.0d0/3.0d0)*Psec**(2.0d0/3.0d0)*aConst
-        incl=acos(b*R1/asemi) !inclination in radians
-
-        bc=Kr**3*Psec/(2*Pi*G*sin(incl)**3)
-        ac=M1
-
-        if(bc.gt.0)then
-            C2=sqrt(27.0*ac**4*bc**2+4.0d0*ac**3*bc**3)
-            C1=(27.0*ac**2*bc+ct(3)*C2+18.0d0*ac*bc**2+2.0d0*bc**3)**
-     .          ct(1)
-            pmass=C1/(3.0d0*ct(2))-ct(2)*(-6.0d0*ac*bc-bc**2)/
-     .          (3.0d0*C1)+bc/3.0d0
-c            mp(i)=mp(i)/Mearth !convert to Earth Units
-        else
-            goto 10 !we don't count negative mass
-        endif
-
-        prad=R1*rdr !planet radius
-
-        mp(i)=pmass/(fourthirdsPi*prad*prad*prad)/1000.0d0
-
-c        if((mp(i).gt.-9.9e30).and.(mp(i).lt.9.9e30))then
-c            continue
-c        else
-c            write(0,500) b,Psec,Kr,M1,R1,asemi,sin(incl)
-c            write(0,500) ac,bc,C2,C1
-c            write(0,500) C1/(3.0d0*ct(2)),
-c     .                   ct(2)*(-6.0d0*ac*bc-bc**2)/3.0d0*C1,
-c     .                   bc/3.0d0
-c            write(0,500) mp(i)
-c            read(5,*)
-c 500        format(10(1PE16.9,1X))
-c        endif
-
-        i=i+1
-        goto 10
- 11   continue
-      npt=i-1 !update counter
-
-      return
-      end
-
-
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine getpmass(nunit,nplanet,npt,mp,np,rstar,mstar,seed)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      implicit none
-      integer nunit,nplanet,npt,np,seed,i,j,k,col
-      double precision mp(npt),rstar(np),mstar(np),ecw,esw,per,bb,Kr,b,
-     .  Pi,Msun,Rsun,G,aConst,Psec,M1,R1,incl,dumr,ran2,asemi,ac,bc,C1,
-     .  C2,ct(3),Mearth
-
-      ct(1)=1.0d0/3.0d0
-      ct(2)=2.0d0**ct(1)
-      ct(3)=3.0d0*sqrt(3.0d0)
-
-      Pi=acos(-1.d0)   !Pi
-      Msun=1.9891d30 !kg  mass of Sun
-      Mearth=5.9742d24 !kg mass of Earth
-      Rsun=696265.0d0*1000.0d0 !m  radius of Sun
-      G=6.674d-11 !N m^2 kg^-2  Gravitation constant
-      aConst=(G/(4.0*Pi*Pi))**(1.0d0/3.0d0)
-
-C     Need period from transit models
-      col=8+10*(nplanet-1)+2
-      i=1 !counter
-      read(10,*) dumr
- 10   read(nunit,*,end=11) (dumr,j=1,col+2),per,b,dumr,ecw,esw,Kr
-
-c        Kr=Kr/1.9103
-
-        bb=b*b
-        Psec=per*8.64d4 !sec ; period of planet
-        k=ran2(seed)*(np-1)+1 !pick a random selection from isochrones
-        M1=mstar(k)*Msun
-        R1=rstar(k)*Rsun
-        asemi=(M1)**(1.0d0/3.0d0)*Psec**(2.0d0/3.0d0)*aConst
-        incl=acos(b*R1/asemi) !inclination in radians
-
-        bc=Kr**3*Psec/(2*Pi*G*sin(incl)**3)
-        ac=M1
-
-        if(bc.gt.0)then
-            C2=sqrt(27.0*ac**4*bc**2+4.0d0*ac**3*bc**3)
-            C1=(27.0*ac**2*bc+ct(3)*C2+18.0d0*ac*bc**2+2.0d0*bc**3)**
-     .          ct(1)
-            mp(i)=C1/(3.0d0*ct(2))-ct(2)*(-6.0d0*ac*bc-bc**2)/
-     .          (3.0d0*C1)+bc/3.0d0
-            mp(i)=mp(i)/Mearth !convert to Earth Units
-        else
-            goto 10 !we don't count negative mass
-        endif
-
-c        if((mp(i).gt.-9.9e30).and.(mp(i).lt.9.9e30))then
-c            continue
-c        else
-c            write(0,500) b,Psec,Kr,M1,R1,asemi,sin(incl)
-c            write(0,500) ac,bc,C2,C1
-c            write(0,500) C1/(3.0d0*ct(2)),
-c     .                   ct(2)*(-6.0d0*ac*bc-bc**2)/3.0d0*C1,
-c     .                   bc/3.0d0
-c            write(0,500) mp(i)
-c            read(5,*)
-c 500        format(10(1PE16.9,1X))
-c        endif
-
-        i=i+1
-        goto 10
- 11   continue
-      npt=i-1 !update counter
-
+      sp = abs(perr)
+      sm = abs(merr)
+      z = gasdev(seed)
+      if (z .ge. 0.0d0) then
+         draw_asym = val + z * sp
+      else
+         draw_asym = val + z * sm
+      endif
       return
       end
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine getprad(nunit, nplanet, nmax, npt, prad, mstar_in,
+     .  mstar_perr, mstar_merr, rstar_in, rstar_perr, rstar_merr, seed)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      implicit none
+      integer nunit, nplanet, nmax, npt, seed, i, j, col
+      double precision prad(nmax), mstar_in, mstar_perr, mstar_merr,
+     .  rstar_in, rstar_perr, rstar_merr, dumr, rdr, r1, draw_asym
+
+      col = 8 + 10 * (nplanet - 1) + 4
+      i = 1
+      read(nunit, *) dumr
+ 300  read(nunit, *, end=310) (dumr, j = 1, col + 2), rdr
+         r1 = draw_asym(rstar_in, rstar_perr, rstar_merr, seed)
+         if (r1 .le. 0.01d0) r1 = 0.01d0
+         prad(i) = rdr * r1 * 109.07637d0
+         i = i + 1
+         if (i .gt. nmax) goto 310
+         goto 300
+ 310  continue
+      npt = i - 1
+      return
+      end
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine getsflux(nunit, nplanet, nmax, npt, sflux, mstar_in,
+     .  mstar_perr, mstar_merr, rstar_in, rstar_perr, rstar_merr,
+     .  has_teff, teff_in, teff_perr, teff_merr, seed)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      implicit none
+      integer nunit, nplanet, nmax, npt, seed, i, j, col
+      logical has_teff
+      double precision sflux(nmax), mstar_in, mstar_perr, mstar_merr,
+     .  rstar_in, rstar_perr, rstar_merr, teff_in, teff_perr, teff_merr,
+     .  dumr, per, m1, r1, teff1, a_au, l_star, draw_asym
+
+      col = 8 + 10 * (nplanet - 1) + 2
+      i = 1
+      read(nunit, *) dumr
+ 100  read(nunit, *, end=110) (dumr, j = 1, col + 2), per
+         m1 = draw_asym(mstar_in, mstar_perr, mstar_merr, seed)
+         if (m1 .le. 0.01d0) m1 = 0.01d0
+         r1 = draw_asym(rstar_in, rstar_perr, rstar_merr, seed)
+         if (r1 .le. 0.01d0) r1 = 0.01d0
+
+         if (has_teff) then
+            teff1 = draw_asym(teff_in, teff_perr, teff_merr, seed)
+            if (teff1 .le. 100.0d0) teff1 = 100.0d0
+         else
+            teff1 = 5772.0d0 * (m1)**0.5d0
+         endif
+
+         a_au = (m1 * (per / 365.256363d0)**2)**(1.0d0 / 3.0d0)
+         if (a_au .gt. 0.0d0) then
+            l_star = (r1**2) * ((teff1 / 5772.0d0)**4)
+            sflux(i) = l_star / (a_au**2)
+            i = i + 1
+         endif
+         if (i .gt. nmax) goto 110
+         goto 100
+ 110  continue
+      npt = i - 1
+      return
+      end
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine getincl(nunit, nplanet, nmax, npt, incl, mstar_in,
+     .  mstar_perr, mstar_merr, rstar_in, rstar_perr, rstar_merr, seed)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      implicit none
+      integer nunit, nplanet, nmax, npt, seed, i, j, col
+      double precision incl(nmax), mstar_in, mstar_perr, mstar_merr,
+     .  rstar_in, rstar_perr, rstar_merr, dumr, per, b, rdr, esw, ecw,
+     .  m1, r1, a_au, adrs, eccn, drs_ratio, cincl, Pi, draw_asym
+
+      Pi = acos(-1.0d0)
+      col = 8 + 10 * (nplanet - 1) + 2
+      i = 1
+      read(nunit, *) dumr
+ 200  read(nunit, *, end=210) (dumr, j = 1, col + 1), per, b, rdr,
+     .  ecw, esw
+
+         m1 = draw_asym(mstar_in, mstar_perr, mstar_merr, seed)
+         if (m1 .le. 0.01d0) m1 = 0.01d0
+         r1 = draw_asym(rstar_in, rstar_perr, rstar_merr, seed)
+         if (r1 .le. 0.01d0) r1 = 0.01d0
+
+         a_au = (m1 * (per / 365.256363d0)**2)**(1.0d0 / 3.0d0)
+         adrs = a_au * 215.032d0 / r1
+
+         eccn = sqrt(esw*esw + ecw*ecw)
+         if (eccn .ge. 1.0d0) eccn = 0.999d0
+         drs_ratio = (1.0d0 - eccn*eccn) / (1.0d0 + esw)
+
+         if (adrs * drs_ratio .gt. 0.0d0) then
+            cincl = b / (adrs * drs_ratio)
+            if (cincl .gt. 1.0d0) cincl = 1.0d0
+            if (cincl .lt. -1.0d0) cincl = -1.0d0
+            incl(i) = acos(cincl) * 180.0d0 / Pi
+            i = i + 1
+         endif
+         if (i .gt. nmax) goto 210
+         goto 200
+ 210  continue
+      npt = i - 1
+      return
+      end
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine gett12(nunit,nplanet,nmax,npt,t12,np,rstar,mstar,
      .  seed)
@@ -741,76 +782,8 @@ C     Need period from transit models
       read(10,*) dumr
  10   read(nunit,*,end=11) dumr,dumr,dumr,rhostarmodel,(dumr,j=1,col-2),
      .  per
-         k=ran2(seed)*(np-1)+1 !pick a random selection from isochrones
-c        Psec=per*8.64d4 !sec ; period of planet
-c        M1=mstar(k)*Msun
-c        R1=rstar(k)*Rsun
-c        asemi=(M1)**(1.0d0/3.0d0)*Psec**(2.0d0/3.0d0)*aConst
-c        adrs(i)=asemi/R1
-
-
-c        adrs(i)=1000.0*rhostar(k)*G*(per*86400.0d0)**2/(3.0d0*Pi)
         adrs(i)=1000.0*rhostarmodel*G*(per*86400.0d0)**2/(3.0d0*Pi)
         adrs(i)=adrs(i)**(1.0d0/3.0d0)
-c        write(0,*) rhostar,per
-c        read(5,*)
-
-        i=i+1
-        goto 10
- 11   continue
-      npt=i-1 !update counter
-
-      return
-      end
-
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine getincl(nunit,nplanet,npt,incl,np,rstar,mstar,seed)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      implicit none
-      integer nunit,nplanet,npt,seed,np,col,i,j,k
-      double precision incl(npt),rstar(np),mstar(np),ran2,per,bb,b,Pi,
-     .  Msun,Rsun,G,aConst,asemi,M1,Psec,R1,dumr
-
-      Pi=acos(-1.d0)   !Pi
-      Msun=1.9891d30 !kg  mass of Sun
-      Rsun=696265.0d0*1000.0d0 !m  radius of Sun
-      G=6.674d-11 !N m^2 kg^-2  Gravitation constant
-      aConst=(G/(4.0*Pi*Pi))**(1.0d0/3.0d0)
-
-C     Need impact parameter, period from transit models
-      col=8+10*(nplanet-1)+2
-      i=1 !counter
-      read(10,*) dumr
- 10   read(nunit,*,end=11) (dumr,j=1,col+2),per,b
-        k=ran2(seed)*(np-1)+1 !pick a random selection from isochrones
-        bb=b*b
-        M1=mstar(k)*Msun
-        R1=rstar(k)*Rsun
-        Psec=per*8.64d4 !sec ; period of planet
-        asemi=(M1)**(1.0d0/3.0d0)*Psec**(2.0d0/3.0d0)*aConst
-        incl(i)=acos(b*R1/asemi)*180.0/Pi !inclination in degrees
-        i=i+1
-        goto 10
- 11   continue
-      npt=i-1 !update counter
-
-      return
-      end
-
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      subroutine getprad(nunit,nplanet,npt,rp,np,rstar,seed)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      implicit none
-      integer npt,np,nplanet,col,i,j,k,seed,nunit
-      double precision rp(npt),rstar(np),dumr,rdr,ran2
-
-C     Read in r/R* column
-      col=8+10*(nplanet-1)+4
-      i=1 !counter
-      read(10,*) dumr
- 10   read(nunit,*,end=11) (dumr,j=1,col+2),rdr
-        k=ran2(seed)*(np-1)+1 !pick a random selection from rstar
-        rp(i)=rstar(k)*rdr*109.17
         i=i+1
         goto 10
  11   continue
@@ -853,14 +826,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       i=1
   9   continue
  10   read(nunit,*,end=11) (dumr,j=1,col+2),dd(i)
-c         write(6,*) dd(i)
-c         if((col.eq.6).and.(dd(i).gt.89.95)) goto 10
-c         if(col.eq.8) dd(i)=dd(i)*1.0e6
-
-c         k=k+1
-c         if(k.lt.10) goto 10
-c         k=0
-
          i=i+1
          goto 10
  11   continue
@@ -873,5 +838,119 @@ c         k=0
       goto 999
 
  999  return
+      end
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine getrhoplanet(nunit,nplanet,npt,mp,np,mstar,rstar,seed)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      implicit none
+      integer nunit,nplanet,npt,np,seed,i,j,k,col
+      double precision mp(npt),rstar(np),mstar(np),ecw,esw,per,bb,Kr,b,
+     .  Pi,Msun,Rsun,G,aConst,Psec,M1,R1,incl,dumr,ran2,asemi,ac,bc,C1,
+     .  C2,ct(3),Mearth,rdr,pmass,prad,fourthirdsPi
+
+      ct(1)=1.0d0/3.0d0
+      ct(2)=2.0d0**ct(1)
+      ct(3)=3.0d0*sqrt(3.0d0)
+
+      Pi=acos(-1.d0)   !Pi
+      Msun=1.9891d30 !kg  mass of Sun
+      Mearth=5.9742d24 !kg mass of Earth
+      Rsun=696265.0d0*1000.0d0 !m  radius of Sun
+      G=6.674d-11 !N m^2 kg^-2  Gravitation constant
+      aConst=(G/(4.0*Pi*Pi))**(1.0d0/3.0d0)
+      fourthirdsPi=4.0d0/3.0d0*Pi
+      
+      col=8+10*(nplanet-1)+2
+      i=1 !counter
+      read(10,*) dumr
+ 10   read(nunit,*,end=11) (dumr,j=1,col+2),per,b,rdr,ecw,esw,Kr
+ 
+        bb=b*b !b to b^2
+        Psec=per*8.64d4 !sec ; period of planet
+        k=ran2(seed)*(np-1)+1 !pick a random selection from isochrones
+        M1=mstar(k)*Msun
+        R1=rstar(k)*Rsun
+        asemi=(M1)**(1.0d0/3.0d0)*Psec**(2.0d0/3.0d0)*aConst
+        incl=acos(b*R1/asemi) !inclination in radians
+        
+        bc=Kr**3*Psec/(2*Pi*G*sin(incl)**3)
+        ac=M1
+        
+        if(bc.gt.0)then
+            C2=sqrt(27.0*ac**4*bc**2+4.0d0*ac**3*bc**3)
+            C1=(27.0*ac**2*bc+ct(3)*C2+18.0d0*ac*bc**2+2.0d0*bc**3)**
+     .          ct(1)
+            pmass=C1/(3.0d0*ct(2))-ct(2)*(-6.0d0*ac*bc-bc**2)/
+     .          (3.0d0*C1)+bc/3.0d0
+        else
+            pmass=(bc*ac*ac)**ct(1) !assume Mp << Ms
+        endif
+
+        prad=R1*rdr !planet radius
+        
+        mp(i)=pmass/(fourthirdsPi*prad*prad*prad)/1000.0d0
+
+        i=i+1
+        goto 10
+ 11   continue
+      npt=i-1 !update counter
+
+      return
+      end     
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine getpmass(nunit,nplanet,npt,mp,np,rstar,mstar,seed)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      implicit none
+      integer nunit,nplanet,npt,np,seed,i,j,k,col
+      double precision mp(npt),rstar(np),mstar(np),ecw,esw,per,bb,Kr,b,
+     .  Pi,Msun,Rsun,G,aConst,Psec,M1,R1,incl,dumr,ran2,asemi,ac,bc,C1,
+     .  C2,ct(3),Mearth
+     
+      ct(1)=1.0d0/3.0d0
+      ct(2)=2.0d0**ct(1)
+      ct(3)=3.0d0*sqrt(3.0d0)
+
+      Pi=acos(-1.d0)   !Pi
+      Msun=1.9891d30 !kg  mass of Sun
+      Mearth=5.9742d24 !kg mass of Earth
+      Rsun=696265.0d0*1000.0d0 !m  radius of Sun
+      G=6.674d-11 !N m^2 kg^-2  Gravitation constant
+      aConst=(G/(4.0*Pi*Pi))**(1.0d0/3.0d0)
+      
+      col=8+10*(nplanet-1)+2
+      i=1 !counter
+      read(10,*) dumr
+ 10   read(nunit,*,end=11) (dumr,j=1,col+2),per,b,dumr,ecw,esw,Kr
+ 
+        bb=b*b
+        Psec=per*8.64d4 !sec ; period of planet
+        k=ran2(seed)*(np-1)+1 !pick a random selection from isochrones
+        M1=mstar(k)*Msun
+        R1=rstar(k)*Rsun
+        asemi=(M1)**(1.0d0/3.0d0)*Psec**(2.0d0/3.0d0)*aConst
+        incl=acos(b*R1/asemi) !inclination in radians
+        
+        bc=Kr**3*Psec/(2*Pi*G*sin(incl)**3)
+        ac=M1
+        
+        if(bc.gt.0)then
+            C2=sqrt(27.0*ac**4*bc**2+4.0d0*ac**3*bc**3)
+            C1=(27.0*ac**2*bc+ct(3)*C2+18.0d0*ac*bc**2+2.0d0*bc**3)**
+     .          ct(1)
+            mp(i)=C1/(3.0d0*ct(2))-ct(2)*(-6.0d0*ac*bc-bc**2)/
+     .          (3.0d0*C1)+bc/3.0d0
+            mp(i)=mp(i)/Mearth !convert to Earth Units
+        else
+            mp(i)=(bc*ac*ac)**ct(1)/Mearth !assume Mp << Ms
+        endif
+        
+        i=i+1
+        goto 10
+ 11   continue
+      npt=i-1 !update counter
+
+      return
       end
 
