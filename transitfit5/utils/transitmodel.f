@@ -52,10 +52,9 @@ c        bs2=abs(sol(10*(ii-1)+8+3))
 c        write(0,*) bs2,b
         RpRs=abs(sol(10*(ii-1)+8+4))    !Rp/R*
 
-        ecw=sol(10*(ii-1)+8+6)
-        esw=sol(10*(ii-1)+8+5)
-c        eccn=sqrt(ecw*ecw+esw*esw) !eccentricity
-        eccn=(ecw*ecw+esw*esw)
+        ecw=sol(10*(ii-1)+8+5)
+        esw=sol(10*(ii-1)+8+6)
+        eccn=(ecw*ecw+esw*esw) ! eccn = e = ecw^2 + esw^2
 
         if(eccn.ge.1.0) eccn=0.99
         if(eccn.eq.0.0d0)then

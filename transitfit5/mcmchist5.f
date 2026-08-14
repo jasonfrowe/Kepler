@@ -102,7 +102,7 @@
 
       call pgopen('?') !open PGPlot device
 c      call pgopen('/null')
-      call pgask(.true.) !don't ask for new page.. just do it.
+      call pgask(.false.) !don't ask for new page.. just do it.
       call PGPAP ( 8.0 ,1.0) !paper size
       call pgsubp(4,4)  !break up plot into grid
 
@@ -389,24 +389,24 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       double precision sol(nfitm),dumr,tmodel(1),tdep(npt),
      .   itime(1),time(1)
       
-      nfit=nplanet*10+8
+      nfit=18
       itime(1)=1765.5/86400.0d0
       dtype(1)=0
       do 5 j=1,nplanetmax
          ntt(j)=0
  5    continue
       
+      col=10*(nplanet-1)
       i=1
       read(nunit,*) dumr
- 10   read(nunit,*,end=11) dumr,dumr,dumr,(sol(j),j=1,nfit)
+ 10   read(nunit,*,end=11) dumr,dumr,dumr,(sol(j),j=1,8),
+     .   (dumr,j=1,col),(sol(j),j=9,18)
 
-        time(1)=sol(8+10*(nplanet-1)+1)
+        time(1)=sol(9)
         call transitmodel(nfit,1,nplanetmax,sol,nmax,1,time,
      .    itime,ntt,tobs,omc,tmodel,dtype)
 
         tdep(i)=(1.0d0-tmodel(1)+sol(8))*1.0d6
-c        write(0,*) (1.0d0-tmodel)*1.0d6
-c        read(5,*)
 
         i=i+1
         goto 10
@@ -524,9 +524,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          a_au = (m1 * (per / 365.256363d0)**2)**(1.0d0 / 3.0d0)
          adrs = a_au * 215.032d0 / r1
 
-         eccn = sqrt(esw*esw + ecw*ecw)
+         eccn = ecw*ecw + esw*esw
          if (eccn .ge. 1.0d0) eccn = 0.999d0
-         drs_ratio = (1.0d0 - eccn*eccn) / (1.0d0 + esw)
+         drs_ratio = (1.0d0 - eccn*eccn) / (1.0d0 + sqrt(eccn)*esw)
 
          if (adrs * drs_ratio .gt. 0.0d0) then
             cincl = b / (adrs * drs_ratio)
@@ -550,7 +550,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer nunit,nplanet,npt,np,seed,i,j,k,col,nmax
       double precision tdur,rstar(np),mstar(np),Psec,per,dumr,Pi,
      .  Msun,Rsun,G,aConst,temp(5),ran2,M1,R1,asemi,bb,b,cincl,rdr,R2,
-     .  adrs,rhostar,tF,t12(nmax),esw,ecw,eccn,drs_ratio,sinincl
+     .  adrs,rhostar,tF,t12(nmax),esw,ecw,eccn,drs_ratio,sinincl,esinw
 
       Pi=acos(-1.d0)   !Pi
       Msun=1.9891d30 !kg  mass of Sun
@@ -563,16 +563,17 @@ C     Need period from transit models
       i=1 !counter
       read(10,*) dumr
  10   read(nunit,*,end=11) dumr,dumr,dumr,rhostar,(dumr,j=1,col-2),per,
-     .      b,rdr,esw,ecw
+     .      b,rdr,ecw,esw
         bb=b*b
-        eccn=sqrt(esw*esw+ecw*ecw)
+        eccn=ecw*ecw+esw*esw
         if(eccn.ge.1.0d0) eccn=0.999d0
+        esinw=sqrt(eccn)*esw
 
         Psec=per*8.64d4 !sec ; period of planet
         adrs=1000.0*rhostar*G*(per*86400.0d0)**2/(3.0d0*Pi)
         adrs=adrs**(1.0d0/3.0d0) !a/R*
 
-        drs_ratio=(1.0d0-eccn*eccn)/(1.0d0+esw) ! r/a at transit
+        drs_ratio=(1.0d0-eccn*eccn)/(1.0d0+esinw) ! r/a at transit
         cincl=b/(adrs*drs_ratio) ! cos(i)
         if(abs(cincl).ge.1.0d0) then
             sinincl=0.0d0
@@ -582,7 +583,7 @@ C     Need period from transit models
 
         if((sinincl.gt.0.0d0).and.(adrs*drs_ratio.gt.0.0d0)) then
             temp(1)=Psec/Pi * ((1.0d0-eccn*eccn)**1.5d0)/
-     .              ((1.0d0+esw)**2.0d0)
+     .              ((1.0d0+esinw)**2.0d0)
             temp(2)=1.0d0/(adrs*drs_ratio)
             temp(3)=(1.0d0+rdr)**2.0d0-bb
             temp(5)=(1.0d0-rdr)**2.0d0-bb
@@ -617,7 +618,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer nunit,nplanet,npt,np,seed,i,j,k,col,nmax
       double precision tdur(nmax),rstar(np),mstar(np),Psec,per,dumr,Pi,
      .  Msun,Rsun,G,aConst,temp(4),ran2,M1,R1,asemi,bb,b,cincl,rdr,R2,
-     .  adrs,rhostar,esw,ecw,eccn,drs_ratio,sinincl
+     .  adrs,rhostar,esw,ecw,eccn,drs_ratio,sinincl,esinw
 
       Pi=acos(-1.d0)   !Pi
       Msun=1.9891d30 !kg  mass of Sun
@@ -630,16 +631,17 @@ C     Need period from transit models
       i=1 !counter
       read(10,*) dumr
  10   read(nunit,*,end=11) dumr,dumr,dumr,rhostar,(dumr,j=1,col-2),per,
-     .      b,rdr,esw,ecw
+     .      b,rdr,ecw,esw
         bb=b*b
-        eccn=sqrt(esw*esw+ecw*ecw)
+        eccn=ecw*ecw+esw*esw
         if(eccn.ge.1.0d0) eccn=0.999d0
+        esinw=sqrt(eccn)*esw
 
         Psec=per*8.64d4 !sec ; period of planet
         adrs=1000.0*rhostar*G*(per*86400.0d0)**2/(3.0d0*Pi)
         adrs=adrs**(1.0d0/3.0d0) !a/R*
 
-        drs_ratio=(1.0d0-eccn*eccn)/(1.0d0+esw) ! r/a at transit
+        drs_ratio=(1.0d0-eccn*eccn)/(1.0d0+esinw) ! r/a at transit
         cincl=b/(adrs*drs_ratio) ! cos(i)
         if(abs(cincl).ge.1.0d0) then
             sinincl=0.0d0
@@ -649,7 +651,7 @@ C     Need period from transit models
 
         if((sinincl.gt.0.0d0).and.(adrs*drs_ratio.gt.0.0d0)) then
             temp(1)=Psec/Pi * ((1.0d0-eccn*eccn)**1.5d0)/
-     .              ((1.0d0+esw)**2.0d0)
+     .              ((1.0d0+esinw)**2.0d0)
             temp(2)=1.0d0/(adrs*drs_ratio)
             temp(3)=(1.0d0+rdr)**2.0d0-bb
             if(temp(3).ge.0.0d0) then
@@ -676,7 +678,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer nunit,nplanet,npt,np,seed,i,j,k,col,nmax
       double precision tdur(nmax),rstar(np),mstar(np),Psec,per,dumr,Pi,
      .  Msun,Rsun,G,aConst,temp(4),ran2,M1,R1,asemi,bb,b,cincl,rdr,R2,
-     .  esw,ecw,eccn,drs_ratio,sinincl
+     .  esw,ecw,eccn,drs_ratio,sinincl,esinw
 
       Pi=acos(-1.d0)   !Pi
       Msun=1.9891d30 !kg  mass of Sun
@@ -689,10 +691,11 @@ C     Need period from transit models
       i=1 !counter
       read(10,*) dumr
  10   read(nunit,*,end=11) dumr,dumr,dumr,R2,(dumr,j=1,col-2),per,
-     .      b,rdr,esw,ecw
+     .      b,rdr,ecw,esw
         bb=b*b
-        eccn=sqrt(esw*esw+ecw*ecw)
+        eccn=ecw*ecw+esw*esw
         if(eccn.ge.1.0d0) eccn=0.999d0
+        esinw=sqrt(eccn)*esw
 
         k=ran2(seed)*(np-1)+1 !pick a random selection from isochrones
         Psec=per*8.64d4 !sec ; period of planet
@@ -701,7 +704,7 @@ C     Need period from transit models
         R2=R1*rdr
         asemi=(M1)**(1.0d0/3.0d0)*Psec**(2.0d0/3.0d0)*aConst
 
-        drs_ratio=(1.0d0-eccn*eccn)/(1.0d0+esw) ! r/a at transit
+        drs_ratio=(1.0d0-eccn*eccn)/(1.0d0+esinw) ! r/a at transit
         cincl=b*R1/(asemi*drs_ratio) !cos(i)
         if(abs(cincl).ge.1.0d0) then
             sinincl=0.0d0
@@ -711,7 +714,7 @@ C     Need period from transit models
 
         if((sinincl.gt.0.0d0).and.(asemi*drs_ratio.gt.0.0d0)) then
             temp(1)=Psec/Pi * ((1.0d0-eccn*eccn)**1.5d0)/
-     .              ((1.0d0+esw)**2.0d0)
+     .              ((1.0d0+esinw)**2.0d0)
             temp(2)=R1/(asemi*drs_ratio)
             temp(3)=(1.0d0+(R2/R1))**2.0d0-
      .              ((asemi*drs_ratio/R1)*cincl)**2.0d0
