@@ -32,8 +32,8 @@
       titles(10)='P-P0 (10\u-6\d days)'
       titles(11)='b'
       titles(12)="Rp/R*"
-      titles(13)="e cos w"!"Eccentricity"
-      titles(14)="e sin w"!"Argument of Pericenter (deg)"
+      titles(13)="sqrt(e) cos w"!"Eccentricity"
+      titles(14)="sqrt(e) sin w"!"Argument of Pericenter (deg)"
       titles(15)="K (m/s)"
       titles(16)='Secondary Eclipse Depth (ppm)'
       titles(17)='Ellipsodial Amplitude (ppm)'
@@ -51,8 +51,8 @@
       names(10)='Period (days)'
       names(11)='b'
       names(12)="Rp/R*"
-      names(13)="e cos w"
-      names(14)="e sin w"
+      names(13)="sqrt(e) cos w"
+      names(14)="sqrt(e) sin w"
       names(15)="K (m/s)"
       names(16)='Occultation (ppm)'
       names(17)='Ellipsodial (ppm)'

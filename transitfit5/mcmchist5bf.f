@@ -146,7 +146,7 @@ c                    if(jj.le.0) jj=1
 c                write(6,500) sol(ii),ave,std,(errs(k),k=1,6)
                 if(j.eq.2) then
                     call histogram(npt,rp,dd,work,nd,nbin,nbinmax,
-     .               bdatax,bdatay,title,ave,std,errs,0.0)
+     .               bdatax,bdatay,title,ave,std,errs,0.0d0)
                     call writetable(real(sol(ii)),std,errs,name)
 !                    call writetable(ave,std,errs,name)
                 else

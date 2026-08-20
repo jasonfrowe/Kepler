@@ -8,77 +8,7 @@ real(double), allocatable, dimension(:) :: time,flux,ferr,psmooth,p,    &
    freqs,sn
 character(80) :: obsfile,cline
 
-interface
-   subroutine readkeplc(nunit,nmax,npt,time,flux,ferr)
-      use precision
-      integer, intent(in) :: nunit
-      integer, intent(inout) :: nmax
-      integer, intent(out) :: npt
-      real(double), dimension(:), intent(out) :: time,flux,ferr
-   end subroutine readkeplc
-end interface
 
-interface
-   subroutine nyquest(npt,time,nyq)
-      use precision
-      integer, intent(in) :: npt
-      real(double), dimension(:), intent(in) :: time
-      real(double), intent(out) :: nyq
-   end subroutine nyquest
-end interface
-
-interface
-   subroutine bls2(Mstar,Rstar,freq1,freq2,nyq,ofac,nb,npt,time,flux,   &
-      in1,in2,qtran,depth,bper,bpow,freqs,p,psmooth,sn)
-      use precision
-      integer, intent(in) :: npt,nb
-      integer, intent(out) :: in1,in2
-      real(double), intent(in) :: Mstar,Rstar,freq1,freq2,nyq,ofac
-      real(double), intent(out) :: qtran,depth,bper,bpow
-      real(double), dimension(:), intent(in) :: time,flux,psmooth,sn
-      real(double), dimension(:), intent(out) :: freqs,p
-   end subroutine bls2
-end interface
-
-interface
-   subroutine calcnsteps(nstep,Mstar,Rstar,freq1,freq2,nyq,ofac,n)
-      use precision
-      integer, intent(out) :: nstep
-      integer, intent(in) :: n
-      real(double), intent(in) :: Mstar,Rstar,freq1,freq2,nyq,ofac
-   end subroutine calcnsteps
-end interface
-
-interface
-   subroutine smooth(nstep,p,psmooth,sn,ofac)
-      use precision
-      integer, intent(in) :: nstep
-      real(double), dimension(:), intent(in) :: p
-      real(double), dimension(:), intent(out) :: psmooth,sn
-      real(double), intent(in) :: ofac
-   end subroutine smooth
-end interface
-
-interface
-   subroutine stats(epo,bper,qtran,npt,time,flux,pmean,std)
-      use precision
-      integer, intent(in) :: npt
-      real(double), intent(in) :: epo,bper,qtran
-      real(double), dimension(:), intent(in) :: time,flux
-      real(double), intent(out) :: pmean,std
-   end subroutine stats
-end interface
-
-interface
-   subroutine makeplot(nplot,nstep,freqs,p,obsfile,epo,bper,bpow,depth, &
-    pmean,std,qtran,npt,time,flux)
-      use precision
-      integer, intent(in) :: nplot,nstep,npt
-      real(double), intent(in) :: bper,epo,bpow,depth,pmean,std,qtran
-      real(double), dimension(:), intent(in) :: freqs,p,time,flux
-      character(80), intent(in) :: obsfile
-   end subroutine makeplot
-end interface
 
 if(iargc().lt.1) then !check number of command line arguments
    write(0,*) "Usage: transitfind3 <filename> [nplot] [freq1] [freq2] [Msun] [Rsun]"
@@ -204,7 +134,7 @@ if(nplot.ge.1)then
       std,qtran,npt,time,flux)
 endif
 
-end program transitfind3
+contains
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 subroutine makeplot(nplot,nstep,freqs,p,obsfile,epo,bper,bpow,depth,    &
@@ -373,13 +303,7 @@ implicit none
 integer nstep,n
 real(double) :: Mstar,Rstar,freq1,freq2,nyq,ofac,df0,f,q,df,steps
 
-interface
-   subroutine qfunc(f,Mstar,Rstar,q)
-      use precision
-      real(double), intent(in) :: f,Mstar,Rstar
-      real(double), intent(out) :: q
-   end subroutine qfunc
-end interface
+
 
 !write(0,*) ofac,n,nyq
 steps=ofac*(freq2-freq1)*n/nyq
@@ -413,13 +337,7 @@ real(double) :: Mstar,Rstar,freq1,freq2,f,df,q,nyq,ofac,steps,df0,rn,   &
 real(double), dimension(:) :: t,x,freqs,p,psmooth,sn
 real(double), allocatable, dimension(:) :: y,u,v
 
-interface
-   subroutine qfunc(f,Mstar,Rstar,q)
-      use precision
-      real(double), intent(in) :: f,Mstar,Rstar
-      real(double), intent(out) :: q
-   end subroutine qfunc
-end interface
+
 
 !The BLS code is buggy and ibi will segfault with overflows if you just
 !allocate nb worth of space.  So I give twice as much space as asked for
@@ -652,4 +570,6 @@ npt=i-1
 !write(0,*) "Records read: ",npt
 
 return
-end
+end subroutine readkeplc
+
+end program transitfind3

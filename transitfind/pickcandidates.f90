@@ -5,15 +5,6 @@ integer :: iargc,nunit,filestatus,ncol,i,npt,cflag
 real(double), allocatable, dimension(:) :: values
 character(80) :: pickfile
 
-interface
-   subroutine checks(ncol,values,cflag)
-      use precision
-      implicit none
-      integer, intent(inout) :: ncol,cflag
-      real(double), dimension(:), intent(inout) :: values
-   end subroutine checks
-end interface
-
 if(iargc().lt.1) then  !check that we have sufficient commandline arguments
    write(0,*) "Usage: pickcandidates lptarg_s1_pt16_sn7.dat>"
    stop
@@ -49,12 +40,11 @@ do
    endif
 enddo
 
-end program pickcandidates
+contains
 
 !CCCCCCCCCCCCCCCC
 subroutine checks(ncol,values,cflag)
 !CCCCCCCCCCCCCCCC
-use precision
 implicit none
 integer :: ncol, cflag
 real(double), dimension(:) :: values
@@ -71,3 +61,5 @@ endif
 
 return
 end subroutine checks
+
+end program pickcandidates

@@ -205,7 +205,8 @@ c       call pgask(.false.)
 
         call pgpage()
         
-        call plot(steps,freqs,p,obsfile,"frequency c/d","P",0,0.0,0.0)
+        call plot(steps,freqs,p,obsfile,"frequency c/d","P",0,
+     .       0.0d0,0.0d0)
         call pgpage()
         call plot(npt,time,flux,obsfile,"BJD-2454900","Flux",1,epo,bper)
         call pgpage()

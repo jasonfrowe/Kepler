@@ -1,4 +1,4 @@
-program transitfind3
+program transitfind5
 use precision
 implicit none
 integer :: iargc,filestatus,nunit,nmax,npt,nb,in1,in2,nstep,nplot
@@ -8,67 +8,7 @@ real(double), allocatable, dimension(:) :: time,flux,ferr,psmooth,p,    &
    freqs,sn
 character(80) :: obsfile,cline
 
-interface
-   subroutine readkeplc(nunit,nmax,npt,time,flux,ferr)
-      use precision
-      integer :: nunit
-      integer :: nmax
-      integer :: npt
-      real(double), dimension(:) :: time,flux,ferr
-   end subroutine readkeplc
-   subroutine nyquest(npt,time,nyq)
-      use precision
-      integer :: npt
-      real(double), dimension(:) :: time
-      real(double) :: nyq
-   end subroutine nyquest
-   subroutine bls2(Mstar,Rstar,freq1,freq2,nyq,ofac,nb,npt,time,flux,   &
-      in1,in2,qtran,depth,bper,bpow,freqs,p,psmooth,sn)
-      use precision
-      integer :: npt,nb
-      integer :: in1,in2
-      real(double) :: Mstar,Rstar,freq1,freq2,nyq,ofac
-      real(double) :: qtran,depth,bper,bpow
-      real(double), dimension(:) :: time,flux,psmooth,sn
-      real(double), dimension(:) :: freqs,p
-   end subroutine bls2
-   subroutine calcnsteps(nstep,Mstar,Rstar,freq1,freq2,nyq,ofac,n)
-      use precision
-      integer :: nstep
-      integer :: n
-      real(double) :: Mstar,Rstar,freq1,freq2,nyq,ofac
-   end subroutine calcnsteps
-   subroutine smooth(nstep,p,psmooth,sn,ofac)
-      use precision
-      integer :: nstep
-      real(double), dimension(:) :: p
-      real(double), dimension(:) :: psmooth,sn
-      real(double) :: ofac
-   end subroutine smooth
-   subroutine stats(epo,bper,tdur,npt,time,flux,pmean,std,depth,snr)
-      use precision
-      integer :: npt
-      real(double) :: epo,bper,tdur
-      real(double), dimension(:) :: time,flux
-      real(double) :: pmean,std,depth,snr
-   end subroutine stats
-   subroutine makeplot(nplot,nstep,freqs,p,obsfile,epo,bper,bpow,depth, &
-    pmean,std,snr,npt,time,flux,tdur,stat1,stat2)
-      use precision
-      integer :: nplot,nstep,npt
-      real(double) :: bper,epo,bpow,depth,pmean,std,snr,tdur,&
-              stat1,stat2
-      real(double), dimension(:) :: freqs,p,time,flux
-      character(80) :: obsfile
-   end subroutine makeplot
-   subroutine medtest(nb,npt,time,flux,epo,period,tdur,stat1,stat2)
-      use precision
-      implicit none
-      integer :: npt,nb
-      real(double) :: epo,period,tdur,stat1,stat2
-      real(double), dimension(:) :: time,flux
-   end subroutine medtest
-end interface
+
 
 if(iargc().lt.1) then !check number of command line arguments
    write(0,*) "Usage: transitfind3 <filename> [nplot] [freq1] [freq2] [Msun] [Rsun]"
@@ -216,7 +156,7 @@ if(nplot.ge.1)then
       std,snr,npt,time,flux,tdur,stat1,stat2)
 endif
 
-end program transitfind3
+contains
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 subroutine medtest(nb,npt,time,flux,epo,period,tdur,stat1,stat2)
@@ -513,12 +453,7 @@ implicit none
 integer nstep,n
 real(double) :: Mstar,Rstar,freq1,freq2,nyq,ofac,df0,f,q,df,steps
 
-interface
-   subroutine qfunc(f,Mstar,Rstar,q)
-      use precision
-      real(double) :: f,Mstar,Rstar,q
-   end subroutine qfunc
-end interface
+
 
 !write(0,*) ofac,n,nyq
 steps=ofac*(freq2-freq1)*n/nyq
@@ -552,12 +487,7 @@ real(double) :: Mstar,Rstar,freq1,freq2,f,df,q,nyq,ofac,steps,df0,rn,   &
 real(double), dimension(:) :: t,x,freqs,p,psmooth,sn
 real(double), allocatable, dimension(:) :: y,u,v
 
-interface
-   subroutine qfunc(f,Mstar,Rstar,q)
-      use precision
-      real(double) :: f,Mstar,Rstar,q
-   end subroutine qfunc
-end interface
+
 
 !The BLS code is buggy and ibi will segfault with overflows if you just
 !allocate nb worth of space.  So I give twice as much space as asked for
@@ -792,4 +722,6 @@ npt=i-1
 !write(0,*) "Records read: ",npt
 
 return
-end
+end subroutine readkeplc
+
+end program transitfind5

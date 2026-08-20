@@ -584,8 +584,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
       integer np,nfit,col,i,nplanetmax,nmax
       parameter(nplanetmax=10,nmax=2000000)
-      integer ntt(nplanetmax),ntt2(nplanetmax)
-      double precision sol(nfit),itime(1),dtype(1),sol2(nfit),tmodel(1),
+      integer ntt(nplanetmax),ntt2(nplanetmax),dtype(1)
+      double precision sol(nfit),itime(1),sol2(nfit),tmodel(1),
      .  time(1),tobs(nplanetmax,nmax),omc(nplanetmax,nmax),
      .  tobs2(nplanetmax,nmax),omc2(nplanetmax,nmax),ttcor
       
