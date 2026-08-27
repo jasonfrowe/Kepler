@@ -1,14 +1,14 @@
       program mcmchist5
       implicit none
       integer iargc,nmax,np,nunit,nbin,nbinmax,i,nfitm,nplanet,nfit,ii,
-     .  npt,j,k,seed,now(3),jj
+     .  npt,j,seed,now(3),jj
       parameter(nmax=5000000,nbinmax=500,nfitm=112)
       integer nd(nmax)
       real rp(nmax),bdatax(nbinmax),bdatay(nbinmax),errs(6),ave,std
-      double precision mstar(nmax),age(nmax),z(nmax),rstar(nmax),
-     .  rhostar(nmax),temp(nmax),lum(nmax),work(nmax),sol(nfitm),
+      double precision mstar(nmax),rstar(nmax),
+     .  rhostar(nmax),work(nmax),sol(nfitm),
      .  serr(nfitm,2),err(nfitm),dd(nmax),dumr,ran2,med,output(19)
-      character*80 rhofile,title,parsfile,titles(18),mcmcfile,cline,
+      character*80 title,parsfile,titles(18),mcmcfile,cline,
      .  names(18),name
 
       logical has_stellar, has_teff
@@ -299,9 +299,6 @@ c        write(6,500) ave,std,(errs(k),k=1,6)
 
  11   continue
 
- 25   continue
-
- 900  close(nunit)
       call pgclos()
 
       write(6,503) (output(i),i=1,17)
@@ -311,8 +308,8 @@ c        write(6,500) ave,std,(errs(k),k=1,6)
  901  write(0,*) "Usage: mcmchist5 <parsfile> <mcmcfile> [nbin] ",
      .  "[Mstar +Merr -Merr Rstar +Rerr -Rerr] [Teff +Terr -Terr]"
       goto 999
- 902  write(0,*) "Cannot open ",rhofile
-      goto 999
+c 902  write(0,*) "Cannot open ",rhofile
+c      goto 999
  903  write(0,*) "Cannot open ",parsfile
       goto 999
  904  write(0,*) "Cannot open ",mcmcfile

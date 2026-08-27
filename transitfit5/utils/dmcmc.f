@@ -9,18 +9,18 @@ C     Implementation of deMCMC
 C     Jason Rowe - jasonfrowe@gmail.com
       implicit none
       integer npta,nfitm,nfit,nplanet,seed,flag,ng,i,nbuffer,nmov,nup,
-     .  nb,ng2,npars,nsel,nsel2,j,nupcor,nupdate
+     .  nb,npars,nsel,nsel2,nupcor,nupdate
       integer dtype(npta),nacor,nacorsub,
      .  ngcor(nfitm),ngcorsub(nfitm),naprob,
      .  naprobsub,ngprob(nfitm),ngprobsub(nfitm),ngs(nfitm),nas
       double precision aT(npta),aM(npta),aE(npta),sol(nfitm),aIT(npta),
      .  sol2(nfitm),serr(nfitm,2),err(nfitm,2),tmodel(npta),rchi,bchi,
-     .  dil(2),jitter(2),jrvp(2),jrv,ran2,dm,gasdev,rgas,chi1,chi2,
-     .  fratio,u,alpha,buffer(nfitm,nbuffer),mcmctype,dif1,dif2,
+     .  dil(2),jitter(2),jrvp(2),jrv,ran2,gasdev,rgas,chi1,chi2,
+     .  fratio,u,alpha,buffer(nfitm,nbuffer),mcmctype,
      .  corscale,acorsub,gscale(nfitm),gcorsub,gratio(nfitm),echeck,b,
-     .  perprior(2),epoprior(2),chiold,eccn,ecw,esw,w,pi,tpi,rdr
+     .  perprior(2),epoprior(2),chiold,pi,tpi,rdr
       integer nfrho
-      double precision rhoi,rhoierr(9),rhoin(9),dsig,drho,rhostar
+      double precision rhoi,rhoierr(9),rhoin(9),dsig,drho
       character*80 cout 
       integer nplanetmax,nmax,ntt(nplanetmax)
       double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax)
@@ -51,14 +51,46 @@ c      write(0,*) ng,serr(ng,2)
       if(ng.eq.6) goto 15 !dilution is not fitted.
       if(serr(ng,2).eq.0.0d0) goto 15 !if sig is zero we don't change
       
+!       mcmctype=ran2(seed)
+!       if((nmov.lt.nbuffer).or.(mcmctype.le.0.5))then ! this is the metropolis step
+!         sol2(ng)=gasdev(seed)*serr(ng,2)*gscale(ng)+sol(ng)
+!       else
+!         nsel=int(ran2(seed)*dble(nbuffer-1)+1.0d0) ! this is the D-MCMC step.
+!         nsel2=int(ran2(seed)*dble(nbuffer-1)+1.0d0)
+!         do 24 i=1,nfit
+!             sol2(i)=sol(i)+(buffer(i,nsel2)-buffer(i,nsel))*corscale
+!  24     continue
+!       endif
+
       mcmctype=ran2(seed)
-      if((nmov.lt.nbuffer).or.(mcmctype.le.0.5))then
-        sol2(ng)=gasdev(seed)*serr(ng,2)*gscale(ng)+sol(ng)
+      if((nmov.lt.nbuffer).or.(mcmctype.le.0.5))then ! this is the metropolis step
+        
+        ! Check if the current parameter 'ng' should be sampled in log-space
+        if (ng.eq.1 .or. (ng.ge.12 .and. mod(ng-2,10).eq.0)) then
+          ! Log-space random walk: log(sol2) = log(sol) + step
+          sol2(ng) = sol(ng) * exp(gasdev(seed)*serr(ng,2)*gscale(ng))
+        else
+          ! Linear-space random walk
+          sol2(ng) = gasdev(seed)*serr(ng,2)*gscale(ng) + sol(ng)
+        endif
+
       else
- 20     nsel=int(ran2(seed)*dble(nbuffer-1)+1.0d0)
+        nsel=int(ran2(seed)*dble(nbuffer-1)+1.0d0) ! this is the D-MCMC step.
         nsel2=int(ran2(seed)*dble(nbuffer-1)+1.0d0)
         do 24 i=1,nfit
-            sol2(i)=sol(i)+(buffer(i,nsel2)-buffer(i,nsel))*corscale
+            
+            ! Check if parameter 'i' should be sampled in log-space
+            if (i.eq.1 .or. (i.ge.12 .and. mod(i-2,10).eq.0)) then
+              ! Differential step in log-space: 
+              ! log(sol2) = log(sol) + corscale * (log(buf2) - log(buf1))
+              sol2(i) = sol(i) * (buffer(i,nsel2) / buffer(i,nsel)
+     .                                                )**corscale
+            else
+              ! Differential step in linear-space
+              sol2(i) = sol(i) + (buffer(i,nsel2) - buffer(i,nsel)
+     .                                                )*corscale
+            endif
+            
  24     continue
       endif
 

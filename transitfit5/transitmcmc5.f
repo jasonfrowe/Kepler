@@ -11,7 +11,7 @@ C     Jason Rowe - jasonfrowe@gmail.com
      .  nacorsub,ngcor(nfitm),ngcorsub(nfitm),
      .  naprob,naprobsub,ngprob(nfitm),
      .  ngprobsub(nfitm),ntt(nplanetmax),ngs(nfitm),nas
-      double precision sol(nfitm),time(nmax),dt,tmodel(nmax),
+      double precision sol(nfitm),time(nmax),tmodel(nmax),
      .  flux(nmax),ferr(nmax),exptime(nmax),Keplertime,serr(nfitm,2),
      .  err(nfitm,2),vtime(nmax),vel(nmax),verr(nmax),vetime(nmax),
      .  aT(nmax),aM(nmax),aE(nmax),aIT(nmax),kmag,kerr,ran2,dumr,
@@ -20,7 +20,7 @@ C     Jason Rowe - jasonfrowe@gmail.com
      .  fchi,chiold
 C     Random number generation
       integer now(3),seed
-      character*80 inputsol,obsfile,rvfile,cline,chseed,rhofile,ttfile
+      character*80 inputsol,obsfile,rvfile,cline,rhofile,ttfile
 C     TT variations
       double precision tobs(nplanetmax,nmax),omc(nplanetmax,nmax)      
       integer nfrho
