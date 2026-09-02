@@ -84,32 +84,13 @@ python module tfit5 ! in
             double precision dimension(nz),depend(nz) :: mu0
             integer, optional,check(len(z0)>=nz),depend(z0) :: nz=len(z0)
         end subroutine occultquad
-        function rc(x,y) ! in :tfit5:occultquad.f
-            real*8 :: x
-            real*8 :: y
-            real*8 :: rc
-        end function rc
-        function rj(x,y,z,p) ! in :tfit5:occultquad.f
-            real*8 :: x
-            real*8 :: y
-            real*8 :: z
-            real*8 :: p
-            real*8 :: rj
-        end function rj
-        function ellec(k) ! in :tfit5:occultquad.f
-            double precision :: k
-            double precision :: ellec
-        end function ellec
-        function ellk(k) ! in :tfit5:occultquad.f
-            double precision :: k
-            double precision :: ellk
-        end function ellk
-        function rf(x,y,z) ! in :tfit5:occultquad.f
-            real*8 :: x
-            real*8 :: y
-            real*8 :: z
-            real*8 :: rf
-        end function rf
+        function cel(kc,p,a,b) ! in :tfit5:occultquad.f
+            double precision :: kc
+            double precision :: p
+            double precision :: a
+            double precision :: b
+            double precision :: cel
+        end function cel
         function mandelagol(nintg,r1,r2,x1,x2,y1,y2,c,b0,mu,mulimb0,mulimbf,dist) ! in :tfit5:mandelagol.f
             integer, optional,check(len(x2)>=nintg),depend(x2) :: nintg=len(x2)
             double precision :: r1
