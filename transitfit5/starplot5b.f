@@ -634,8 +634,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       G=6.674d-11 !N m^2 kg^-2  Gravitation constant
       aConst=(G/(4.0*Pi*Pi))**(1.0d0/3.0d0)
       
-      bb=sol(11+10*(np-1))
-      b=sqrt(bb)
+      b=abs(sol(11+10*(np-1))) !b, not b^2
+      bb=b*b
       Psec=sol(10+10*(np-1))*8.64d4 !sec ; period of planet
       adrs=1000.0*sol(1)*G*(Psec)**2/(3.0d0*Pi)
       adrs=adrs**(1.0d0/3.0d0) !a/R*

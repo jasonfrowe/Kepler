@@ -202,6 +202,7 @@ C Equation 25:
          e = kc_loc * m
          goto 10
       endif
-      cel = (a_loc * m + b_loc) / (m * (m + p_loc)) * 1.5707963267948966d0
+      cel = (a_loc * m + b_loc) / (m * (m + p_loc)) *
+     &      1.5707963267948966d0
       return
       end

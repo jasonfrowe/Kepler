@@ -26,7 +26,7 @@ C     (c) jasonfrowe@gmail.com
       tPi=2.0d0*Pi 
       pid2=Pi/2.0d0
       G=6.674d-11 !N m^2 kg^-2  Gravitation constant
-      Cs=2.99792458e8 !Speed of light
+      Cs=2.99792458d8 !Speed of light
 c      fDB=2.21 !Doppler Boosting factor
       fDB=1.0
       
@@ -52,6 +52,10 @@ c        bs2=abs(sol(10*(ii-1)+8+3))
 c        write(0,*) bs2,b
         RpRs=abs(sol(10*(ii-1)+8+4))    !Rp/R*
 
+C       ecw=sqrt(e)cos(omega), esw=sqrt(e)sin(omega), where omega is the
+C       argument of periastron in the convention of the RV literature
+C       (Winn 2010): the transit is at true anomaly f = pi/2 - omega.
+C       Internally w = pi/2 - omega is the true anomaly at mid-transit.
         ecw=sol(10*(ii-1)+8+5)
         esw=sol(10*(ii-1)+8+6)
         eccn=(ecw*ecw+esw*esw) ! eccn = e = ecw^2 + esw^2
@@ -60,19 +64,9 @@ c        write(0,*) bs2,b
         if(eccn.eq.0.0d0)then
             w=0.0d0
         else
-            if(ecw.eq.0.0d0)then
-                w=Pi/2.0d0
-            else
-                w=atan(esw/ecw)
-            endif
-            if((ecw.gt.0.0d0).and.(esw.lt.0.0d0))then
-                w=tPi+w
-            elseif((ecw.lt.0.0d0).and.(esw.ge.0.0d0))then 
-                w=Pi+w
-            elseif((ecw.le.0.0d0).and.(esw.lt.0.0d0))then
-                w=Pi+w
-            endif
-        endif     
+            w=pid2-atan2(esw,ecw)
+            if(w.lt.0.0d0) w=w+tPi
+        endif
       
 c        write(0,*) sol(7),sol(8),w
 c        write(0,*) "w:",acos(sol(7)/eccn),asin(sol(8)/eccn)
@@ -142,7 +136,7 @@ C       added 2019/08/14
             if(b_mid.gt.1.0d0+RpRs+margin)then
                if(dtype(i).eq.0)then
                   if((ell.eq.0.0d0).and.(ag.eq.0.0d0).and.
-     .               (ted.eq.0.0d0).and.(fDB.eq.0.0d0))then
+     .               (ted.eq.0.0d0).and.(K.eq.0.0d0))then
                      goto 1189
                   endif
                endif

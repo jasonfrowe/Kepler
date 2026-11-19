@@ -450,7 +450,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       tPi=2.0d0*Pi 
       pid2=Pi/2.0d0
       G=6.674d-11 !N m^2 kg^-2  Gravitation constant
-      Cs=2.99792458e8 !Speed of light
+      Cs=2.99792458d8 !Speed of light
       fDB=0.9925 !Doppler Boosting factor
       
       c1=sol(2)      !non-linear limb-darkening
@@ -475,6 +475,9 @@ c        bs2=abs(sol(10*(ii-1)+8+3))
 c        write(0,*) bs2,b
         RpRs=abs(sol(10*(ii-1)+8+4))    !Rp/R*
 
+C       ecw=sqrt(e)cos(omega), esw=sqrt(e)sin(omega), omega as in the RV
+C       literature; w = pi/2 - omega is the true anomaly at mid-transit
+C       (same as transitmodel.f)
         ecw=sol(10*(ii-1)+8+5)
         esw=sol(10*(ii-1)+8+6)
         eccn=(ecw*ecw+esw*esw) !eccentricity e = ecw^2 + esw^2
@@ -482,18 +485,8 @@ c        write(0,*) bs2,b
         if(eccn.eq.0.0d0)then
             w=0.0d0
         else
-            if(ecw.eq.0.0d0)then
-                w=Pi/2.0d0
-            else
-                w=atan(esw/ecw)
-            endif
-            if((ecw.gt.0.0d0).and.(esw.lt.0.0d0))then
-                w=tPi+w
-            elseif((ecw.lt.0.0d0).and.(esw.ge.0.0d0))then
-                w=Pi+w
-            elseif((ecw.le.0.0d0).and.(esw.lt.0.0d0))then
-                w=Pi+w
-            endif
+            w=Pi/2.0d0-atan2(esw,ecw)
+            if(w.lt.0.0d0) w=w+tPi
         endif
 
 c        write(0,*) sol(7),sol(8),w
@@ -506,8 +499,8 @@ c        adrs=sol(5)*per/tpi*sqrt(1-sol(3))*(1+sol(8))/sqrt(1-eccn*eccn)
         adrs=adrs**(1.0d0/3.0d0)
 c        write(0,*) "a/R*:",adrs
 
-C       Find inclination
-        incl=acos(b/adrs)
+C       Find inclination (b is the separation at mid-transit, f = w)
+        incl=acos(b*(1.0d0+eccn*cos(w))/(adrs*(1.0d0-eccn*eccn)))
 
 
 c        K=abs(sol(10*(ii-1)+8+7))
@@ -968,8 +961,8 @@ C  (C) Copr. 1986-92 Numerical Recipes Software
      *C2=1.d0/3.d0,C3=3.d0/22.d0,C4=3.d0/26.d0,C5=.75d0*C3,
      *C6=1.5d0*C4,C7=.5d0*C2,C8=C3+C3)
 CU    USES rc,rf
-      REAL*8 a,alamb,alpha,ave,b,beta,delp,delx,dely,delz,ea,eb,ec,ed,ee,
-     *fac,pt,rcx,rho,sqrtx,sqrty,sqrtz,sum,tau,xt,yt,zt,rc,rf
+      REAL*8 a,alamb,alpha,ave,b,beta,delp,delx,dely,delz,ea,eb,ec,ed,
+     *ee,fac,pt,rcx,rho,sqrtx,sqrty,sqrtz,sum,tau,xt,yt,zt,rc,rf
       if(min(x,y,z).lt.0..or.min(x+y,x+z,y+z,abs(p)).lt.TINY.or.max(x,y,
      *z,abs(p)).gt.BIG)pause 'invalid arguments in rj'
       sum=0.d0
