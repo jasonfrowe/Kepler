@@ -122,6 +122,21 @@ Exoplanet transit discovery and search algorithms.
 
 ---
 
+## Orbit Parametrisation (TRANSITFIT5 and TRANSITFIT7)
+
+Each planet's eccentricity is fitted as `ECW` = √e cos ω and `ESW` = √e sin ω, where ω is the argument of periastron
+in the convention of the radial-velocity literature (Winn 2010; also batman, RadVel, EXOFAST):
+
+* the transit is at true anomaly f = π/2 − ω and the occultation at f = 3π/2 − ω;
+* the star's radial velocity is v = K [cos(f + ω) + e cos ω], positive away from the observer;
+* e sin ω sets the transit duration (r/a = (1 − e²)/(1 + e sin ω) at mid-transit) and e cos ω the occultation phase.
+
+TRANSITFIT7 (`aei2xyz.f90`) uses the same ω, so `n2nb` passes `ECW`, `ESW` from TRANSITFIT5 unchanged.
+
+**Fits made between 14 August and November 2026** (commit `ee7fd1a` to this change) used ω for the true anomaly at
+mid-transit (ω_old = π/2 − ω). To convert them, swap the two parameters: `ECW_new = ESW_old`, `ESW_new = ECW_old`.
+Fits made before 14 August 2026 read the two parameters in the order that already matches the convention above.
+
 ## Citation & References
 
 If you make use of this codebase in your research, please cite:

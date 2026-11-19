@@ -130,8 +130,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       aConst=(G/(4.0*Pi*Pi))**(1.0d0/3.0d0)
 
       col=8+(np-1)*10
-      bb=sol(col+3)
-      b=sqrt(bb)
+      b=abs(sol(col+3)) !b, not b^2
+      bb=b*b
       Psec=sol(col+2)*8.64d4 !sec ; period of planet
       adrs=1000.0*sol(1)*G*(Psec)**2/(3.0d0*Pi)
       adrs=adrs**(1.0d0/3.0d0) !a/R*
